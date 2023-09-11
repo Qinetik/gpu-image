@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.co.cyberagent.android.gpuimage
 
-package jp.co.cyberagent.android.gpuimage;
+import android.graphics.Bitmap
 
-import android.graphics.Bitmap;
-
-public class GPUImageNativeLibrary {
-    static {
-        System.loadLibrary("yuv-decoder");
+object GPUImageNativeLibrary {
+    init {
+        System.loadLibrary("yuv-decoder")
     }
 
-    public static native void YUVtoRBGA(byte[] yuv, int width, int height, int[] out);
-
-    public static native void YUVtoARBG(byte[] yuv, int width, int height, int[] out);
-
-    public static native void adjustBitmap(Bitmap srcBitmap);
+    external fun YUVtoRBGA(yuv: ByteArray?, width: Int, height: Int, out: IntArray?)
+    external fun YUVtoARBG(yuv: ByteArray?, width: Int, height: Int, out: IntArray?)
+    external fun adjustBitmap(srcBitmap: Bitmap?)
 }
