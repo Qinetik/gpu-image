@@ -642,8 +642,8 @@ public class GPUImage {
         protected Bitmap doInBackground(Void... params) {
             if (renderer != null && renderer.getFrameWidth() == 0) {
                 try {
-                    synchronized (renderer.surfaceChangedWaiter) {
-                        renderer.surfaceChangedWaiter.wait(3000);
+                    synchronized (renderer.getSurfaceChangedWaiter()) {
+                        renderer.getSurfaceChangedWaiter().wait(3000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
