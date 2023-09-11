@@ -22,7 +22,7 @@ import javax.microedition.khronos.egl.EGL10.EGL_RED_SIZE
 import javax.microedition.khronos.egl.EGL10.EGL_STENCIL_SIZE
 import javax.microedition.khronos.egl.EGL10.EGL_WIDTH
 
-class PixelBufferNew {
+class PixelBuffer {
 
     companion object {
         private const val TAG : String = "PixelBuffer"

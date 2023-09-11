@@ -1,2 +1,3 @@
-include ':library'
-include ':sample'
+rootProject.name = "KGpuImage"
+include(":library")
+include(":sample")

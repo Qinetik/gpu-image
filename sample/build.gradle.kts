@@ -1,37 +1,44 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
+plugins {
+    id("com.android.application")
+    kotlin("android")
+}
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION as int
+    namespace = "jp.co.cyberagent.android.gpuimage.sample"
+    compileSdk = 33
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION as int
-        targetSdkVersion TARGET_SDK_VERSION as int
+        minSdk = 21
+        targetSdk = 33
 
-        versionCode = VERSION_CODE as int
-        versionName = VERSION_NAME
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
         debug {
-            debuggable true
+            isDebuggable = true
         }
         release {
-            debuggable false
-            zipAlignEnabled true
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            isDebuggable = false
+//            isZipAlignEnabled = true
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
-}
-repositories {
-//     maven { url = "https://oss.sonatype.org/content/repositories/snapshots"}
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {
-    implementation project(':library')
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    val kotlinVersion = property("kotlin.version")
+    implementation(project(":library"))
+    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
 }

@@ -409,7 +409,7 @@ public class GPUImageView extends FrameLayout {
         gpuImage.runOnGLThread(new Runnable() {
             @Override
             public void run() {
-                GPUImageNativeLibrary.adjustBitmap(resultBitmap);
+                GPUImageNativeLibrary.INSTANCE.adjustBitmap(resultBitmap);
                 waiter.release();
             }
         });
