@@ -235,11 +235,11 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         this.scaleType = scaleType;
     }
 
-    protected fun getFrameWidth() : Int {
+    fun getFrameWidth() : Int {
         return outputWidth;
     }
 
-    protected fun getFrameHeight() : Int {
+    fun getFrameHeight() : Int {
         return outputHeight;
     }
 
@@ -318,13 +318,13 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         return flipVertical;
     }
 
-    protected fun runOnDraw(runnable : Runnable) {
+    fun runOnDraw(runnable : Runnable) {
         synchronized (runOnDraw) {
             runOnDraw.add(runnable);
         }
     }
 
-    protected fun runOnDrawEnd(runnable : Runnable) {
+    fun runOnDrawEnd(runnable : Runnable) {
         synchronized (runOnDrawEnd) {
             runOnDrawEnd.add(runnable);
         }

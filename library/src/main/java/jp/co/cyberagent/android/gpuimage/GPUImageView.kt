@@ -42,8 +42,8 @@ import java.util.concurrent.Semaphore;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.util.Rotation;
 
-import jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_SURFACE_VIEW;
-import jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_TEXTURE_VIEW;
+import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_SURFACE_VIEW;
+import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_TEXTURE_VIEW;
 
 public class GPUImageView : FrameLayout {
 
