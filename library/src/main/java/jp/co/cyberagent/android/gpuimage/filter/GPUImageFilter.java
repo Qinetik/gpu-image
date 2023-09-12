@@ -76,7 +76,7 @@ public class GPUImageFilter {
     }
 
     public void onInit() {
-        glProgId = OpenGlUtils.loadProgram(vertexShader, fragmentShader);
+        glProgId = OpenGlUtils.INSTANCE.loadProgram(vertexShader, fragmentShader);
         glAttribPosition = GLES20.glGetAttribLocation(glProgId, "position");
         glUniformTexture = GLES20.glGetUniformLocation(glProgId, "inputImageTexture");
         glAttribTextureCoordinate = GLES20.glGetAttribLocation(glProgId, "inputTextureCoordinate");
