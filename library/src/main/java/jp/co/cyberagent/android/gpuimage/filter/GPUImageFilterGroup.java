@@ -29,7 +29,6 @@ import jp.co.cyberagent.android.gpuimage.util.Rotation;
 import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil;
 
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer;
-import static jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil.TEXTURE_NO_ROTATION;
 
 /**
  * Resembles a filter that consists of multiple filters applied after each
@@ -71,12 +70,12 @@ public class GPUImageFilterGroup extends GPUImageFilter {
                 .asFloatBuffer();
         glCubeBuffer.put(GPUImageRenderer.Companion.getCUBE()).position(0);
 
-        glTextureBuffer = ByteBuffer.allocateDirect(TEXTURE_NO_ROTATION.length * 4)
+        glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.getTEXTURE_NO_ROTATION().length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        glTextureBuffer.put(TEXTURE_NO_ROTATION).position(0);
+        glTextureBuffer.put(TextureRotationUtil.getTEXTURE_NO_ROTATION()).position(0);
 
-        float[] flipTexture = TextureRotationUtil.getRotation(Rotation.NORMAL, false, true);
+        float[] flipTexture = TextureRotationUtil.INSTANCE.getRotation(Rotation.NORMAL, false, true);
         glTextureFlipBuffer = ByteBuffer.allocateDirect(flipTexture.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();

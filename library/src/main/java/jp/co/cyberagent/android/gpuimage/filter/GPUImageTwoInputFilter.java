@@ -126,7 +126,7 @@ public class GPUImageTwoInputFilter extends GPUImageFilter {
     }
 
     public void setRotation(final Rotation rotation, final boolean flipHorizontal, final boolean flipVertical) {
-        float[] buffer = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
+        float[] buffer = TextureRotationUtil.INSTANCE.getRotation(rotation, flipHorizontal, flipVertical);
 
         ByteBuffer bBuffer = ByteBuffer.allocateDirect(32).order(ByteOrder.nativeOrder());
         FloatBuffer fBuffer = bBuffer.asFloatBuffer();
