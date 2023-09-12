@@ -63,7 +63,9 @@ class GalleryActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_PICK_IMAGE -> if (resultCode == RESULT_OK) {
-                gpuImageView.setImage(data!!.data)
+                data!!.data?.let {
+                    gpuImageView.setImage(it)
+                }
             } else {
                 finish()
             }
@@ -86,8 +88,8 @@ class GalleryActivity : AppCompatActivity() {
     }
 
     private fun switchFilterTo(filter: GPUImageFilter) {
-        if (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass) {
-            gpuImageView.filter = filter
+        if (gpuImageView.getFilter() == null || gpuImageView.getFilter()!!.javaClass != filter.javaClass) {
+            gpuImageView.setFilter(filter)
             filterAdjuster = FilterAdjuster(filter)
             if (filterAdjuster!!.canAdjust()) {
                 seekBar.visibility = View.VISIBLE

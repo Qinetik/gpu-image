@@ -111,8 +111,8 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun switchFilterTo(filter: GPUImageFilter) {
-        if (gpuImageView.filter == null || gpuImageView.filter!!.javaClass != filter.javaClass) {
-            gpuImageView.filter = filter
+        if (gpuImageView.getFilter() == null || gpuImageView.getFilter()!!.javaClass != filter.javaClass) {
+            gpuImageView.setFilter(filter)
             filterAdjuster = FilterAdjuster(filter)
             filterAdjuster?.adjust(seekBar.progress)
         }

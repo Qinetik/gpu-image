@@ -17,7 +17,6 @@
 package jp.co.cyberagent.android.gpuimage;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Camera;
@@ -25,7 +24,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -44,35 +42,36 @@ import java.util.concurrent.Semaphore;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.util.Rotation;
 
-import static jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_SURFACE_VIEW;
-import static jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_TEXTURE_VIEW;
+import jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_SURFACE_VIEW;
+import jp.co.cyberagent.android.gpuimage.GPUImage.SURFACE_TYPE_TEXTURE_VIEW;
 
-public class GPUImageView extends FrameLayout {
+public class GPUImageView : FrameLayout {
 
-    private int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
-    private View surfaceView;
-    private GPUImage gpuImage;
-    private boolean isShowLoading = true;
-    private GPUImageFilter filter;
-    public Size forceSize = null;
-    private float ratio = 0.0f;
-
-    public final static int RENDERMODE_WHEN_DIRTY = 0;
-    public final static int RENDERMODE_CONTINUOUSLY = 1;
-
-    public GPUImageView(Context context) {
-        super(context);
-        init(context, null);
+    companion object {
+        const val RENDERMODE_WHEN_DIRTY : Int = 0
+        const val RENDERMODE_CONTINUOUSLY : Int = 1
     }
 
-    public GPUImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs);
+    private var surfaceType : Int = SURFACE_TYPE_SURFACE_VIEW;
+    private lateinit var surfaceView : View
+    private lateinit var gpuImage : GPUImage
+    private var isShowLoading : Boolean = true;
+    private var filter : GPUImageFilter? = null
+    public var forceSize : Size? = null;
+    private var ratio : Float = 0.0f;
+
+
+    constructor(context : Context) : super(context) {
+        init(context, null)
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    constructor(context : Context, attrs : AttributeSet?) : super(context, attrs) {
+        init(context, attrs)
+    }
+
+    private fun init(context : Context, attrs : AttributeSet?) {
         if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.GPUImageView, 0, 0);
+            val a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.GPUImageView, 0, 0);
             try {
                 surfaceType = a.getInt(R.styleable.GPUImageView_gpuimage_surface_type, surfaceType);
                 isShowLoading = a.getBoolean(R.styleable.GPUImageView_gpuimage_show_loading, isShowLoading);
@@ -80,25 +79,24 @@ public class GPUImageView extends FrameLayout {
                 a.recycle();
             }
         }
-        gpuImage = new GPUImage(context);
+        gpuImage = GPUImage(context);
         if (surfaceType == SURFACE_TYPE_TEXTURE_VIEW) {
-            surfaceView = new GPUImageGLTextureView(context, attrs);
-            gpuImage.setGLTextureView((GLTextureView) surfaceView);
+            surfaceView = GPUImageGLTextureView(context, attrs);
+            gpuImage.setGLTextureView(surfaceView as GLTextureView);
         } else {
-            surfaceView = new GPUImageGLSurfaceView(context, attrs);
-            gpuImage.setGLSurfaceView((GLSurfaceView) surfaceView);
+            surfaceView = GPUImageGLSurfaceView(context, attrs);
+            gpuImage.setGLSurfaceView(surfaceView as GLSurfaceView);
         }
         addView(surfaceView);
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected override fun onMeasure(widthMeasureSpec : Int, heightMeasureSpec : Int) {
         if (ratio != 0.0f) {
-            int width = MeasureSpec.getSize(widthMeasureSpec);
-            int height = MeasureSpec.getSize(heightMeasureSpec);
+            val width : Int = MeasureSpec.getSize(widthMeasureSpec);
+            val height : Int = MeasureSpec.getSize(heightMeasureSpec);
 
-            int newHeight;
-            int newWidth;
+            val newHeight : Int
+            val newWidth : Int
             if (width / ratio < height) {
                 newWidth = width;
                 newHeight = Math.round(width / ratio);
@@ -107,8 +105,8 @@ public class GPUImageView extends FrameLayout {
                 newWidth = Math.round(height * ratio);
             }
 
-            int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
-            int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
+            val newWidthSpec : Int = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
+            val newHeightSpec : Int = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
             super.onMeasure(newWidthSpec, newHeightSpec);
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -120,7 +118,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @return used GPUImage instance
      */
-    public GPUImage getGPUImage() {
+    public fun getGPUImage() : GPUImage {
         return gpuImage;
     }
 
@@ -132,8 +130,8 @@ public class GPUImageView extends FrameLayout {
      *
      * @param camera the camera
      */
-    @Deprecated
-    public void setUpCamera(final Camera camera) {
+    @Deprecated("now deprecated")
+    public fun setUpCamera(camera : Camera) {
         gpuImage.setUpCamera(camera);
     }
 
@@ -148,9 +146,8 @@ public class GPUImageView extends FrameLayout {
      * @param flipHorizontal if the image should be flipped horizontally
      * @param flipVertical   if the image should be flipped vertically
      */
-    @Deprecated
-    public void setUpCamera(final Camera camera, final int degrees, final boolean flipHorizontal,
-                            final boolean flipVertical) {
+    @Deprecated("its depped")
+    public fun setUpCamera(camera : Camera, degrees : Int, flipHorizontal : Boolean, flipVertical : Boolean) {
         gpuImage.setUpCamera(camera, degrees, flipHorizontal, flipVertical);
     }
 
@@ -161,7 +158,7 @@ public class GPUImageView extends FrameLayout {
      * @param width  width of camera preview
      * @param height height of camera preview
      */
-    public void updatePreviewFrame(byte[] data, int width, int height) {
+    public fun updatePreviewFrame(data : ByteArray, width : Int, height : Int) {
         gpuImage.updatePreviewFrame(data, width, height);
     }
 
@@ -172,7 +169,7 @@ public class GPUImageView extends FrameLayout {
      * @param green green color value
      * @param blue  red color value
      */
-    public void setBackgroundColor(float red, float green, float blue) {
+    public fun setBackgroundColor(red : Float, green : Float, blue : Float) {
         gpuImage.setBackgroundColor(red, green, blue);
     }
 
@@ -189,16 +186,16 @@ public class GPUImageView extends FrameLayout {
      * @see GLSurfaceView#setRenderMode(int)
      * @see GLTextureView#setRenderMode(int)
      */
-    public void setRenderMode(int renderMode) {
-        if (surfaceView instanceof GLSurfaceView) {
-            ((GLSurfaceView) surfaceView).setRenderMode(renderMode);
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).setRenderMode(renderMode);
+    public fun setRenderMode(renderMode : Int) {
+        if (surfaceView is GLSurfaceView) {
+            (surfaceView as GLSurfaceView).setRenderMode(renderMode);
+        } else if (surfaceView is GLTextureView) {
+            (surfaceView as GLTextureView).setRenderMode(renderMode);
         }
     }
 
     // TODO Should be an xml attribute. But then GPUImage can not be distributed as .jar anymore.
-    public void setRatio(float ratio) {
+    public fun setRatio(ratio : Float) {
         this.ratio = ratio;
         surfaceView.requestLayout();
         gpuImage.deleteImage();
@@ -209,7 +206,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @param scaleType the new ScaleType
      */
-    public void setScaleType(GPUImage.ScaleType scaleType) {
+    public fun setScaleType(scaleType : GPUImage.ScaleType) {
         gpuImage.setScaleType(scaleType);
     }
 
@@ -218,7 +215,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @param rotation new rotation
      */
-    public void setRotation(Rotation rotation) {
+    public fun setRotation(rotation : Rotation) {
         gpuImage.setRotation(rotation);
         requestRender();
     }
@@ -228,7 +225,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @param filter Filter that should be applied on the image.
      */
-    public void setFilter(GPUImageFilter filter) {
+    public fun setFilter(filter : GPUImageFilter) {
         this.filter = filter;
         gpuImage.setFilter(filter);
         requestRender();
@@ -239,7 +236,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @return the current filter
      */
-    public GPUImageFilter getFilter() {
+    public fun getFilter() : GPUImageFilter? {
         return filter;
     }
 
@@ -248,7 +245,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @param bitmap the new image
      */
-    public void setImage(final Bitmap bitmap) {
+    public fun setImage(bitmap : Bitmap) {
         gpuImage.setImage(bitmap);
     }
 
@@ -257,7 +254,7 @@ public class GPUImageView extends FrameLayout {
      *
      * @param uri the uri of the new image
      */
-    public void setImage(final Uri uri) {
+    public fun setImage(uri : Uri) {
         gpuImage.setImage(uri);
     }
 
@@ -266,15 +263,15 @@ public class GPUImageView extends FrameLayout {
      *
      * @param file the file of the new image
      */
-    public void setImage(final File file) {
+    public fun setImage(file : File) {
         gpuImage.setImage(file);
     }
 
-    public void requestRender() {
-        if (surfaceView instanceof GLSurfaceView) {
-            ((GLSurfaceView) surfaceView).requestRender();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).requestRender();
+    public fun requestRender() {
+        if (surfaceView is GLSurfaceView) {
+            (surfaceView as GLSurfaceView).requestRender();
+        } else if (surfaceView is GLTextureView) {
+            (surfaceView as GLTextureView).requestRender();
         }
     }
 
@@ -289,9 +286,8 @@ public class GPUImageView extends FrameLayout {
      * @param fileName   the file name
      * @param listener   the listener
      */
-    public void saveToPictures(final String folderName, final String fileName,
-                               final OnPictureSavedListener listener) {
-        new SaveTask(folderName, fileName, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public fun saveToPictures(folderName : String, fileName : String, listener : OnPictureSavedListener) {
+        SaveTask(folderName, fileName, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
@@ -307,10 +303,10 @@ public class GPUImageView extends FrameLayout {
      * @param height     requested output height
      * @param listener   the listener
      */
-    public void saveToPictures(final String folderName, final String fileName,
-                               int width, int height,
-                               final OnPictureSavedListener listener) {
-        new SaveTask(folderName, fileName, width, height, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public fun saveToPictures(folderName : String, fileName : String,
+                               width : Int, height : Int,
+                               listener : OnPictureSavedListener) {
+        SaveTask(folderName, fileName, width, height, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
@@ -321,72 +317,55 @@ public class GPUImageView extends FrameLayout {
      * @return Bitmap of picture with given size
      * @throws InterruptedException
      */
-    public Bitmap capture(final int width, final int height) throws InterruptedException {
+    @Throws(InterruptedException::class)
+    public fun capture(width : Int, height : Int) : Bitmap {
         // This method needs to run on a background thread because it will take a longer time
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new IllegalStateException("Do not call this method from the UI thread!");
+            throw IllegalStateException("Do not call this method from the UI thread!");
         }
 
-        forceSize = new Size(width, height);
+        forceSize = Size(width, height);
 
-        final Semaphore waiter = new Semaphore(0);
+        val waiter : Semaphore = Semaphore(0);
 
         // Layout with new size
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 waiter.release();
             }
-        });
+        })
 
-        post(new Runnable() {
-            @Override
-            public void run() {
-                // Optionally, show loading view:
-                if (isShowLoading) {
-                    addView(new LoadingView(getContext()));
-                }
-                // Request layout to release waiter:
-                surfaceView.requestLayout();
+        post {
+            // Optionally, show loading view:
+            if (isShowLoading) {
+                addView(LoadingView(getContext()));
             }
-        });
+            // Request layout to release waiter:
+            surfaceView.requestLayout();
+        }
 
         waiter.acquire();
 
         // Run one render pass
-        gpuImage.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                waiter.release();
-            }
-        });
+        gpuImage.runOnGLThread {
+            waiter.release()
+        }
         requestRender();
         waiter.acquire();
-        Bitmap bitmap = capture();
+        val bitmap : Bitmap = capture();
 
 
         forceSize = null;
-        post(new Runnable() {
-            @Override
-            public void run() {
-                surfaceView.requestLayout();
-            }
-        });
+        post {
+            surfaceView.requestLayout();
+        }
         requestRender();
 
         if (isShowLoading) {
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Remove loading view
-                    removeViewAt(1);
-                }
-            }, 300);
+            postDelayed({
+                removeViewAt(1);
+            },3000)
         }
 
         return bitmap;
@@ -398,21 +377,19 @@ public class GPUImageView extends FrameLayout {
      * @return current output as Bitmap
      * @throws InterruptedException
      */
-    public Bitmap capture() throws InterruptedException {
-        final Semaphore waiter = new Semaphore(0);
+    @Throws(InterruptedException::class)
+    public fun capture() : Bitmap {
+        val waiter : Semaphore = Semaphore(0);
 
-        final int width = surfaceView.getMeasuredWidth();
-        final int height = surfaceView.getMeasuredHeight();
+        val width : Int = surfaceView.getMeasuredWidth();
+        val height : Int  = surfaceView.getMeasuredHeight();
 
         // Take picture on OpenGL thread
-        final Bitmap resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        gpuImage.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                GPUImageNativeLibrary.INSTANCE.adjustBitmap(resultBitmap);
-                waiter.release();
-            }
-        });
+        val resultBitmap : Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        gpuImage.runOnGLThread {
+            GPUImageNativeLibrary.adjustBitmap(resultBitmap);
+            waiter.release();
+        }
         requestRender();
         waiter.acquire();
 
@@ -422,165 +399,123 @@ public class GPUImageView extends FrameLayout {
     /**
      * Pauses the Surface.
      */
-    public void onPause() {
-        if (surfaceView instanceof GLSurfaceView) {
-            ((GLSurfaceView) surfaceView).onPause();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).onPause();
+    public fun onPause() {
+        if (surfaceView is GLSurfaceView) {
+            (surfaceView as GLSurfaceView).onPause();
+        } else if (surfaceView is GLTextureView) {
+            (surfaceView as GLTextureView).onPause();
         }
     }
 
     /**
      * Resumes the Surface.
      */
-    public void onResume() {
-        if (surfaceView instanceof GLSurfaceView) {
-            ((GLSurfaceView) surfaceView).onResume();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).onResume();
+    public fun onResume() {
+        if (surfaceView is GLSurfaceView) {
+            (surfaceView as GLSurfaceView).onResume();
+        } else if (surfaceView is GLTextureView) {
+            (surfaceView as GLTextureView).onResume();
         }
     }
 
-    public static class Size {
-        int width;
-        int height;
+    data class Size(val width : Int, val height : Int)
 
-        public Size(int width, int height) {
-            this.width = width;
-            this.height = height;
-        }
-    }
+    private inner class GPUImageGLSurfaceView : GLSurfaceView {
 
-    private class GPUImageGLSurfaceView extends GLSurfaceView {
-        public GPUImageGLSurfaceView(Context context) {
-            super(context);
-        }
+        constructor(context : Context) : super(context)
 
-        public GPUImageGLSurfaceView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
+        constructor(context : Context, attrs : AttributeSet?) : super(context, attrs)
 
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        override fun onMeasure(widthMeasureSpec : Int, heightMeasureSpec : Int) {
             if (forceSize != null) {
-                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
+                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize!!.width, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(forceSize!!.height, MeasureSpec.EXACTLY));
             } else {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
     }
 
-    private class GPUImageGLTextureView extends GLTextureView {
-        public GPUImageGLTextureView(Context context) {
-            super(context);
-        }
+    private inner class GPUImageGLTextureView : GLTextureView {
 
-        public GPUImageGLTextureView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
+        constructor(context : Context) : super(context)
 
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        constructor(context : Context, attrs : AttributeSet?) : super(context,attrs)
+
+        override fun onMeasure(widthMeasureSpec : Int, heightMeasureSpec : Int) {
             if (forceSize != null) {
-                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
+                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize!!.width, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(forceSize!!.height, MeasureSpec.EXACTLY));
             } else {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
     }
 
-    private class LoadingView extends FrameLayout {
-        public LoadingView(Context context) {
-            super(context);
+    private class LoadingView : FrameLayout {
+        constructor(context : Context) : super(context) {
             init();
         }
 
-        public LoadingView(Context context, AttributeSet attrs) {
-            super(context, attrs);
+        constructor(context : Context, attrs : AttributeSet) : super(context, attrs) {
             init();
         }
 
-        public LoadingView(Context context, AttributeSet attrs, int defStyle) {
-            super(context, attrs, defStyle);
+        constructor(context : Context, attrs : AttributeSet, defStyle : Int) : super(context, attrs, defStyle) {
             init();
         }
 
-        private void init() {
-            ProgressBar view = new ProgressBar(getContext());
+        private fun init() {
+            val view : ProgressBar = ProgressBar(getContext());
             view.setLayoutParams(
-                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+                    LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
             addView(view);
             setBackgroundColor(Color.BLACK);
         }
     }
 
-    private class SaveTask extends AsyncTask<Void, Void, Void> {
-        private final String folderName;
-        private final String fileName;
-        private final int width;
-        private final int height;
-        private final OnPictureSavedListener listener;
-        private final Handler handler;
+    private inner class SaveTask(
+        private val folderName : String,
+        private val fileName : String,
+        private val width : Int,
+        private val height : Int,
+        private val listener : OnPictureSavedListener,
+        private val handler : Handler = Handler()
+    ) : AsyncTask<Void, Void, Void?>() {
 
-        public SaveTask(final String folderName, final String fileName,
-                        final OnPictureSavedListener listener) {
-            this(folderName, fileName, 0, 0, listener);
-        }
 
-        public SaveTask(final String folderName, final String fileName, int width, int height,
-                        final OnPictureSavedListener listener) {
-            this.folderName = folderName;
-            this.fileName = fileName;
-            this.width = width;
-            this.height = height;
-            this.listener = listener;
-            handler = new Handler();
-        }
+        public constructor(folderName : String, fileName : String, listener : OnPictureSavedListener) : this(folderName, fileName, 0, 0, listener)
 
-        @Override
-        protected Void doInBackground(final Void... params) {
+        override fun doInBackground(vararg params: Void): Void? {
             try {
-                Bitmap result = width != 0 ? capture(width, height) : capture();
-                saveImage(folderName, fileName, result);
-            } catch (InterruptedException e) {
+                val result : Bitmap = if(width != 0) capture(width, height) else capture()
+                saveImage(folderName, fileName, result)
+            } catch (e : InterruptedException) {
                 e.printStackTrace();
             }
-            return null;
+            return null
         }
 
-        private void saveImage(final String folderName, final String fileName, final Bitmap image) {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(path, folderName + "/" + fileName);
+        private fun saveImage(folderName : String, fileName : String, image : Bitmap) {
+            var path : File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            var file : File = File(path, folderName + "/" + fileName);
             try {
                 file.getParentFile().mkdirs();
-                image.compress(Bitmap.CompressFormat.JPEG, 80, new FileOutputStream(file));
-                MediaScannerConnection.scanFile(getContext(),
-                        new String[]{
-                                file.toString()
-                        }, null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(final String path, final Uri uri) {
-                                if (listener != null) {
-                                    handler.post(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-                                            listener.onPictureSaved(uri);
-                                        }
-                                    });
-                                }
-                            }
-                        });
-            } catch (FileNotFoundException e) {
+                image.compress(Bitmap.CompressFormat.JPEG, 80, FileOutputStream(file));
+                MediaScannerConnection.scanFile(getContext(), arrayOf(file.toString()), null) { path, uri ->
+                    if (listener != null && uri != null) {
+                        handler.post {
+                            listener.onPictureSaved(uri);
+                        }
+                    }
+                };
+            } catch (e : FileNotFoundException) {
                 e.printStackTrace();
             }
         }
     }
 
-    public interface OnPictureSavedListener {
-        void onPictureSaved(Uri uri);
+    fun interface OnPictureSavedListener {
+        fun onPictureSaved(uri : Uri)
     }
 }
