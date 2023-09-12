@@ -24,7 +24,7 @@ import android.opengl.GLES20
 open class GPUImage3x3ConvolutionFilter : GPUImage3x3TextureSamplingFilter {
 
     companion object {
-        val THREE_X_THREE_TEXTURE_SAMPLING_FRAGMENT_SHADER: String = "" +
+        const val THREE_X_THREE_TEXTURE_SAMPLING_FRAGMENT_SHADER: String = "" +
                 "precision highp float;\n" +
                 "\n" +
                 "uniform sampler2D inputImageTexture;\n" +
