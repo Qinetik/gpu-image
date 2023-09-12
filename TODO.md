@@ -1,0 +1,8 @@
+- [ ] Convert Java to Kotlin
+- [ ] Remove All AsyncTasks and use kotlin coroutines
+- [ ] Bring KGL and use it in places to see if it works
+- [ ] Start putting code in common module
+- [ ] Create desktop module to test
+- [ ] Create web module to test
+- [ ] Boom! You can now die peacefully knowing that this library is kotlin multiplatform
+- [ ] and enjoy
