@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.co.cyberagent.android.gpuimage.filter
 
-package jp.co.cyberagent.android.gpuimage.filter;
-
-public class GPUImageTwoPassFilter extends GPUImageFilterGroup {
-    public GPUImageTwoPassFilter(String firstVertexShader, String firstFragmentShader,
-                                 String secondVertexShader, String secondFragmentShader) {
-        super(null);
-        addFilter(new GPUImageFilter(firstVertexShader, firstFragmentShader));
-        addFilter(new GPUImageFilter(secondVertexShader, secondFragmentShader));
+open class GPUImageTwoPassFilter(
+    firstVertexShader: String?, firstFragmentShader: String?,
+    secondVertexShader: String?, secondFragmentShader: String?
+) : GPUImageFilterGroup(null) {
+    init {
+        addFilter(GPUImageFilter(firstVertexShader, firstFragmentShader))
+        addFilter(GPUImageFilter(secondVertexShader, secondFragmentShader))
     }
 }
