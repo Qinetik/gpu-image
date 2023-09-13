@@ -1,20 +1,21 @@
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
 /**
  * Applies sobel edge detection on the image.
  */
-public class GPUImageThresholdEdgeDetectionFilter extends GPUImageFilterGroup {
-    public GPUImageThresholdEdgeDetectionFilter() {
-        super();
-        addFilter(new GPUImageGrayscaleFilter());
-        addFilter(new GPUImageSobelThresholdFilter());
+class GPUImageThresholdEdgeDetectionFilter : GPUImageFilterGroup() {
+
+    init {
+        addFilter(GPUImageGrayscaleFilter())
+        addFilter(GPUImageSobelThresholdFilter())
     }
 
-    public void setLineSize(final float size) {
-        ((GPUImage3x3TextureSamplingFilter) getFilters().get(1)).setLineSize(size);
+    fun setLineSize(size: Float) {
+        (filters.get(1) as GPUImage3x3TextureSamplingFilter).setLineSize(size)
     }
 
-    public void setThreshold(final float threshold) {
-        ((GPUImageSobelThresholdFilter) getFilters().get(1)).setThreshold(threshold);
+    fun setThreshold(threshold: Float) {
+        (filters.get(1) as GPUImageSobelThresholdFilter).setThreshold(threshold)
     }
+
 }

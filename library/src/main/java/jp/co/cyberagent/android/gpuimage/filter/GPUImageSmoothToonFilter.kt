@@ -14,61 +14,57 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
 /**
  * This uses a similar process as the GPUImageToonFilter, only it precedes the toon effect
  * with a Gaussian blur to smooth out noise.
  */
-public class GPUImageSmoothToonFilter extends GPUImageFilterGroup {
+class GPUImageSmoothToonFilter// First pass: apply a variable Gaussian blur
 
-    private GPUImageGaussianBlurFilter blurFilter;
-    private GPUImageToonFilter toonFilter;
+// Second pass: run the Sobel edge detection on this blurred image, along with a posterization effect
+/**
+ * Setup and Tear down
+ */() : GPUImageFilterGroup() {
 
-    /**
-     * Setup and Tear down
-     */
-    public GPUImageSmoothToonFilter() {
-        // First pass: apply a variable Gaussian blur
-        blurFilter = new GPUImageGaussianBlurFilter();
-        addFilter(blurFilter);
+    private val blurFilter: GPUImageGaussianBlurFilter = GPUImageGaussianBlurFilter()
+    private val toonFilter: GPUImageToonFilter
 
-        // Second pass: run the Sobel edge detection on this blurred image, along with a posterization effect
-        toonFilter = new GPUImageToonFilter();
-        addFilter(toonFilter);
-
-        getFilters().add(blurFilter);
+    init {
+        addFilter(blurFilter)
+        toonFilter = GPUImageToonFilter()
+        addFilter(toonFilter)
+        filters.add(blurFilter)
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setBlurSize(0.5f);
-        setThreshold(0.2f);
-        setQuantizationLevels(10.0f);
+    override fun onInitialized() {
+        super.onInitialized()
+        setBlurSize(0.5f)
+        setThreshold(0.2f)
+        setQuantizationLevels(10.0f)
     }
 
     /**
      * Accessors
      */
-    public void setTexelWidth(float value) {
-        toonFilter.setTexelWidth(value);
+    fun setTexelWidth(value: Float) {
+        toonFilter.setTexelWidth(value)
     }
 
-    public void setTexelHeight(float value) {
-        toonFilter.setTexelHeight(value);
+    fun setTexelHeight(value: Float) {
+        toonFilter.setTexelHeight(value)
     }
 
-    public void setBlurSize(float value) {
-        blurFilter.setBlurSize(value);
+    fun setBlurSize(value: Float) {
+        blurFilter.setBlurSize(value)
     }
 
-    public void setThreshold(float value) {
-        toonFilter.setThreshold(value);
+    fun setThreshold(value: Float) {
+        toonFilter.setThreshold(value)
     }
 
-    public void setQuantizationLevels(float value) {
-        toonFilter.setQuantizationLevels(value);
+    fun setQuantizationLevels(value: Float) {
+        toonFilter.setQuantizationLevels(value)
     }
 
 }

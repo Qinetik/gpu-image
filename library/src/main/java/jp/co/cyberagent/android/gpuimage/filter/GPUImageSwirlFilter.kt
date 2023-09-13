@@ -14,75 +14,72 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.PointF;
-import android.opengl.GLES20;
+import android.graphics.PointF
+import android.opengl.GLES20
 
 /**
  * Creates a swirl distortion on the image.
  */
-public class GPUImageSwirlFilter extends GPUImageFilter {
-    public static final String SWIRL_FRAGMENT_SHADER = "" +
-            "varying highp vec2 textureCoordinate;\n" +
-            "\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "\n" +
-            "uniform highp vec2 center;\n" +
-            "uniform highp float radius;\n" +
-            "uniform highp float angle;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "highp vec2 textureCoordinateToUse = textureCoordinate;\n" +
-            "highp float dist = distance(center, textureCoordinate);\n" +
-            "if (dist < radius)\n" +
-            "{\n" +
-            "textureCoordinateToUse -= center;\n" +
-            "highp float percent = (radius - dist) / radius;\n" +
-            "highp float theta = percent * percent * angle * 8.0;\n" +
-            "highp float s = sin(theta);\n" +
-            "highp float c = cos(theta);\n" +
-            "textureCoordinateToUse = vec2(dot(textureCoordinateToUse, vec2(c, -s)), dot(textureCoordinateToUse, vec2(s, c)));\n" +
-            "textureCoordinateToUse += center;\n" +
-            "}\n" +
-            "\n" +
-            "gl_FragColor = texture2D(inputImageTexture, textureCoordinateToUse );\n" +
-            "\n" +
-            "}\n";
-
-    private float angle;
-    private int angleLocation;
-    private float radius;
-    private int radiusLocation;
-    private PointF center;
-    private int centerLocation;
-
-    public GPUImageSwirlFilter() {
-        this(0.5f, 1.0f, new PointF(0.5f, 0.5f));
+class GPUImageSwirlFilter : GPUImageFilter {
+    companion object {
+        const val SWIRL_FRAGMENT_SHADER: String = "" +
+                "varying highp vec2 textureCoordinate;\n" +
+                "\n" +
+                "uniform sampler2D inputImageTexture;\n" +
+                "\n" +
+                "uniform highp vec2 center;\n" +
+                "uniform highp float radius;\n" +
+                "uniform highp float angle;\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "highp vec2 textureCoordinateToUse = textureCoordinate;\n" +
+                "highp float dist = distance(center, textureCoordinate);\n" +
+                "if (dist < radius)\n" +
+                "{\n" +
+                "textureCoordinateToUse -= center;\n" +
+                "highp float percent = (radius - dist) / radius;\n" +
+                "highp float theta = percent * percent * angle * 8.0;\n" +
+                "highp float s = sin(theta);\n" +
+                "highp float c = cos(theta);\n" +
+                "textureCoordinateToUse = vec2(dot(textureCoordinateToUse, vec2(c, -s)), dot(textureCoordinateToUse, vec2(s, c)));\n" +
+                "textureCoordinateToUse += center;\n" +
+                "}\n" +
+                "\n" +
+                "gl_FragColor = texture2D(inputImageTexture, textureCoordinateToUse );\n" +
+                "\n" +
+                "}\n"
     }
 
-    public GPUImageSwirlFilter(float radius, float angle, PointF center) {
-        super(NO_FILTER_VERTEX_SHADER, SWIRL_FRAGMENT_SHADER);
-        this.radius = radius;
-        this.angle = angle;
-        this.center = center;
+    private var angle: Float
+    private var angleLocation: Int = 0
+    private var radius: Float
+    private var radiusLocation: Int = 0
+    private var center: PointF
+    private var centerLocation: Int = 0
+
+    constructor() : this(0.5f, 1.0f, PointF(0.5f, 0.5f))
+
+    constructor(radius: Float, angle: Float, center: PointF) : super(NO_FILTER_VERTEX_SHADER, SWIRL_FRAGMENT_SHADER) {
+        this.radius = radius
+        this.angle = angle
+        this.center = center
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        angleLocation = GLES20.glGetUniformLocation(getProgram(), "angle");
-        radiusLocation = GLES20.glGetUniformLocation(getProgram(), "radius");
-        centerLocation = GLES20.glGetUniformLocation(getProgram(), "center");
+    override fun onInit() {
+        super.onInit()
+        angleLocation = GLES20.glGetUniformLocation(program, "angle")
+        radiusLocation = GLES20.glGetUniformLocation(program, "radius")
+        centerLocation = GLES20.glGetUniformLocation(program, "center")
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setRadius(radius);
-        setAngle(angle);
-        setCenter(center);
+    override fun onInitialized() {
+        super.onInitialized()
+        setRadius(radius)
+        setAngle(angle)
+        setCenter(center)
     }
 
     /**
@@ -90,9 +87,9 @@ public class GPUImageSwirlFilter extends GPUImageFilter {
      *
      * @param radius from 0.0 to 1.0, default 0.5
      */
-    public void setRadius(float radius) {
-        this.radius = radius;
-        setFloat(radiusLocation, radius);
+    fun setRadius(radius: Float) {
+        this.radius = radius
+        setFloat(radiusLocation, radius)
     }
 
     /**
@@ -100,9 +97,9 @@ public class GPUImageSwirlFilter extends GPUImageFilter {
      *
      * @param angle minimum 0.0, default 1.0
      */
-    public void setAngle(float angle) {
-        this.angle = angle;
-        setFloat(angleLocation, angle);
+    fun setAngle(angle: Float) {
+        this.angle = angle
+        setFloat(angleLocation, angle)
     }
 
     /**
@@ -110,8 +107,8 @@ public class GPUImageSwirlFilter extends GPUImageFilter {
      *
      * @param center default (0.5, 0.5)
      */
-    public void setCenter(PointF center) {
-        this.center = center;
-        setPoint(centerLocation, center);
+    fun setCenter(center: PointF) {
+        this.center = center
+        setPoint(centerLocation, center)
     }
 }

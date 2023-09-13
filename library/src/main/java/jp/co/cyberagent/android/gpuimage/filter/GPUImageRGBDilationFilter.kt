@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
 /**
  * For each pixel, this sets it to the maximum value of each color channel in a rectangular neighborhood extending
  * out dilationRadius pixels from the center.
  * This extends out brighter colors, and can be used for abstraction of color images.
  */
-public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFilter {
-    public static final String VERTEX_SHADER_1 =
+class GPUImageRGBDilationFilter : GPUImageTwoPassTextureSamplingFilter {
+    companion object {
+        const val VERTEX_SHADER_1: String =
             "attribute vec4 position;\n" +
                     "attribute vec2 inputTextureCoordinate;\n" +
                     "\n" +
@@ -42,9 +43,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "centerTextureCoordinate = inputTextureCoordinate;\n" +
                     "oneStepNegativeTextureCoordinate = inputTextureCoordinate - offset;\n" +
                     "oneStepPositiveTextureCoordinate = inputTextureCoordinate + offset;\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String VERTEX_SHADER_2 =
+        const val VERTEX_SHADER_2: String =
             "attribute vec4 position;\n" +
                     "attribute vec2 inputTextureCoordinate;\n" +
                     "\n" +
@@ -68,9 +69,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "oneStepPositiveTextureCoordinate = inputTextureCoordinate + offset;\n" +
                     "twoStepsNegativeTextureCoordinate = inputTextureCoordinate - (offset * 2.0);\n" +
                     "twoStepsPositiveTextureCoordinate = inputTextureCoordinate + (offset * 2.0);\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String VERTEX_SHADER_3 =
+        const val VERTEX_SHADER_3: String =
             "attribute vec4 position;\n" +
                     "attribute vec2 inputTextureCoordinate;\n" +
                     "\n" +
@@ -98,9 +99,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "twoStepsPositiveTextureCoordinate = inputTextureCoordinate + (offset * 2.0);\n" +
                     "threeStepsNegativeTextureCoordinate = inputTextureCoordinate - (offset * 3.0);\n" +
                     "threeStepsPositiveTextureCoordinate = inputTextureCoordinate + (offset * 3.0);\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String VERTEX_SHADER_4 =
+        const val VERTEX_SHADER_4: String =
             "attribute vec4 position;\n" +
                     "attribute vec2 inputTextureCoordinate;\n" +
                     "\n" +
@@ -132,10 +133,10 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "threeStepsPositiveTextureCoordinate = inputTextureCoordinate + (offset * 3.0);\n" +
                     "fourStepsNegativeTextureCoordinate = inputTextureCoordinate - (offset * 4.0);\n" +
                     "fourStepsPositiveTextureCoordinate = inputTextureCoordinate + (offset * 4.0);\n" +
-                    "}\n";
+                    "}\n"
 
 
-    public static final String FRAGMENT_SHADER_1 =
+        const val FRAGMENT_SHADER_1: String =
             "precision highp float;\n" +
                     "\n" +
                     "varying vec2 centerTextureCoordinate;\n" +
@@ -153,9 +154,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "lowp vec4 maxValue = max(centerIntensity, oneStepPositiveIntensity);\n" +
                     "\n" +
                     "gl_FragColor = max(maxValue, oneStepNegativeIntensity);\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String FRAGMENT_SHADER_2 =
+        const val FRAGMENT_SHADER_2: String =
             "precision highp float;\n" +
                     "\n" +
                     "varying vec2 centerTextureCoordinate;\n" +
@@ -180,9 +181,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "maxValue = max(maxValue, twoStepsNegativeIntensity);\n" +
                     "\n" +
                     "gl_FragColor = max(maxValue, twoStepsNegativeIntensity);\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String FRAGMENT_SHADER_3 =
+        const val FRAGMENT_SHADER_3: String =
             "precision highp float;\n" +
                     "\n" +
                     "varying vec2 centerTextureCoordinate;\n" +
@@ -212,9 +213,9 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "maxValue = max(maxValue, threeStepsPositiveIntensity);\n" +
                     "\n" +
                     "gl_FragColor = max(maxValue, threeStepsNegativeIntensity);\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String FRAGMENT_SHADER_4 =
+        const val FRAGMENT_SHADER_4: String =
             "precision highp float;\n" +
                     "\n" +
                     "varying vec2 centerTextureCoordinate;\n" +
@@ -250,12 +251,43 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
                     "maxValue = max(maxValue, fourStepsPositiveIntensity);\n" +
                     "\n" +
                     "gl_FragColor = max(maxValue, fourStepsNegativeIntensity);\n" +
-                    "}\n";
+                    "}\n"
 
+        private fun getVertexShader(radius: Int): String {
+            return when (radius) {
+                0, 1 ->
+                    VERTEX_SHADER_1
 
-    public GPUImageRGBDilationFilter() {
-        this(1);
+                2 ->
+                    VERTEX_SHADER_2
+
+                3 ->
+                    VERTEX_SHADER_3
+
+                else ->
+                    VERTEX_SHADER_4
+            }
+        }
+
+        private fun getFragmentShader(radius: Int): String {
+            return when (radius) {
+                0, 1 ->
+                    FRAGMENT_SHADER_1
+
+                2 ->
+                    FRAGMENT_SHADER_2
+
+                3 ->
+                    FRAGMENT_SHADER_3
+
+                else ->
+                    FRAGMENT_SHADER_4
+            }
+        }
+
     }
+
+    constructor() : this(1)
 
     /**
      * Acceptable values for dilationRadius, which sets the distance in pixels to sample out
@@ -263,39 +295,13 @@ public class GPUImageRGBDilationFilter extends GPUImageTwoPassTextureSamplingFil
      *
      * @param radius 1, 2, 3 or 4
      */
-    public GPUImageRGBDilationFilter(int radius) {
-        this(getVertexShader(radius), getFragmentShader(radius));
-    }
+    constructor(radius: Int) : this(getVertexShader(radius), getFragmentShader(radius))
 
-    private GPUImageRGBDilationFilter(String vertexShader, String fragmentShader) {
-        super(vertexShader, fragmentShader, vertexShader, fragmentShader);
-    }
+    private constructor(vertexShader: String, fragmentShader: String) : super(
+        vertexShader,
+        fragmentShader,
+        vertexShader,
+        fragmentShader
+    )
 
-    private static String getVertexShader(int radius) {
-        switch (radius) {
-            case 0:
-            case 1:
-                return VERTEX_SHADER_1;
-            case 2:
-                return VERTEX_SHADER_2;
-            case 3:
-                return VERTEX_SHADER_3;
-            default:
-                return VERTEX_SHADER_4;
-        }
-    }
-
-    private static String getFragmentShader(int radius) {
-        switch (radius) {
-            case 0:
-            case 1:
-                return FRAGMENT_SHADER_1;
-            case 2:
-                return FRAGMENT_SHADER_2;
-            case 3:
-                return FRAGMENT_SHADER_3;
-            default:
-                return FRAGMENT_SHADER_4;
-        }
-    }
 }
