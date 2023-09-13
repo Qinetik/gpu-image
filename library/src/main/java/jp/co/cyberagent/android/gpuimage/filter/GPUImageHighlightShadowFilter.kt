@@ -58,8 +58,8 @@ class GPUImageHighlightShadowFilter(
 
     override fun onInit() {
         super.onInit();
-        highlightsLocation = GLES20.glGetUniformLocation(getProgram(), "highlights");
-        shadowsLocation = GLES20.glGetUniformLocation(getProgram(), "shadows");
+        highlightsLocation = GLES20.glGetUniformLocation(program, "highlights");
+        shadowsLocation = GLES20.glGetUniformLocation(program, "shadows");
     }
 
     override fun onInitialized() {

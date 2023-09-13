@@ -278,7 +278,7 @@ object GPUImageFilterTools {
             )
 
             FilterType.LOOKUP_AMATORKA -> GPUImageLookupFilter().apply {
-                bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka)
+                setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka))
             }
             FilterType.GAUSSIAN_BLUR -> GPUImageGaussianBlurFilter()
             FilterType.CROSSHATCH -> GPUImageCrosshatchFilter()
@@ -316,7 +316,7 @@ object GPUImageFilterTools {
     ): GPUImageFilter {
         return try {
             filterClass.newInstance().apply {
-                bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher)
+                setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -659,7 +659,7 @@ object GPUImageFilterTools {
             override fun adjust(percentage: Int) {
                 val transform = FloatArray(16)
                 Matrix.setRotateM(transform, 0, (360 * percentage / 100).toFloat(), 0f, 0f, 1.0f)
-                filter.transform3D = transform
+                filter.setTransform3D(transform)
             }
         }
 

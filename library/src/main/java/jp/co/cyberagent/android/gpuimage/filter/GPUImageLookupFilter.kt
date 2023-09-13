@@ -69,7 +69,7 @@ public class GPUImageLookupFilter : GPUImageTwoInputFilter {
 
     public override fun onInit() {
         super.onInit();
-        intensityLocation = GLES20.glGetUniformLocation(getProgram(), "intensity");
+        intensityLocation = GLES20.glGetUniformLocation(program, "intensity");
     }
 
     public override fun onInitialized() {

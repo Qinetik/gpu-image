@@ -44,7 +44,7 @@ public class GPUImageOpacityFilter public constructor(private var opacity: Float
 
     override fun onInit() {
         super.onInit();
-        opacityLocation = GLES20.glGetUniformLocation(getProgram(), "opacity");
+        opacityLocation = GLES20.glGetUniformLocation(program, "opacity");
     }
 
     override fun onInitialized() {

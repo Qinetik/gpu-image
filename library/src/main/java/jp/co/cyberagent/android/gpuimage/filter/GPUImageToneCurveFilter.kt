@@ -71,7 +71,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
 
     public override fun onInit() {
         super.onInit();
-        toneCurveTextureUniformLocation = GLES20.glGetUniformLocation(getProgram(), "toneCurveTexture");
+        toneCurveTextureUniformLocation = GLES20.glGetUniformLocation(program, "toneCurveTexture");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
         GLES20.glGenTextures(1, toneCurveTexture, 0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, toneCurveTexture[0]);

@@ -66,10 +66,10 @@ public class GPUImageBulgeDistortionFilter(
 
     override fun onInit() {
         super.onInit();
-        scaleLocation = GLES20.glGetUniformLocation(getProgram(), "scale");
-        radiusLocation = GLES20.glGetUniformLocation(getProgram(), "radius");
-        centerLocation = GLES20.glGetUniformLocation(getProgram(), "center");
-        aspectRatioLocation = GLES20.glGetUniformLocation(getProgram(), "aspectRatio");
+        scaleLocation = GLES20.glGetUniformLocation(program, "scale");
+        radiusLocation = GLES20.glGetUniformLocation(program, "radius");
+        centerLocation = GLES20.glGetUniformLocation(program, "center");
+        aspectRatioLocation = GLES20.glGetUniformLocation(program, "aspectRatio");
     }
 
     override fun onInitialized() {

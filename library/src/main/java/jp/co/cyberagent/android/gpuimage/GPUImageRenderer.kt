@@ -109,7 +109,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         outputWidth = width;
         outputHeight = height;
         GLES20.glViewport(0, 0, width, height);
-        GLES20.glUseProgram(filter.getProgram());
+        GLES20.glUseProgram(filter.program);
         filter.onOutputSizeChanged(width, height);
         adjustImageScaling();
         synchronized (surfaceChangedWaiter) {
@@ -192,7 +192,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
                 oldFilter.destroy();
             }
             this@GPUImageRenderer.filter.ifNeedInit();
-            GLES20.glUseProgram(this@GPUImageRenderer.filter.getProgram());
+            GLES20.glUseProgram(this@GPUImageRenderer.filter.program);
             this@GPUImageRenderer.filter.onOutputSizeChanged(outputWidth, outputHeight);
         }
     }

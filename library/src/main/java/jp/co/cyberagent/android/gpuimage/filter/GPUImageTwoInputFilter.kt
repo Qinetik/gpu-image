@@ -27,7 +27,7 @@ import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
 import jp.co.cyberagent.android.gpuimage.util.Rotation
 import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil
 
-class GPUImageTwoInputFilter : GPUImageFilter {
+open class GPUImageTwoInputFilter : GPUImageFilter {
 
     companion object {
         const val VERTEX_SHADER: String = "attribute vec4 position;\n" +

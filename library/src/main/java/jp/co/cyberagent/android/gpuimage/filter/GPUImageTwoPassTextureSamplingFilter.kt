@@ -18,7 +18,7 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
 
-class GPUImageTwoPassTextureSamplingFilter(
+open class GPUImageTwoPassTextureSamplingFilter(
     firstVertexShader: String,
     firstFragmentShader: String,
     secondVertexShader: String,
@@ -54,11 +54,11 @@ class GPUImageTwoPassTextureSamplingFilter(
         initTexelOffsets()
     }
 
-    fun getVerticalTexelOffsetRatio(): Float {
+    open fun getVerticalTexelOffsetRatio(): Float {
         return 1f
     }
 
-    fun getHorizontalTexelOffsetRatio(): Float {
+    open fun getHorizontalTexelOffsetRatio(): Float {
         return 1f
     }
 }
