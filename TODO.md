@@ -1,4 +1,4 @@
-- [ ] Convert Java to Kotlin
+- [x] Convert Java to Kotlin
 - [ ] Remove All AsyncTasks and use kotlin coroutines
 - [ ] Bring KGL and use it in places to see if it works
 - [ ] Start putting code in common module
