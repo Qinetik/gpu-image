@@ -19,58 +19,52 @@ package jp.co.cyberagent.android.gpuimage.filter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
-public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
-    public static final String BULGE_FRAGMENT_SHADER = "" +
-            "varying highp vec2 textureCoordinate;\n" +
-            "\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "\n" +
-            "uniform highp float aspectRatio;\n" +
-            "uniform highp vec2 center;\n" +
-            "uniform highp float radius;\n" +
-            "uniform highp float scale;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "highp vec2 textureCoordinateToUse = vec2(textureCoordinate.x, (textureCoordinate.y * aspectRatio + 0.5 - 0.5 * aspectRatio));\n" +
-            "highp float dist = distance(center, textureCoordinateToUse);\n" +
-            "textureCoordinateToUse = textureCoordinate;\n" +
-            "\n" +
-            "if (dist < radius)\n" +
-            "{\n" +
-            "textureCoordinateToUse -= center;\n" +
-            "highp float percent = 1.0 - ((radius - dist) / radius) * scale;\n" +
-            "percent = percent * percent;\n" +
-            "\n" +
-            "textureCoordinateToUse = textureCoordinateToUse * percent;\n" +
-            "textureCoordinateToUse += center;\n" +
-            "}\n" +
-            "\n" +
-            "gl_FragColor = texture2D(inputImageTexture, textureCoordinateToUse );    \n" +
-            "}\n";
-
-    private float scale;
-    private int scaleLocation;
-    private float radius;
-    private int radiusLocation;
-    private PointF center;
-    private int centerLocation;
-    private float aspectRatio;
-    private int aspectRatioLocation;
-
-    public GPUImageBulgeDistortionFilter() {
-        this(0.25f, 0.5f, new PointF(0.5f, 0.5f));
+public class GPUImageBulgeDistortionFilter(
+    private var radius: Float,
+    private var scale: Float,
+    private var center: PointF
+) : GPUImageFilter(NO_FILTER_VERTEX_SHADER, BULGE_FRAGMENT_SHADER) {
+    companion object {
+        const val BULGE_FRAGMENT_SHADER : String = "" +
+        "varying highp vec2 textureCoordinate;\n" +
+        "\n" +
+        "uniform sampler2D inputImageTexture;\n" +
+        "\n" +
+        "uniform highp float aspectRatio;\n" +
+        "uniform highp vec2 center;\n" +
+        "uniform highp float radius;\n" +
+        "uniform highp float scale;\n" +
+        "\n" +
+        "void main()\n" +
+        "{\n" +
+        "highp vec2 textureCoordinateToUse = vec2(textureCoordinate.x, (textureCoordinate.y * aspectRatio + 0.5 - 0.5 * aspectRatio));\n" +
+        "highp float dist = distance(center, textureCoordinateToUse);\n" +
+        "textureCoordinateToUse = textureCoordinate;\n" +
+        "\n" +
+        "if (dist < radius)\n" +
+        "{\n" +
+        "textureCoordinateToUse -= center;\n" +
+        "highp float percent = 1.0 - ((radius - dist) / radius) * scale;\n" +
+        "percent = percent * percent;\n" +
+        "\n" +
+        "textureCoordinateToUse = textureCoordinateToUse * percent;\n" +
+        "textureCoordinateToUse += center;\n" +
+        "}\n" +
+        "\n" +
+        "gl_FragColor = texture2D(inputImageTexture, textureCoordinateToUse );    \n" +
+        "}\n";
     }
 
-    public GPUImageBulgeDistortionFilter(float radius, float scale, PointF center) {
-        super(NO_FILTER_VERTEX_SHADER, BULGE_FRAGMENT_SHADER);
-        this.radius = radius;
-        this.scale = scale;
-        this.center = center;
-    }
 
-    @Override
-    public void onInit() {
+    private var scaleLocation : Int = 0
+    private var radiusLocation : Int = 0
+    private var centerLocation : Int = 0
+    private var aspectRatio : Float = 0f
+    private var aspectRatioLocation : Int = 0
+
+    constructor() : this(0.25f, 0.5f, PointF(0.5f, 0.5f))
+
+    override fun onInit() {
         super.onInit();
         scaleLocation = GLES20.glGetUniformLocation(getProgram(), "scale");
         radiusLocation = GLES20.glGetUniformLocation(getProgram(), "radius");
@@ -78,8 +72,7 @@ public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
         aspectRatioLocation = GLES20.glGetUniformLocation(getProgram(), "aspectRatio");
     }
 
-    @Override
-    public void onInitialized() {
+    override fun onInitialized() {
         super.onInitialized();
         setAspectRatio(aspectRatio);
         setRadius(radius);
@@ -87,14 +80,13 @@ public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
         setCenter(center);
     }
 
-    @Override
-    public void onOutputSizeChanged(int width, int height) {
-        aspectRatio = (float) height / width;
+    override fun onOutputSizeChanged(width : Int, height : Int) {
+        aspectRatio = height.toFloat() / width.toFloat()
         setAspectRatio(aspectRatio);
         super.onOutputSizeChanged(width, height);
     }
 
-    private void setAspectRatio(float aspectRatio) {
+    private fun setAspectRatio(aspectRatio : Float) {
         this.aspectRatio = aspectRatio;
         setFloat(aspectRatioLocation, aspectRatio);
     }
@@ -104,7 +96,7 @@ public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
      *
      * @param radius from 0.0 to 1.0, default 0.25
      */
-    public void setRadius(float radius) {
+    public fun setRadius(radius : Float) {
         this.radius = radius;
         setFloat(radiusLocation, radius);
     }
@@ -114,7 +106,7 @@ public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
      *
      * @param scale from -1.0 to 1.0, default 0.5
      */
-    public void setScale(float scale) {
+    public fun setScale(scale : Float) {
         this.scale = scale;
         setFloat(scaleLocation, scale);
     }
@@ -124,7 +116,7 @@ public class GPUImageBulgeDistortionFilter extends GPUImageFilter {
      *
      * @param center default (0.5, 0.5)
      */
-    public void setCenter(PointF center) {
+    public fun setCenter(center : PointF) {
         this.center = center;
         setPoint(centerLocation, center);
     }

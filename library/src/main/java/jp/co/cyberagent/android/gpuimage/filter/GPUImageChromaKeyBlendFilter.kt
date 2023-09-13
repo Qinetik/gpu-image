@@ -14,86 +14,84 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
 /**
  * Selectively replaces a color in the first image with the second image
  */
-public class GPUImageChromaKeyBlendFilter extends GPUImageTwoInputFilter {
-    public static final String CHROMA_KEY_BLEND_FRAGMENT_SHADER = " precision highp float;\n" +
-            " \n" +
-            " varying highp vec2 textureCoordinate;\n" +
-            " varying highp vec2 textureCoordinate2;\n" +
-            "\n" +
-            " uniform float thresholdSensitivity;\n" +
-            " uniform float smoothing;\n" +
-            " uniform vec3 colorToReplace;\n" +
-            " uniform sampler2D inputImageTexture;\n" +
-            " uniform sampler2D inputImageTexture2;\n" +
-            " \n" +
-            " void main()\n" +
-            " {\n" +
-            "     vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
-            "     vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);\n" +
-            "     \n" +
-            "     float maskY = 0.2989 * colorToReplace.r + 0.5866 * colorToReplace.g + 0.1145 * colorToReplace.b;\n" +
-            "     float maskCr = 0.7132 * (colorToReplace.r - maskY);\n" +
-            "     float maskCb = 0.5647 * (colorToReplace.b - maskY);\n" +
-            "     \n" +
-            "     float Y = 0.2989 * textureColor.r + 0.5866 * textureColor.g + 0.1145 * textureColor.b;\n" +
-            "     float Cr = 0.7132 * (textureColor.r - Y);\n" +
-            "     float Cb = 0.5647 * (textureColor.b - Y);\n" +
-            "     \n" +
-            "     float blendValue = 1.0 - smoothstep(thresholdSensitivity, thresholdSensitivity + smoothing, distance(vec2(Cr, Cb), vec2(maskCr, maskCb)));\n" +
-            "     gl_FragColor = mix(textureColor, textureColor2, blendValue);\n" +
-            " }";
-
-    private int thresholdSensitivityLocation;
-    private int smoothingLocation;
-    private int colorToReplaceLocation;
-    private float thresholdSensitivity = 0.4f;
-    private float smoothing = 0.1f;
-    private float[] colorToReplace = new float[]{0.0f, 1.0f, 0.0f};
-
-    public GPUImageChromaKeyBlendFilter() {
-        super(CHROMA_KEY_BLEND_FRAGMENT_SHADER);
+class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
+    companion object {
+        const val CHROMA_KEY_BLEND_FRAGMENT_SHADER: String = " precision highp float;\n" +
+                " \n" +
+                " varying highp vec2 textureCoordinate;\n" +
+                " varying highp vec2 textureCoordinate2;\n" +
+                "\n" +
+                " uniform float thresholdSensitivity;\n" +
+                " uniform float smoothing;\n" +
+                " uniform vec3 colorToReplace;\n" +
+                " uniform sampler2D inputImageTexture;\n" +
+                " uniform sampler2D inputImageTexture2;\n" +
+                " \n" +
+                " void main()\n" +
+                " {\n" +
+                "     vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+                "     vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);\n" +
+                "     \n" +
+                "     float maskY = 0.2989 * colorToReplace.r + 0.5866 * colorToReplace.g + 0.1145 * colorToReplace.b;\n" +
+                "     float maskCr = 0.7132 * (colorToReplace.r - maskY);\n" +
+                "     float maskCb = 0.5647 * (colorToReplace.b - maskY);\n" +
+                "     \n" +
+                "     float Y = 0.2989 * textureColor.r + 0.5866 * textureColor.g + 0.1145 * textureColor.b;\n" +
+                "     float Cr = 0.7132 * (textureColor.r - Y);\n" +
+                "     float Cb = 0.5647 * (textureColor.b - Y);\n" +
+                "     \n" +
+                "     float blendValue = 1.0 - smoothstep(thresholdSensitivity, thresholdSensitivity + smoothing, distance(vec2(Cr, Cb), vec2(maskCr, maskCb)));\n" +
+                "     gl_FragColor = mix(textureColor, textureColor2, blendValue);\n" +
+                " }"
 
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        thresholdSensitivityLocation = GLES20.glGetUniformLocation(getProgram(), "thresholdSensitivity");
-        smoothingLocation = GLES20.glGetUniformLocation(getProgram(), "smoothing");
-        colorToReplaceLocation = GLES20.glGetUniformLocation(getProgram(), "colorToReplace");
+    private var thresholdSensitivityLocation: Int = 0
+    private var smoothingLocation: Int = 0
+    private var colorToReplaceLocation: Int = 0
+    private var thresholdSensitivity: Float = 0.4f
+    private var smoothing: Float = 0.1f
+    private var colorToReplace: FloatArray = floatArrayOf(0.0f, 1.0f, 0.0f)
+
+    constructor() : super(CHROMA_KEY_BLEND_FRAGMENT_SHADER)
+
+    override fun onInit() {
+        super.onInit()
+        thresholdSensitivityLocation = GLES20.glGetUniformLocation(program, "thresholdSensitivity")
+        smoothingLocation = GLES20.glGetUniformLocation(program, "smoothing")
+        colorToReplaceLocation = GLES20.glGetUniformLocation(program, "colorToReplace")
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setSmoothing(smoothing);
-        setThresholdSensitivity(thresholdSensitivity);
-        setColorToReplace(colorToReplace[0], colorToReplace[1], colorToReplace[2]);
+    override fun onInitialized() {
+        super.onInitialized()
+        setSmoothing(smoothing)
+        setThresholdSensitivity(thresholdSensitivity)
+        setColorToReplace(colorToReplace[0], colorToReplace[1], colorToReplace[2])
     }
 
     /**
      * The degree of smoothing controls how gradually similar colors are replaced in the image
      * The default value is 0.1
      */
-    public void setSmoothing(final float smoothing) {
-        this.smoothing = smoothing;
-        setFloat(smoothingLocation, this.smoothing);
+    fun setSmoothing(smoothing: Float) {
+        this.smoothing = smoothing
+        setFloat(smoothingLocation, this.smoothing)
     }
 
     /**
      * The threshold sensitivity controls how similar pixels need to be colored to be replaced
      * The default value is 0.3
      */
-    public void setThresholdSensitivity(final float thresholdSensitivity) {
-        this.thresholdSensitivity = thresholdSensitivity;
-        setFloat(thresholdSensitivityLocation, this.thresholdSensitivity);
+    fun setThresholdSensitivity(thresholdSensitivity: Float) {
+        this.thresholdSensitivity = thresholdSensitivity
+        setFloat(thresholdSensitivityLocation, this.thresholdSensitivity)
     }
 
     /**
@@ -104,8 +102,8 @@ public class GPUImageChromaKeyBlendFilter extends GPUImageTwoInputFilter {
      * @param greenComponent Green component of color to be replaced
      * @param blueComponent  Blue component of color to be replaced
      */
-    public void setColorToReplace(float redComponent, float greenComponent, float blueComponent) {
-        colorToReplace = new float[]{redComponent, greenComponent, blueComponent};
-        setFloatVec3(colorToReplaceLocation, colorToReplace);
+    fun setColorToReplace(redComponent: Float, greenComponent: Float, blueComponent: Float) {
+        colorToReplace = floatArrayOf(redComponent, greenComponent, blueComponent)
+        setFloatVec3(colorToReplaceLocation, colorToReplace)
     }
 }
