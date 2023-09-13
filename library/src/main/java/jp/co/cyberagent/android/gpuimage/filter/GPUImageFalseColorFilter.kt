@@ -14,71 +14,71 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
-public class GPUImageFalseColorFilter extends GPUImageFilter {
-    public static final String FALSECOLOR_FRAGMENT_SHADER = "" +
-            "precision lowp float;\n" +
-            "\n" +
-            "varying highp vec2 textureCoordinate;\n" +
-            "\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "uniform float intensity;\n" +
-            "uniform vec3 firstColor;\n" +
-            "uniform vec3 secondColor;\n" +
-            "\n" +
-            "const mediump vec3 luminanceWeighting = vec3(0.2125, 0.7154, 0.0721);\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
-            "float luminance = dot(textureColor.rgb, luminanceWeighting);\n" +
-            "\n" +
-            "gl_FragColor = vec4( mix(firstColor.rgb, secondColor.rgb, luminance), textureColor.a);\n" +
-            "}\n";
+class GPUImageFalseColorFilter(
+    private var firstColor: FloatArray,
+    private var secondColor: FloatArray
+) : GPUImageFilter(NO_FILTER_VERTEX_SHADER, FALSECOLOR_FRAGMENT_SHADER) {
 
-    private float[] firstColor;
-    private int firstColorLocation;
-    private float[] secondColor;
-    private int secondColorLocation;
-
-    public GPUImageFalseColorFilter() {
-        this(0f, 0f, 0.5f, 1f, 0f, 0f);
+    companion object {
+        const val FALSECOLOR_FRAGMENT_SHADER: String = "" +
+                "precision lowp float;\n" +
+                "\n" +
+                "varying highp vec2 textureCoordinate;\n" +
+                "\n" +
+                "uniform sampler2D inputImageTexture;\n" +
+                "uniform float intensity;\n" +
+                "uniform vec3 firstColor;\n" +
+                "uniform vec3 secondColor;\n" +
+                "\n" +
+                "const mediump vec3 luminanceWeighting = vec3(0.2125, 0.7154, 0.0721);\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+                "float luminance = dot(textureColor.rgb, luminanceWeighting);\n" +
+                "\n" +
+                "gl_FragColor = vec4( mix(firstColor.rgb, secondColor.rgb, luminance), textureColor.a);\n" +
+                "}\n"
     }
 
-    public GPUImageFalseColorFilter(float firstRed, float firstGreen, float firstBlue, float secondRed, float secondGreen, float secondBlue) {
-        this(new float[]{firstRed, firstGreen, firstBlue}, new float[]{secondRed, secondGreen, secondBlue});
+
+    private var firstColorLocation: Int = 0
+    private var secondColorLocation: Int = 0
+
+    constructor() : this(0f, 0f, 0.5f, 1f, 0f, 0f)
+
+    constructor(
+        firstRed: Float,
+        firstGreen: Float,
+        firstBlue: Float,
+        secondRed: Float,
+        secondGreen: Float,
+        secondBlue: Float
+    ) : this(floatArrayOf(firstRed, firstGreen, firstBlue), floatArrayOf(secondRed, secondGreen, secondBlue))
+
+    override fun onInit() {
+        super.onInit()
+        firstColorLocation = GLES20.glGetUniformLocation(program, "firstColor")
+        secondColorLocation = GLES20.glGetUniformLocation(program, "secondColor")
     }
 
-    public GPUImageFalseColorFilter(float[] firstColor, float[] secondColor) {
-        super(NO_FILTER_VERTEX_SHADER, FALSECOLOR_FRAGMENT_SHADER);
-        this.firstColor = firstColor;
-        this.secondColor = secondColor;
+    override fun onInitialized() {
+        super.onInitialized()
+        setFirstColor(firstColor)
+        setSecondColor(secondColor)
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        firstColorLocation = GLES20.glGetUniformLocation(getProgram(), "firstColor");
-        secondColorLocation = GLES20.glGetUniformLocation(getProgram(), "secondColor");
+    fun setFirstColor(firstColor: FloatArray) {
+        this.firstColor = firstColor
+        setFloatVec3(firstColorLocation, firstColor)
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setFirstColor(firstColor);
-        setSecondColor(secondColor);
-    }
-
-    public void setFirstColor(final float[] firstColor) {
-        this.firstColor = firstColor;
-        setFloatVec3(firstColorLocation, firstColor);
-    }
-
-    public void setSecondColor(final float[] secondColor) {
-        this.secondColor = secondColor;
-        setFloatVec3(secondColorLocation, secondColor);
+    fun setSecondColor(secondColor: FloatArray) {
+        this.secondColor = secondColor
+        setFloatVec3(secondColorLocation, secondColor)
     }
 }

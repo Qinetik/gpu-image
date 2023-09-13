@@ -14,46 +14,39 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
 /**
  * Applies an emboss effect to the image.<br>
  * <br>
  * Intensity ranges from 0.0 to 4.0, with 1.0 as the normal level
  */
-public class GPUImageEmbossFilter extends GPUImage3x3ConvolutionFilter {
-    private float intensity;
+class GPUImageEmbossFilter : GPUImage3x3ConvolutionFilter {
+    private var intensity: Float = 0f
 
-    public GPUImageEmbossFilter() {
-        this(1.0f);
+    constructor() : this(1.0f)
+
+    constructor(intensity: Float) : super() {
+        this.intensity = intensity
     }
 
-    public GPUImageEmbossFilter(final float intensity) {
-        super();
-        this.intensity = intensity;
+    override fun onInitialized() {
+        super.onInitialized()
+        setIntensity(intensity)
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-    }
-
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setIntensity(intensity);
-    }
-
-    public void setIntensity(final float intensity) {
-        this.intensity = intensity;
-        setConvolutionKernel(new float[]{
+    fun setIntensity(intensity: Float) {
+        this.intensity = intensity
+        setConvolutionKernel(
+            floatArrayOf(
                 intensity * (-2.0f), -intensity, 0.0f,
                 -intensity, 1.0f, intensity,
                 0.0f, intensity, intensity * 2.0f,
-        });
+            )
+        )
     }
 
-    public float getIntensity() {
-        return intensity;
+    fun getIntensity(): Float {
+        return intensity
     }
 }

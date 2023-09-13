@@ -14,53 +14,50 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
 /**
  * exposure: The adjusted exposure (-10.0 - 10.0, with 0.0 as the default)
  */
-public class GPUImageExposureFilter extends GPUImageFilter {
-    public static final String EXPOSURE_FRAGMENT_SHADER = "" +
-            " varying highp vec2 textureCoordinate;\n" +
-            " \n" +
-            " uniform sampler2D inputImageTexture;\n" +
-            " uniform highp float exposure;\n" +
-            " \n" +
-            " void main()\n" +
-            " {\n" +
-            "     highp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
-            "     \n" +
-            "     gl_FragColor = vec4(textureColor.rgb * pow(2.0, exposure), textureColor.w);\n" +
-            " } ";
-
-    private int exposureLocation;
-    private float exposure;
-
-    public GPUImageExposureFilter() {
-        this(1.0f);
+class GPUImageExposureFilter : GPUImageFilter {
+    companion object {
+        const val EXPOSURE_FRAGMENT_SHADER: String = "" +
+                " varying highp vec2 textureCoordinate;\n" +
+                " \n" +
+                " uniform sampler2D inputImageTexture;\n" +
+                " uniform highp float exposure;\n" +
+                " \n" +
+                " void main()\n" +
+                " {\n" +
+                "     highp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+                "     \n" +
+                "     gl_FragColor = vec4(textureColor.rgb * pow(2.0, exposure), textureColor.w);\n" +
+                " } "
     }
 
-    public GPUImageExposureFilter(final float exposure) {
-        super(NO_FILTER_VERTEX_SHADER, EXPOSURE_FRAGMENT_SHADER);
-        this.exposure = exposure;
+
+    private var exposureLocation: Int = 0
+    private var exposure: Float = 0f
+
+    constructor() : this(1.0f)
+
+    constructor(exposure: Float) : super(NO_FILTER_VERTEX_SHADER, EXPOSURE_FRAGMENT_SHADER) {
+        this.exposure = exposure
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        exposureLocation = GLES20.glGetUniformLocation(getProgram(), "exposure");
+    override fun onInit() {
+        super.onInit()
+        exposureLocation = GLES20.glGetUniformLocation(program, "exposure")
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setExposure(exposure);
+    override fun onInitialized() {
+        super.onInitialized()
+        setExposure(exposure)
     }
 
-    public void setExposure(final float exposure) {
-        this.exposure = exposure;
-        setFloat(exposureLocation, this.exposure);
+    fun setExposure(exposure: Float) {
+        setFloat(exposureLocation, this.exposure)
     }
 }

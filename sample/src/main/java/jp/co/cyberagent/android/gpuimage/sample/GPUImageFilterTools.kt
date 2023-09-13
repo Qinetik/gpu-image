@@ -485,7 +485,7 @@ object GPUImageFilterTools {
         private inner class EmbossAdjuster(filter: GPUImageEmbossFilter) :
             Adjuster<GPUImageEmbossFilter>(filter) {
             override fun adjust(percentage: Int) {
-                filter.intensity = range(percentage, 0.0f, 4.0f)
+                filter.setIntensity(range(percentage, 0.0f, 4.0f))
             }
         }
 
