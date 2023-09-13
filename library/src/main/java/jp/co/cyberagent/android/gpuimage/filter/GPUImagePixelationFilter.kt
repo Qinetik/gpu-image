@@ -14,67 +14,61 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
 /**
  * Applies a grayscale effect to the image.
  */
-public class GPUImagePixelationFilter extends GPUImageFilter {
-    public static final String PIXELATION_FRAGMENT_SHADER = "" +
-            "precision highp float;\n" +
+class GPUImagePixelationFilter : GPUImageFilter(NO_FILTER_VERTEX_SHADER, PIXELATION_FRAGMENT_SHADER) {
+    companion object {
+        const val PIXELATION_FRAGMENT_SHADER: String = "" +
+                "precision highp float;\n" +
 
-            "varying vec2 textureCoordinate;\n" +
+                "varying vec2 textureCoordinate;\n" +
 
-            "uniform float imageWidthFactor;\n" +
-            "uniform float imageHeightFactor;\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "uniform float pixel;\n" +
+                "uniform float imageWidthFactor;\n" +
+                "uniform float imageHeightFactor;\n" +
+                "uniform sampler2D inputImageTexture;\n" +
+                "uniform float pixel;\n" +
 
-            "void main()\n" +
-            "{\n" +
-            "  vec2 uv  = textureCoordinate.xy;\n" +
-            "  float dx = pixel * imageWidthFactor;\n" +
-            "  float dy = pixel * imageHeightFactor;\n" +
-            "  vec2 coord = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));\n" +
-            "  vec3 tc = texture2D(inputImageTexture, coord).xyz;\n" +
-            "  gl_FragColor = vec4(tc, 1.0);\n" +
-            "}";
-
-    private int imageWidthFactorLocation;
-    private int imageHeightFactorLocation;
-    private float pixel;
-    private int pixelLocation;
-
-    public GPUImagePixelationFilter() {
-        super(NO_FILTER_VERTEX_SHADER, PIXELATION_FRAGMENT_SHADER);
-        pixel = 1.0f;
+                "void main()\n" +
+                "{\n" +
+                "  vec2 uv  = textureCoordinate.xy;\n" +
+                "  float dx = pixel * imageWidthFactor;\n" +
+                "  float dy = pixel * imageHeightFactor;\n" +
+                "  vec2 coord = vec2(dx * floor(uv.x / dx), dy * floor(uv.y / dy));\n" +
+                "  vec3 tc = texture2D(inputImageTexture, coord).xyz;\n" +
+                "  gl_FragColor = vec4(tc, 1.0);\n" +
+                "}"
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        imageWidthFactorLocation = GLES20.glGetUniformLocation(getProgram(), "imageWidthFactor");
-        imageHeightFactorLocation = GLES20.glGetUniformLocation(getProgram(), "imageHeightFactor");
-        pixelLocation = GLES20.glGetUniformLocation(getProgram(), "pixel");
+    private var imageWidthFactorLocation: Int = 0
+    private var imageHeightFactorLocation: Int = 0
+    private var pixel: Float = 1.0f
+    private var pixelLocation: Int = 0
+
+    override fun onInit() {
+        super.onInit()
+        imageWidthFactorLocation = GLES20.glGetUniformLocation(program, "imageWidthFactor")
+        imageHeightFactorLocation = GLES20.glGetUniformLocation(program, "imageHeightFactor")
+        pixelLocation = GLES20.glGetUniformLocation(program, "pixel")
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setPixel(pixel);
+    override fun onInitialized() {
+        super.onInitialized()
+        setPixel(pixel)
     }
 
-    @Override
-    public void onOutputSizeChanged(final int width, final int height) {
-        super.onOutputSizeChanged(width, height);
-        setFloat(imageWidthFactorLocation, 1.0f / width);
-        setFloat(imageHeightFactorLocation, 1.0f / height);
+    override fun onOutputSizeChanged(width: Int, height: Int) {
+        super.onOutputSizeChanged(width, height)
+        setFloat(imageWidthFactorLocation, 1.0f / width.toFloat())
+        setFloat(imageHeightFactorLocation, 1.0f / height.toFloat())
     }
 
-    public void setPixel(final float pixel) {
-        this.pixel = pixel;
-        setFloat(pixelLocation, this.pixel);
+    fun setPixel(pixel: Float) {
+        this.pixel = pixel
+        setFloat(pixelLocation, this.pixel)
     }
 }
