@@ -14,41 +14,37 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
-public class GPUImageMixBlendFilter extends GPUImageTwoInputFilter {
+open class GPUImageMixBlendFilter : GPUImageTwoInputFilter {
 
-    private int mixLocation;
-    private float mix;
+    private var mixLocation: Int = 0
+    private var mix: Float
 
-    public GPUImageMixBlendFilter(String fragmentShader) {
-        this(fragmentShader, 0.5f);
+    constructor(fragmentShader: String) : this(fragmentShader, 0.5f)
+
+    constructor(fragmentShader: String, mix: Float) : super(fragmentShader) {
+        this.mix = mix
     }
 
-    public GPUImageMixBlendFilter(String fragmentShader, float mix) {
-        super(fragmentShader);
-        this.mix = mix;
+    override fun onInit() {
+        super.onInit()
+        mixLocation = GLES20.glGetUniformLocation(program, "mixturePercent")
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        mixLocation = GLES20.glGetUniformLocation(getProgram(), "mixturePercent");
-    }
-
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setMix(mix);
+    override fun onInitialized() {
+        super.onInitialized()
+        setMix(mix)
     }
 
     /**
      * @param mix ranges from 0.0 (only image 1) to 1.0 (only image 2), with 0.5 (half of either) as the normal level
      */
-    public void setMix(final float mix) {
-        this.mix = mix;
-        setFloat(mixLocation, this.mix);
+    fun setMix(mix: Float) {
+        this.mix = mix
+        setFloat(mixLocation, this.mix)
     }
+
 }
