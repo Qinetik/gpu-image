@@ -14,65 +14,57 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
+import android.opengl.GLES20
 
 /**
  * The haze filter can be used to add or remove haze.
  * <p>
  * This is similar to a UV filter.
  */
-public class GPUImageHazeFilter extends GPUImageFilter {
-    public static final String HAZE_FRAGMENT_SHADER = "" +
-            "varying highp vec2 textureCoordinate;\n" +
-            "\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "\n" +
-            "uniform lowp float distance;\n" +
-            "uniform highp float slope;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "	//todo reconsider precision modifiers	 \n" +
-            "	 highp vec4 color = vec4(1.0);//todo reimplement as a parameter\n" +
-            "\n" +
-            "	 highp float  d = textureCoordinate.y * slope  +  distance; \n" +
-            "\n" +
-            "	 highp vec4 c = texture2D(inputImageTexture, textureCoordinate) ; // consider using unpremultiply\n" +
-            "\n" +
-            "	 c = (c - d * color) / (1.0 -d);\n" +
-            "\n" +
-            "	 gl_FragColor = c; //consider using premultiply(c);\n" +
-            "}\n";
+class GPUImageHazeFilter(private var distance: Float, private var slope: Float) :
+    GPUImageFilter(NO_FILTER_VERTEX_SHADER, HAZE_FRAGMENT_SHADER) {
+    companion object {
+        const val HAZE_FRAGMENT_SHADER: String = "" +
+                "varying highp vec2 textureCoordinate;\n" +
+                "\n" +
+                "uniform sampler2D inputImageTexture;\n" +
+                "\n" +
+                "uniform lowp float distance;\n" +
+                "uniform highp float slope;\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "	//todo reconsider precision modifiers	 \n" +
+                "	 highp vec4 color = vec4(1.0);//todo reimplement as a parameter\n" +
+                "\n" +
+                "	 highp float  d = textureCoordinate.y * slope  +  distance; \n" +
+                "\n" +
+                "	 highp vec4 c = texture2D(inputImageTexture, textureCoordinate) ; // consider using unpremultiply\n" +
+                "\n" +
+                "	 c = (c - d * color) / (1.0 -d);\n" +
+                "\n" +
+                "	 gl_FragColor = c; //consider using premultiply(c);\n" +
+                "}\n"
 
-    private float distance;
-    private int distanceLocation;
-    private float slope;
-    private int slopeLocation;
-
-    public GPUImageHazeFilter() {
-        this(0.2f, 0.0f);
     }
 
-    public GPUImageHazeFilter(float distance, float slope) {
-        super(NO_FILTER_VERTEX_SHADER, HAZE_FRAGMENT_SHADER);
-        this.distance = distance;
-        this.slope = slope;
+    private var distanceLocation: Int = 0
+    private var slopeLocation: Int = 0
+
+    constructor() : this(0.2f, 0.0f)
+
+    override fun onInit() {
+        super.onInit()
+        distanceLocation = GLES20.glGetUniformLocation(program, "distance")
+        slopeLocation = GLES20.glGetUniformLocation(program, "slope")
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        distanceLocation = GLES20.glGetUniformLocation(getProgram(), "distance");
-        slopeLocation = GLES20.glGetUniformLocation(getProgram(), "slope");
-    }
-
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setDistance(distance);
-        setSlope(slope);
+    override fun onInitialized() {
+        super.onInitialized()
+        setDistance(distance)
+        setSlope(slope)
     }
 
     /**
@@ -80,9 +72,9 @@ public class GPUImageHazeFilter extends GPUImageFilter {
      *
      * @param distance -0.3 to 0.3 are best, default 0
      */
-    public void setDistance(float distance) {
-        this.distance = distance;
-        setFloat(distanceLocation, distance);
+    fun setDistance(distance: Float) {
+        this.distance = distance
+        setFloat(distanceLocation, distance)
     }
 
     /**
@@ -90,8 +82,9 @@ public class GPUImageHazeFilter extends GPUImageFilter {
      *
      * @param slope -0.3 to 0.3 are best, default 0
      */
-    public void setSlope(float slope) {
-        this.slope = slope;
-        setFloat(slopeLocation, slope);
+    fun setSlope(slope: Float) {
+        this.slope = slope
+        setFloat(slopeLocation, slope)
     }
+
 }

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
 /**
  * A more generalized 9x9 Gaussian blur filter
  * blurSize value ranging from 0.0 on up, with a default of 1.0
  */
-public class GPUImageGaussianBlurFilter extends GPUImageTwoPassTextureSamplingFilter {
-    public static final String VERTEX_SHADER =
+class GPUImageGaussianBlurFilter : GPUImageTwoPassTextureSamplingFilter {
+    companion object {
+        const val VERTEX_SHADER: String =
             "attribute vec4 position;\n" +
                     "attribute vec4 inputTextureCoordinate;\n" +
                     "\n" +
@@ -50,9 +51,9 @@ public class GPUImageGaussianBlurFilter extends GPUImageTwoPassTextureSamplingFi
                     "       blurStep = float(multiplier) * singleStepOffset;\n" +
                     "		blurCoordinates[i] = inputTextureCoordinate.xy + blurStep;\n" +
                     "	}\n" +
-                    "}\n";
+                    "}\n"
 
-    public static final String FRAGMENT_SHADER =
+        const val FRAGMENT_SHADER: String =
             "uniform sampler2D inputImageTexture;\n" +
                     "\n" +
                     "const lowp int GAUSSIAN_SAMPLES = 9;\n" +
@@ -76,33 +77,29 @@ public class GPUImageGaussianBlurFilter extends GPUImageTwoPassTextureSamplingFi
                     "    sum += texture2D(inputImageTexture, blurCoordinates[8]).rgb * 0.05;\n" +
                     "\n" +
                     "	gl_FragColor = vec4(sum,fragColor.a);\n" +
-                    "}";
+                    "}"
 
-    protected float blurSize;
-
-    public GPUImageGaussianBlurFilter() {
-        this(1f);
     }
 
-    public GPUImageGaussianBlurFilter(float blurSize) {
-        super(VERTEX_SHADER, FRAGMENT_SHADER, VERTEX_SHADER, FRAGMENT_SHADER);
-        this.blurSize = blurSize;
+    protected var fBlurSize: Float
+
+    constructor() : this(1f)
+
+    constructor(blurSize: Float) : super(VERTEX_SHADER, FRAGMENT_SHADER, VERTEX_SHADER, FRAGMENT_SHADER) {
+        this.fBlurSize = blurSize
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setBlurSize(blurSize);
+    override fun onInitialized() {
+        super.onInitialized()
+        setBlurSize(fBlurSize)
     }
 
-    @Override
-    public float getVerticalTexelOffsetRatio() {
-        return blurSize;
+    override fun getVerticalTexelOffsetRatio(): Float {
+        return fBlurSize
     }
 
-    @Override
-    public float getHorizontalTexelOffsetRatio() {
-        return blurSize;
+    override fun getHorizontalTexelOffsetRatio(): Float {
+        return fBlurSize
     }
 
     /**
@@ -110,13 +107,10 @@ public class GPUImageGaussianBlurFilter extends GPUImageTwoPassTextureSamplingFi
      *
      * @param blurSize from 0.0 on up, default 1.0
      */
-    public void setBlurSize(float blurSize) {
-        this.blurSize = blurSize;
-        runOnDraw(new Runnable() {
-            @Override
-            public void run() {
-                initTexelOffsets();
-            }
-        });
+    fun setBlurSize(blurSize: Float) {
+        this.fBlurSize = blurSize
+        runOnDraw {
+            initTexelOffsets()
+        }
     }
 }
