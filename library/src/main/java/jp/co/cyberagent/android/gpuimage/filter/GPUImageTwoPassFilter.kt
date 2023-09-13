@@ -16,8 +16,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 open class GPUImageTwoPassFilter(
-    firstVertexShader: String?, firstFragmentShader: String?,
-    secondVertexShader: String?, secondFragmentShader: String?
+    firstVertexShader: String, firstFragmentShader: String,
+    secondVertexShader: String, secondFragmentShader: String
 ) : GPUImageFilterGroup(null) {
     init {
         addFilter(GPUImageFilter(firstVertexShader, firstFragmentShader))

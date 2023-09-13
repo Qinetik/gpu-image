@@ -14,136 +14,142 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.filter;
+package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20;
-import android.opengl.Matrix;
+import android.opengl.GLES20
+import android.opengl.Matrix
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 
-public class GPUImageTransformFilter extends GPUImageFilter {
-    public static final String TRANSFORM_VERTEX_SHADER = "" +
-            "attribute vec4 position;\n" +
-            " attribute vec4 inputTextureCoordinate;\n" +
-            " \n" +
-            " uniform mat4 transformMatrix;\n" +
-            " uniform mat4 orthographicMatrix;\n" +
-            " \n" +
-            " varying vec2 textureCoordinate;\n" +
-            " \n" +
-            " void main()\n" +
-            " {\n" +
-            "     gl_Position = transformMatrix * vec4(position.xyz, 1.0) * orthographicMatrix;\n" +
-            "     textureCoordinate = inputTextureCoordinate.xy;\n" +
-            " }";
+class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER) {
+    companion object {
+        const val TRANSFORM_VERTEX_SHADER: String = "" +
+                "attribute vec4 position;\n" +
+                " attribute vec4 inputTextureCoordinate;\n" +
+                " \n" +
+                " uniform mat4 transformMatrix;\n" +
+                " uniform mat4 orthographicMatrix;\n" +
+                " \n" +
+                " varying vec2 textureCoordinate;\n" +
+                " \n" +
+                " void main()\n" +
+                " {\n" +
+                "     gl_Position = transformMatrix * vec4(position.xyz, 1.0) * orthographicMatrix;\n" +
+                "     textureCoordinate = inputTextureCoordinate.xy;\n" +
+                " }"
+    }
 
-    private int transformMatrixUniform;
-    private int orthographicMatrixUniform;
-    private float[] orthographicMatrix;
 
-    private float[] transform3D;
+    private var transformMatrixUniform: Int = 0
+    private var orthographicMatrixUniform: Int = 0
+    private val orthographicMatrix: FloatArray = FloatArray(16)
+
+    private var transform3D: FloatArray
 
     // This applies the transform to the raw frame data if set to YES, the default of NO takes the aspect ratio of the image input into account when rotating
-    private boolean ignoreAspectRatio;
+    private var ignoreAspectRatio: Boolean = false
 
     // sets the anchor point to top left corner
-    private boolean anchorTopLeft;
+    private var anchorTopLeft: Boolean = false
 
-    public GPUImageTransformFilter() {
-        super(TRANSFORM_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER);
-
-        orthographicMatrix = new float[16];
-        Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-
-        transform3D = new float[16];
-        Matrix.setIdentityM(transform3D, 0);
+    init {
+        Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
+        transform3D = FloatArray(16)
+        Matrix.setIdentityM(transform3D, 0)
     }
 
-    @Override
-    public void onInit() {
-        super.onInit();
-        transformMatrixUniform = GLES20.glGetUniformLocation(getProgram(), "transformMatrix");
-        orthographicMatrixUniform = GLES20.glGetUniformLocation(getProgram(), "orthographicMatrix");
+    override fun onInit() {
+        super.onInit()
+        transformMatrixUniform = GLES20.glGetUniformLocation(program, "transformMatrix")
+        orthographicMatrixUniform = GLES20.glGetUniformLocation(program, "orthographicMatrix")
     }
 
-    @Override
-    public void onInitialized() {
-        super.onInitialized();
-        setUniformMatrix4f(transformMatrixUniform, transform3D);
-        setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix);
+    override fun onInitialized() {
+        super.onInitialized()
+        setUniformMatrix4f(transformMatrixUniform, transform3D)
+        setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
     }
 
-    @Override
-    public void onOutputSizeChanged(final int width, final int height) {
-        super.onOutputSizeChanged(width, height);
+    override fun onOutputSizeChanged(width: Int, height: Int) {
+        super.onOutputSizeChanged(width, height)
 
         if (!ignoreAspectRatio) {
-            Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f * (float) height / (float) width, 1.0f * (float) height / (float) width, -1.0f, 1.0f);
-            setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix);
+            Matrix.orthoM(
+                orthographicMatrix,
+                0,
+                -1.0f,
+                1.0f,
+                -1.0f * height.toFloat() / width.toFloat(),
+                1.0f * height.toFloat() / width.toFloat(),
+                -1.0f,
+                1.0f
+            )
+            setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
         }
     }
 
-    @Override
-    public void onDraw(final int textureId, final FloatBuffer cubeBuffer,
-                       final FloatBuffer textureBuffer) {
+    override fun onDraw(
+        textureId: Int, cubeBuffer: FloatBuffer,
+        textureBuffer: FloatBuffer
+    ) {
 
-        FloatBuffer vertBuffer = cubeBuffer;
+        var vertBuffer: FloatBuffer = cubeBuffer
 
         if (!ignoreAspectRatio) {
 
-            float[] adjustedVertices = new float[8];
+            val adjustedVertices: FloatArray = FloatArray(8)
 
-            cubeBuffer.position(0);
-            cubeBuffer.get(adjustedVertices);
+            cubeBuffer.position(0)
+            cubeBuffer.get(adjustedVertices)
 
-            float normalizedHeight = (float) getOutputHeight() / (float) getOutputWidth();
-            adjustedVertices[1] *= normalizedHeight;
-            adjustedVertices[3] *= normalizedHeight;
-            adjustedVertices[5] *= normalizedHeight;
-            adjustedVertices[7] *= normalizedHeight;
+            val normalizedHeight = outputHeight.toFloat() / outputWidth.toFloat()
+            adjustedVertices[1] *= normalizedHeight
+            adjustedVertices[3] *= normalizedHeight
+            adjustedVertices[5] *= normalizedHeight
+            adjustedVertices[7] *= normalizedHeight
 
-            vertBuffer = ByteBuffer.allocateDirect(adjustedVertices.length * 4)
-                    .order(ByteOrder.nativeOrder())
-                    .asFloatBuffer();
+            vertBuffer = ByteBuffer.allocateDirect(adjustedVertices.size * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
 
-            vertBuffer.put(adjustedVertices).position(0);
+            vertBuffer.put(adjustedVertices).position(0)
         }
 
-        super.onDraw(textureId, vertBuffer, textureBuffer);
+        super.onDraw(textureId, vertBuffer, textureBuffer)
     }
 
-    public void setTransform3D(float[] transform3D) {
-        this.transform3D = transform3D;
-        setUniformMatrix4f(transformMatrixUniform, transform3D);
+    fun setTransform3D(transform3D: FloatArray) {
+        this.transform3D = transform3D
+        setUniformMatrix4f(transformMatrixUniform, transform3D)
     }
 
-    public float[] getTransform3D() {
-        return transform3D;
+    fun getTransform3D(): FloatArray {
+        return transform3D
     }
 
-    public void setIgnoreAspectRatio(boolean ignoreAspectRatio) {
-        this.ignoreAspectRatio = ignoreAspectRatio;
+    fun setIgnoreAspectRatio(ignoreAspectRatio: Boolean) {
+        this.ignoreAspectRatio = ignoreAspectRatio
 
         if (ignoreAspectRatio) {
-            Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-            setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix);
+            Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
+            setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
         } else {
-            onOutputSizeChanged(getOutputWidth(), getOutputHeight());
+            onOutputSizeChanged(outputWidth, outputHeight)
         }
     }
 
-    public boolean ignoreAspectRatio() {
-        return ignoreAspectRatio;
+    fun ignoreAspectRatio(): Boolean {
+        return ignoreAspectRatio
     }
 
-    public void setAnchorTopLeft(boolean anchorTopLeft) {
-        this.anchorTopLeft = anchorTopLeft;
-        setIgnoreAspectRatio(ignoreAspectRatio);
+    fun setAnchorTopLeft(anchorTopLeft: Boolean) {
+        this.anchorTopLeft = anchorTopLeft
+        setIgnoreAspectRatio(ignoreAspectRatio)
     }
 
-    public boolean anchorTopLeft() {
-        return anchorTopLeft;
+    fun anchorTopLeft(): Boolean {
+        return anchorTopLeft
     }
 }
