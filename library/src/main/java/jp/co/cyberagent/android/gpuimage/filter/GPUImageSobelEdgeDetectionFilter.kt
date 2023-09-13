@@ -63,6 +63,6 @@ public class GPUImageSobelEdgeDetectionFilter : GPUImageFilterGroup() {
     }
 
     fun setLineSize(size : Float) {
-        (getFilters().get(1) as GPUImage3x3TextureSamplingFilter).setLineSize(size);
+        (filters.get(1) as GPUImage3x3TextureSamplingFilter).setLineSize(size);
     }
 }
