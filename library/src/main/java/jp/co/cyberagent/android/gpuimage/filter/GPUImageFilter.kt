@@ -202,15 +202,14 @@ open class GPUImageFilter {
     protected fun setFloatVec2(location : Int, arrayValue : FloatArray) {
         runOnDraw {
             ifNeedInit();
-            // TODO this command ain't available
-            GLES20.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
+            Kgl.uniform2fv(location, arrayValue);
         }
     }
 
     protected fun setFloatVec3(location : Int, arrayValue : FloatArray) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniform3fv(location, 1, FloatBuffer.wrap(arrayValue));
+            Kgl.uniform3fv(location, arrayValue);
         }
     }
 
