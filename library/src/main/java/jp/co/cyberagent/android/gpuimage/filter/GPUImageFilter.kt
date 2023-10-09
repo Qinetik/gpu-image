@@ -247,7 +247,7 @@ open class GPUImageFilter {
     protected fun setUniformMatrix4f(location : Int, matrix : FloatArray) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniformMatrix4fv(location, 1, false, matrix, 0);
+            Kgl.uniformMatrix4fv(location, false, matrix)
         }
     }
 
