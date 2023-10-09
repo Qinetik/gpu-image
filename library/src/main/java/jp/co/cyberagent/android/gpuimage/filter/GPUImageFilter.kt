@@ -223,7 +223,7 @@ open class GPUImageFilter {
     protected fun setFloatArray(location : Int, arrayValue : FloatArray) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniform1fv(location, arrayValue.size, FloatBuffer.wrap(arrayValue));
+            Kgl.uniform1fv(location, arrayValue);
         }
     }
 
