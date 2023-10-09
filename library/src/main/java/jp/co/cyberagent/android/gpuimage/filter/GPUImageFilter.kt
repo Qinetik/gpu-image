@@ -16,17 +16,10 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.PointF;
 import android.opengl.GLES20;
-import com.danielgergely.kgl.KglAndroid
 import jp.co.cyberagent.android.gpuimage.Kgl
-
-import java.io.InputStream;
 import java.nio.FloatBuffer;
-import java.util.LinkedList;
-
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
 
 open class GPUImageFilter {
@@ -53,28 +46,9 @@ open class GPUImageFilter {
         "     gl_FragColor = texture2D(inputImageTexture, textureCoordinate);\n" +
         "}";
 
-        public fun loadShader(file : String, context : Context) : String {
-            try {
-                val assetManager : AssetManager = context.getAssets();
-                val ims : InputStream = assetManager.open(file);
-                val re : String = convertStreamToString(ims);
-                ims.close();
-                return re;
-            } catch (e : Exception) {
-                e.printStackTrace();
-            }
-
-            return "";
-        }
-
-        public fun convertStreamToString(stream : InputStream) : String {
-            val s = java.util.Scanner(stream).useDelimiter("\\A");
-            return if(s.hasNext()) s.next() else "";
-        }
-
     }
 
-    private val runOnDraw : LinkedList<Runnable> = LinkedList();
+    private val runOnDraw : ArrayList<Runnable> = ArrayList();
     private val vertexShader : String;
     private val fragmentShader : String;
     private var glProgId : Int = 0;
@@ -229,11 +203,8 @@ open class GPUImageFilter {
 
     protected fun setPoint(location : Int, point : PointF) {
         runOnDraw {
-                ifNeedInit();
-                val vec2 = FloatArray(2);
-                vec2[0] = point.x;
-                vec2[1] = point.y;
-                Kgl.uniform2fv(location, vec2)
+            ifNeedInit();
+            Kgl.uniform2fv(location, floatArrayOf(point.x, point.y))
         }
     }
 
@@ -253,7 +224,7 @@ open class GPUImageFilter {
 
     protected fun runOnDraw(runnable : Runnable) {
         synchronized (runOnDraw) {
-            runOnDraw.addLast(runnable);
+            runOnDraw.add(runnable);
         }
     }
 
