@@ -93,7 +93,7 @@ public object OpenGlUtils {
 
     public fun loadShader(strSource : String, iType : Int) : Int {
         val compiled : IntArray = IntArray(1)
-        val iShader : Int = GLES20.glCreateShader(iType);
+        val iShader : Int = Kgl.createShader(iType)!!;
         Kgl.shaderSource(iShader, strSource);
         Kgl.compileShader(iShader);
         // TODO this command ain't available
