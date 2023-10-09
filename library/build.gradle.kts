@@ -35,3 +35,8 @@ android {
         jvmTarget = "17"
     }
 }
+
+dependencies {
+    implementation("com.danielgergely.kgl:kgl:0.6.2")
+    implementation("com.danielgergely.kgl:kgl-android:0.6.2")
+}

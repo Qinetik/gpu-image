@@ -22,6 +22,7 @@ import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
+import jp.co.cyberagent.android.gpuimage.Kgl
 
 import java.nio.IntBuffer;
 
@@ -93,8 +94,9 @@ public object OpenGlUtils {
     public fun loadShader(strSource : String, iType : Int) : Int {
         val compiled : IntArray = IntArray(1)
         val iShader : Int = GLES20.glCreateShader(iType);
-        GLES20.glShaderSource(iShader, strSource);
-        GLES20.glCompileShader(iShader);
+        Kgl.shaderSource(iShader, strSource);
+        Kgl.compileShader(iShader);
+        // TODO this command ain't available
         GLES20.glGetShaderiv(iShader, GLES20.GL_COMPILE_STATUS, compiled, 0);
         if (compiled[0] == 0) {
             Log.d("Load Shader Failed", "Compilation\n" + GLES20.glGetShaderInfoLog(iShader));
@@ -119,20 +121,21 @@ public object OpenGlUtils {
             return 0;
         }
 
-        iProgId = GLES20.glCreateProgram();
+        iProgId = Kgl.createProgram()!!;
 
-        GLES20.glAttachShader(iProgId, iVShader);
-        GLES20.glAttachShader(iProgId, iFShader);
+        Kgl.attachShader(iProgId, iVShader);
+        Kgl.attachShader(iProgId, iFShader);
 
-        GLES20.glLinkProgram(iProgId);
+        Kgl.linkProgram(iProgId);
 
+        // TODO this command ain't available
         GLES20.glGetProgramiv(iProgId, GLES20.GL_LINK_STATUS, link, 0);
         if (link[0] <= 0) {
             Log.d("Load Program", "Linking Failed");
             return 0;
         }
-        GLES20.glDeleteShader(iVShader);
-        GLES20.glDeleteShader(iFShader);
+        Kgl.deleteShader(iVShader);
+        Kgl.deleteShader(iFShader);
         return iProgId;
     }
 

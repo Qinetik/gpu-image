@@ -16,6 +16,7 @@ allprojects {
         google()
         mavenCentral()
         jcenter()
+        maven("https://maven.danielgergely.com/releases")
     }
 }
 

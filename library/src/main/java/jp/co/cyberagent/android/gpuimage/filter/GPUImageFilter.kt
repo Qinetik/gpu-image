@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.PointF;
 import android.opengl.GLES20;
+import com.danielgergely.kgl.KglAndroid
+import jp.co.cyberagent.android.gpuimage.Kgl
 
 import java.io.InputStream;
 import java.nio.FloatBuffer;
@@ -28,6 +30,7 @@ import java.util.LinkedList;
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
 
 open class GPUImageFilter {
+
     companion object {
         const val NO_FILTER_VERTEX_SHADER : String = "" +
         "attribute vec4 position;\n" +
@@ -102,9 +105,9 @@ open class GPUImageFilter {
 
     open fun onInit() {
         glProgId = OpenGlUtils.loadProgram(vertexShader, fragmentShader);
-        glAttribPosition = GLES20.glGetAttribLocation(glProgId, "position");
-        glUniformTexture = GLES20.glGetUniformLocation(glProgId, "inputImageTexture");
-        glAttribTextureCoordinate = GLES20.glGetAttribLocation(glProgId, "inputTextureCoordinate");
+        glAttribPosition = Kgl.getAttribLocation(glProgId, "position");
+        glUniformTexture = Kgl.getUniformLocation(glProgId, "inputImageTexture")!!;
+        glAttribTextureCoordinate = Kgl.getAttribLocation(glProgId, "inputTextureCoordinate");
         isInitialized = true;
     }
 
@@ -117,7 +120,7 @@ open class GPUImageFilter {
 
     fun destroy() {
         isInitialized = false;
-        GLES20.glDeleteProgram(glProgId);
+        Kgl.deleteProgram(glProgId);
         onDestroy();
     }
 
@@ -130,29 +133,31 @@ open class GPUImageFilter {
     }
 
     open fun onDraw(textureId : Int , cubeBuffer : FloatBuffer, textureBuffer : FloatBuffer) {
-        GLES20.glUseProgram(glProgId);
+        Kgl.useProgram(glProgId);
         runPendingOnDrawTasks();
         if (!isInitialized) {
             return;
         }
 
         cubeBuffer.position(0);
+        // TODO this command ain't available
         GLES20.glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer);
-        GLES20.glEnableVertexAttribArray(glAttribPosition);
+        Kgl.enableVertexAttribArray(glAttribPosition);
         textureBuffer.position(0);
+        // TODO this command ain't available
         GLES20.glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0,
                 textureBuffer);
-        GLES20.glEnableVertexAttribArray(glAttribTextureCoordinate);
+        Kgl.enableVertexAttribArray(glAttribTextureCoordinate);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-            GLES20.glUniform1i(glUniformTexture, 0);
+            Kgl.activeTexture(GLES20.GL_TEXTURE0);
+            Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
+            Kgl.uniform1i(glUniformTexture, 0);
         }
         onDrawArraysPre();
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-        GLES20.glDisableVertexAttribArray(glAttribPosition);
-        GLES20.glDisableVertexAttribArray(glAttribTextureCoordinate);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        Kgl.drawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        Kgl.disableVertexAttribArray(glAttribPosition);
+        Kgl.disableVertexAttribArray(glAttribTextureCoordinate);
+        Kgl.bindTexture(GLES20.GL_TEXTURE_2D, 0);
     }
 
     protected open fun onDrawArraysPre() {
@@ -183,20 +188,21 @@ open class GPUImageFilter {
     protected fun setInteger(location : Int, intValue : Int) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniform1i(location, intValue);
+            Kgl.uniform1i(location, intValue);
         }
     }
 
     internal fun setFloat(location : Int, floatValue : Float) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniform1f(location, floatValue);
+            Kgl.uniform1f(location, floatValue);
         }
     }
 
     protected fun setFloatVec2(location : Int, arrayValue : FloatArray) {
         runOnDraw {
             ifNeedInit();
+            // TODO this command ain't available
             GLES20.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
         }
     }
