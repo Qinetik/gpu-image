@@ -216,7 +216,7 @@ open class GPUImageFilter {
     protected fun setFloatVec4(location : Int, arrayValue : FloatArray) {
         runOnDraw {
             ifNeedInit();
-            GLES20.glUniform4fv(location, 1, FloatBuffer.wrap(arrayValue));
+            Kgl.uniform4fv(location, arrayValue)
         }
     }
 
