@@ -233,7 +233,7 @@ open class GPUImageFilter {
                 val vec2 = FloatArray(2);
                 vec2[0] = point.x;
                 vec2[1] = point.y;
-                GLES20.glUniform2fv(location, 1, vec2, 0);
+                Kgl.uniform2fv(location, vec2)
         }
     }
 
