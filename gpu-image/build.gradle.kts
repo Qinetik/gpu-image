@@ -15,6 +15,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api("com.danielgergely.kgl:kgl:0.6.2")
+                implementation("org.qinetik:logger:1.0.16")
             }
         }
         val androidMain by getting {

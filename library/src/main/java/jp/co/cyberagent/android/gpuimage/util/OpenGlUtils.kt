@@ -92,13 +92,12 @@ public object OpenGlUtils {
     }
 
     public fun loadShader(strSource : String, iType : Int) : Int {
-        val compiled : IntArray = IntArray(1)
         val iShader : Int = Kgl.createShader(iType)!!;
         Kgl.shaderSource(iShader, strSource);
         Kgl.compileShader(iShader);
         // TODO this command ain't available
-        GLES20.glGetShaderiv(iShader, GLES20.GL_COMPILE_STATUS, compiled, 0);
-        if (compiled[0] == 0) {
+        val compileStatus = Kgl.getShaderParameter(iShader, GLES20.GL_COMPILE_STATUS);
+        if (compileStatus == 0) {
             Log.d("Load Shader Failed", "Compilation\n" + GLES20.glGetShaderInfoLog(iShader));
             return 0;
         }
@@ -106,31 +105,26 @@ public object OpenGlUtils {
     }
 
     public fun loadProgram(strVSource : String, strFSource : String) : Int {
-        val iVShader : Int
-        val iFShader : Int
-        val iProgId : Int
-        val link : IntArray = IntArray(1)
-        iVShader = loadShader(strVSource, GLES20.GL_VERTEX_SHADER);
+        val iVShader : Int = loadShader(strVSource, GLES20.GL_VERTEX_SHADER);
         if (iVShader == 0) {
             Log.d("Load Program", "Vertex Shader Failed");
             return 0;
         }
-        iFShader = loadShader(strFSource, GLES20.GL_FRAGMENT_SHADER);
+        val iFShader : Int = loadShader(strFSource, GLES20.GL_FRAGMENT_SHADER);
         if (iFShader == 0) {
             Log.d("Load Program", "Fragment Shader Failed");
             return 0;
         }
 
-        iProgId = Kgl.createProgram()!!;
+        val iProgId : Int = Kgl.createProgram()!!;
 
         Kgl.attachShader(iProgId, iVShader);
         Kgl.attachShader(iProgId, iFShader);
 
         Kgl.linkProgram(iProgId);
 
-        // TODO this command ain't available
-        GLES20.glGetProgramiv(iProgId, GLES20.GL_LINK_STATUS, link, 0);
-        if (link[0] <= 0) {
+        val linkStatus = Kgl.getProgramParameter(iProgId, GLES20.GL_LINK_STATUS)
+        if (linkStatus <= 0) {
             Log.d("Load Program", "Linking Failed");
             return 0;
         }

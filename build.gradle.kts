@@ -18,5 +18,16 @@ allprojects {
         jcenter()
         maven("https://maven.danielgergely.com/releases")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://maven.pkg.github.com/Qinetik/logger") {
+            name = "GithubPackages"
+            try {
+                credentials {
+                    username = (System.getenv("GPR_USER")).toString()
+                    password = (System.getenv("GPR_API_KEY")).toString()
+                }
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+        }
     }
 }
