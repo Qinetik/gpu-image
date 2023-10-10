@@ -17,10 +17,6 @@ allprojects {
         mavenCentral()
         jcenter()
         maven("https://maven.danielgergely.com/releases")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
-}
-
-
-tasks.create<Delete>("clean"){
-    delete(rootProject.buildDir)
 }

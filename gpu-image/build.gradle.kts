@@ -9,20 +9,23 @@ kotlin {
             publishLibraryVariants()
         }
         jvm()
-        js()
+        js {
+            browser()
+        }
         val commonMain by getting {
             dependencies {
-                implementation("com.danielgergely.kgl:kgl:0.6.2")
+                api("com.danielgergely.kgl:kgl:0.6.2")
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation("com.danielgergely.kgl:kgl-android:0.6.2")
+                api("com.danielgergely.kgl:kgl-android:0.6.2")
             }
         }
         val jvmMain by getting {
             dependencies {
-                implementation("com.danielgergely.kgl:kgl-lwjgl:0.6.2")
+
+                api("com.danielgergely.kgl:kgl-lwjgl:0.6.2")
             }
         }
     }

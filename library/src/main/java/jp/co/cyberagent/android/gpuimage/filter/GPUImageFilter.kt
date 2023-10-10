@@ -16,11 +16,14 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.graphics.PointF;
-import android.opengl.GLES20;
+import android.graphics.PointF
+import android.opengl.GLES20
+import jp.co.cyberagent.android.gpuimage.GPUImageRenderer
 import jp.co.cyberagent.android.gpuimage.Kgl
-import java.nio.FloatBuffer;
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
+import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil
+import java.nio.Buffer
+import java.nio.FloatBuffer
 
 open class GPUImageFilter {
 
@@ -106,6 +109,55 @@ open class GPUImageFilter {
         outputHeight = height;
     }
 
+    open fun onDrawNew(textureId: Int, cubeBuffer: com.danielgergely.kgl.FloatBuffer, cubeBufferSize : Int,  textureBuffer: com.danielgergely.kgl.FloatBuffer, textureBufferSize : Int) {
+        Kgl.useProgram(glProgId);
+        runPendingOnDrawTasks();
+        if (!isInitialized) {
+            return;
+        }
+
+        val cubeBufferId = Kgl.createBuffer()
+        Kgl.enableVertexAttribArray(glAttribPosition)
+        Kgl.bindBuffer(GLES20.GL_ARRAY_BUFFER, cubeBufferId)
+        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, cubeBuffer, cubeBufferSize * 4, GLES20.GL_STATIC_DRAW)
+        Kgl.vertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, 0)
+
+        val textureBufferId = Kgl.createBuffer()
+        Kgl.enableVertexAttribArray(glAttribTextureCoordinate)
+        Kgl.bindBuffer(GLES20.GL_ARRAY_BUFFER, textureBufferId)
+        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, textureBuffer, textureBufferSize * 4, GLES20.GL_STATIC_DRAW)
+        Kgl.vertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, 0)
+
+        if (textureId != OpenGlUtils.NO_TEXTURE) {
+            Kgl.activeTexture(GLES20.GL_TEXTURE0);
+            Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
+            Kgl.uniform1i(glUniformTexture, 0);
+        }
+
+        onDrawArraysPre();
+        Kgl.drawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        Kgl.disableVertexAttribArray(glAttribPosition);
+        Kgl.disableVertexAttribArray(glAttribTextureCoordinate);
+        Kgl.bindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+    }
+
+    fun glVertexAttribPointer(
+        location: Int,
+        size: Int,
+        type: Int,
+        normalized: Boolean,
+        stride: Int,
+        ptr: FloatBuffer,
+        bufferSize : Int
+    ) {
+        val cubeBufferId = Kgl.createBuffer()
+        Kgl.enableVertexAttribArray(location)
+        Kgl.bindBuffer(GLES20.GL_ARRAY_BUFFER, cubeBufferId)
+        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, com.danielgergely.kgl.FloatBuffer(ptr), bufferSize * 4, GLES20.GL_STATIC_DRAW)
+        Kgl.vertexAttribPointer(location, size, type, normalized, stride, 0)
+    }
+
     open fun onDraw(textureId : Int , cubeBuffer : FloatBuffer, textureBuffer : FloatBuffer) {
         Kgl.useProgram(glProgId);
         runPendingOnDrawTasks();
@@ -115,13 +167,12 @@ open class GPUImageFilter {
 
         cubeBuffer.position(0);
         // TODO this command ain't available
-        GLES20.glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer);
-        Kgl.enableVertexAttribArray(glAttribPosition);
+        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer, GPUImageRenderer.CUBE.size);
+//        Kgl.enableVertexAttribArray(glAttribPosition);
         textureBuffer.position(0);
         // TODO this command ain't available
-        GLES20.glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0,
-                textureBuffer);
-        Kgl.enableVertexAttribArray(glAttribTextureCoordinate);
+        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, textureBuffer, TextureRotationUtil.TEXTURE_NO_ROTATION.size);
+//        Kgl.enableVertexAttribArray(glAttribTextureCoordinate);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
             Kgl.activeTexture(GLES20.GL_TEXTURE0);
             Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
