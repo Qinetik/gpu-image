@@ -38,6 +38,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
+import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 import org.qinetik.gpuimage.utils.TextureRotationUtil.TEXTURE_NO_ROTATION
 
@@ -45,12 +46,6 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
 
     companion object {
         private const val NO_IMAGE: Int = -1;
-        val CUBE: FloatArray = floatArrayOf(
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
-            -1.0f, 1.0f,
-            1.0f, 1.0f,
-        )
     }
 
 

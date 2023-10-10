@@ -22,6 +22,13 @@ import org.qinetik.logger.QLog
 
 object OpenGlUtils {
 
+    val CUBE: FloatArray = floatArrayOf(
+        -1.0f, -1.0f,
+        1.0f, -1.0f,
+        -1.0f, 1.0f,
+        1.0f, 1.0f,
+    )
+
     const val NO_TEXTURE: Int = -1
 
     fun loadShader(strSource: String, iType: Int): Shader? {

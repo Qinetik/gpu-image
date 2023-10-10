@@ -25,6 +25,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer;
+import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 
 /**
@@ -58,10 +59,10 @@ open class GPUImageFilterGroup : GPUImageFilter {
             updateMergedFilters();
         }
 
-        glCubeBuffer = ByteBuffer.allocateDirect(GPUImageRenderer.CUBE.size * 4)
+        glCubeBuffer = ByteBuffer.allocateDirect(CUBE.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        glCubeBuffer.put(GPUImageRenderer.CUBE).position(0);
+        glCubeBuffer.put(CUBE).position(0);
 
         glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.size * 4)
                 .order(ByteOrder.nativeOrder())

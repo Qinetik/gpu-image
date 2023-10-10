@@ -16,12 +16,10 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.opengl.GLES20
-import com.danielgergely.kgl.FloatBuffer
-import com.danielgergely.kgl.Program
-import jp.co.cyberagent.android.gpuimage.GPUImageRenderer
+import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.utils.OpenGlUtils
+import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 
 open class GPUImageFilter {
@@ -119,8 +117,8 @@ open class GPUImageFilter {
     ) {
         val cubeBufferId = Kgl.createBuffer()
         Kgl.enableVertexAttribArray(location)
-        Kgl.bindBuffer(GLES20.GL_ARRAY_BUFFER, cubeBufferId)
-        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, ptr, bufferSize * 4, GLES20.GL_STATIC_DRAW)
+        Kgl.bindBuffer(GL_ARRAY_BUFFER, cubeBufferId)
+        Kgl.bufferData(GL_ARRAY_BUFFER, ptr, bufferSize * 4, GL_STATIC_DRAW)
         Kgl.vertexAttribPointer(location, size, type, normalized, stride, 0)
     }
 
@@ -132,20 +130,20 @@ open class GPUImageFilter {
         }
 
         cubeBuffer.position = 0
-        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer, GPUImageRenderer.CUBE.size);
+        glVertexAttribPointer(glAttribPosition, 2, GL_FLOAT, false, 0, cubeBuffer, CUBE.size);
 
         textureBuffer.position = 0
-        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, textureBuffer, TextureRotationUtil.TEXTURE_NO_ROTATION.size);
+        glVertexAttribPointer(glAttribTextureCoordinate, 2, GL_FLOAT, false, 0, textureBuffer, TextureRotationUtil.TEXTURE_NO_ROTATION.size);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
-            Kgl.activeTexture(GLES20.GL_TEXTURE0);
-            Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
+            Kgl.activeTexture(GL_TEXTURE0);
+            Kgl.bindTexture(GL_TEXTURE_2D, textureId);
             Kgl.uniform1i(glUniformTexture, 0);
         }
         onDrawArraysPre();
-        Kgl.drawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        Kgl.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
         Kgl.disableVertexAttribArray(glAttribPosition);
         Kgl.disableVertexAttribArray(glAttribTextureCoordinate);
-        Kgl.bindTexture(GLES20.GL_TEXTURE_2D, 0);
+        Kgl.bindTexture(GL_TEXTURE_2D, 0);
     }
 
     open fun onDraw(textureId : Int , cubeBuffer : java.nio.FloatBuffer, textureBuffer : java.nio.FloatBuffer) {
