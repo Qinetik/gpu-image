@@ -117,7 +117,7 @@ class GPUImageGlassSphereFilter : GPUImageFilter {
 
     fun setCenter(center: PointF) {
         this.center = center
-        setPoint(centerLocation, center)
+        setPoint(centerLocation, center.x, center.y)
     }
 
     fun setRadius(radius: Float) {

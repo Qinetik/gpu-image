@@ -91,7 +91,7 @@ class GPUImageVignetteFilter : GPUImageFilter {
 
     fun setVignetteCenter(vignetteCenter: PointF) {
         this.vignetteCenter = vignetteCenter
-        setPoint(vignetteCenterLocation, this.vignetteCenter)
+        setPoint(vignetteCenterLocation, this.vignetteCenter.x, this.vignetteCenter.y)
     }
 
     fun setVignetteColor(vignetteColor: FloatArray) {

@@ -16,13 +16,11 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.graphics.PointF
 import android.opengl.GLES20
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
 import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil
 import org.qinetik.gpuimage.Kgl
-import java.nio.Buffer
 import java.nio.FloatBuffer
 
 open class GPUImageFilter {
@@ -109,7 +107,7 @@ open class GPUImageFilter {
         outputHeight = height;
     }
 
-    fun glVertexAttribPointer(
+    private fun glVertexAttribPointer(
         location: Int,
         size: Int,
         type: Int,
@@ -216,10 +214,10 @@ open class GPUImageFilter {
         }
     }
 
-    protected fun setPoint(location : Int, point : PointF) {
+    protected fun setPoint(location : Int, x : Float, y : Float) {
         runOnDraw {
             ifNeedInit();
-            Kgl.uniform2fv(location, floatArrayOf(point.x, point.y))
+            Kgl.uniform2fv(location, floatArrayOf(x, y))
         }
     }
 

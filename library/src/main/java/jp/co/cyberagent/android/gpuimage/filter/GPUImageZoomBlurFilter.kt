@@ -62,7 +62,7 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
 
     fun setBlurCenter(blurCenter: PointF) {
         this.blurCenter = blurCenter
-        setPoint(blurCenterLocation, blurCenter)
+        setPoint(blurCenterLocation, blurCenter.x, blurCenter.y)
     }
 
     fun setBlurSize(blurSize: Float) {

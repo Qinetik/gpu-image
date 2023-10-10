@@ -118,6 +118,6 @@ public class GPUImageBulgeDistortionFilter(
      */
     public fun setCenter(center : PointF) {
         this.center = center;
-        setPoint(centerLocation, center);
+        setPoint(centerLocation, center.x, center.y);
     }
 }
