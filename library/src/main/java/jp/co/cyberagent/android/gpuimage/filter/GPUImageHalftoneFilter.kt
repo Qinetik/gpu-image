@@ -1,6 +1,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageHalftoneFilter(private var fractionalWidthOfAPixel: Float) :
     GPUImageFilter(NO_FILTER_VERTEX_SHADER, HALFTONE_FRAGMENT_SHADER) {

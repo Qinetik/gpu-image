@@ -15,12 +15,14 @@
  */
 package jp.co.cyberagent.android.gpuimage.filter
 
+import org.qinetik.gpuimage.filter.GPUImageFilter
+
 open class GPUImageTwoPassFilter(
     firstVertexShader: String, firstFragmentShader: String,
     secondVertexShader: String, secondFragmentShader: String
 ) : GPUImageFilterGroup(mutableListOf()) {
     init {
-        addFilter(GPUImageFilter(firstVertexShader, firstFragmentShader))
+        addFilter(org.qinetik.gpuimage.filter.GPUImageFilter(firstVertexShader, firstFragmentShader))
         addFilter(GPUImageFilter(secondVertexShader, secondFragmentShader))
     }
 }

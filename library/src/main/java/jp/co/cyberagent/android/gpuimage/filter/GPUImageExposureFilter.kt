@@ -17,6 +17,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
  * exposure: The adjusted exposure (-10.0 - 10.0, with 0.0 as the default)

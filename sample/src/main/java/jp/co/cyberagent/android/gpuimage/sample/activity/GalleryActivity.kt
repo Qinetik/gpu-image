@@ -24,7 +24,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 import jp.co.cyberagent.android.gpuimage.sample.GPUImageFilterTools
 import jp.co.cyberagent.android.gpuimage.sample.GPUImageFilterTools.FilterAdjuster
 import jp.co.cyberagent.android.gpuimage.sample.R
@@ -87,7 +86,7 @@ class GalleryActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchFilterTo(filter: GPUImageFilter) {
+    private fun switchFilterTo(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         if (gpuImageView.getFilter() == null || gpuImageView.getFilter()!!.javaClass != filter.javaClass) {
             gpuImageView.setFilter(filter)
             filterAdjuster = FilterAdjuster(filter)

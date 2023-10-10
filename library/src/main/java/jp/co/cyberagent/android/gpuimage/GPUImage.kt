@@ -36,7 +36,6 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.WindowManager;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 
 import java.io.*;
 import java.net.URL;
@@ -47,12 +46,12 @@ import java.net.URL;
  */
 public class GPUImage {
 
-    public enum class ScaleType {CENTER_INSIDE, CENTER_CROP}
+    public enum class ScaleType { CENTER_INSIDE, CENTER_CROP }
 
     companion object {
 
-        const val SURFACE_TYPE_SURFACE_VIEW : Int = 0
-        const val SURFACE_TYPE_TEXTURE_VIEW : Int = 1
+        const val SURFACE_TYPE_SURFACE_VIEW: Int = 0
+        const val SURFACE_TYPE_TEXTURE_VIEW: Int = 1
 
         /**
          * Gets the images for multiple filters on a image. This can be used to
@@ -65,13 +64,17 @@ public class GPUImage {
          * @param filters  the filters which will be applied on the bitmap
          * @param listener the listener on which the results will be notified
          */
-        public fun getBitmapForMultipleFilters(bitmap : Bitmap, filters : List<GPUImageFilter>, listener : ResponseListener<Bitmap>) {
+        public fun getBitmapForMultipleFilters(
+            bitmap: Bitmap,
+            filters: List<org.qinetik.gpuimage.filter.GPUImageFilter>,
+            listener: ResponseListener<Bitmap>
+        ) {
             if (filters.isEmpty()) {
                 return;
             }
-            val renderer : GPUImageRenderer = GPUImageRenderer(filters.get(0));
+            val renderer: GPUImageRenderer = GPUImageRenderer(filters.get(0));
             renderer.setImageBitmap(bitmap, false);
-            val buffer : PixelBuffer = PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
+            val buffer: PixelBuffer = PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
             buffer.setRenderer(renderer);
 
             for (filter in filters) {
@@ -86,29 +89,29 @@ public class GPUImage {
 
     }
 
-    private val context : Context
-    private val renderer : GPUImageRenderer
-    private var surfaceType : Int = SURFACE_TYPE_SURFACE_VIEW;
-    private var glSurfaceView : GLSurfaceView? = null;
-    private var glTextureView : GLTextureView? = null;
-    private var filter : GPUImageFilter
-    private var currentBitmap : Bitmap? = null;
-    private var scaleType : ScaleType = ScaleType.CENTER_CROP;
-    private var scaleWidth : Int = 0
-    private var scaleHeight : Int = 0;
+    private val context: Context
+    private val renderer: GPUImageRenderer
+    private var surfaceType: Int = SURFACE_TYPE_SURFACE_VIEW;
+    private var glSurfaceView: GLSurfaceView? = null;
+    private var glTextureView: GLTextureView? = null;
+    private var filter: org.qinetik.gpuimage.filter.GPUImageFilter
+    private var currentBitmap: Bitmap? = null;
+    private var scaleType: ScaleType = ScaleType.CENTER_CROP;
+    private var scaleWidth: Int = 0
+    private var scaleHeight: Int = 0;
 
     /**
      * Instantiates a new GPUImage object.
      *
      * @param context the context
      */
-    public constructor(context : Context) {
+    public constructor(context: Context) {
         if (!supportsOpenGLES2(context)) {
             throw IllegalStateException("OpenGL ES 2.0 is not supported on this phone.");
         }
 
         this.context = context;
-        filter = GPUImageFilter();
+        filter = org.qinetik.gpuimage.filter.GPUImageFilter();
         renderer = GPUImageRenderer(filter);
     }
 
@@ -118,10 +121,10 @@ public class GPUImage {
      * @param context the context
      * @return true, if successful
      */
-    private fun supportsOpenGLES2(context : Context) : Boolean {
-        val activityManager : ActivityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val configurationInfo : ConfigurationInfo =
-                activityManager.getDeviceConfigurationInfo();
+    private fun supportsOpenGLES2(context: Context): Boolean {
+        val activityManager: ActivityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val configurationInfo: ConfigurationInfo =
+            activityManager.getDeviceConfigurationInfo();
         return configurationInfo.reqGlEsVersion >= 0x20000;
     }
 
@@ -130,7 +133,7 @@ public class GPUImage {
      *
      * @param view the GLSurfaceView
      */
-    public fun setGLSurfaceView(view : GLSurfaceView) {
+    public fun setGLSurfaceView(view: GLSurfaceView) {
         surfaceType = SURFACE_TYPE_SURFACE_VIEW;
         glSurfaceView = view;
         glSurfaceView!!.setEGLContextClientVersion(2);
@@ -146,7 +149,7 @@ public class GPUImage {
      *
      * @param view the GLTextureView
      */
-    public fun setGLTextureView(view : GLTextureView) {
+    public fun setGLTextureView(view: GLTextureView) {
         surfaceType = SURFACE_TYPE_TEXTURE_VIEW;
         glTextureView = view;
         glTextureView!!.setEGLContextClientVersion(2);
@@ -164,7 +167,7 @@ public class GPUImage {
      * @param green green color value
      * @param blue  red color value
      */
-    public fun setBackgroundColor(red : Float, green : Float, blue : Float) {
+    public fun setBackgroundColor(red: Float, green: Float, blue: Float) {
         renderer.setBackgroundColor(red, green, blue);
     }
 
@@ -192,7 +195,7 @@ public class GPUImage {
      * @param camera the camera
      */
     @Deprecated("its deprecated bro")
-    public fun setUpCamera(camera : Camera) {
+    public fun setUpCamera(camera: Camera) {
         setUpCamera(camera, 0, false, false);
     }
 
@@ -207,8 +210,10 @@ public class GPUImage {
      * @param flipHorizontal if the image should be flipped horizontally
      * @param flipVertical   if the image should be flipped vertically
      */
-    public fun setUpCamera(camera : Camera, degrees : Int, flipHorizontal : Boolean,
-                            flipVertical : Boolean) {
+    public fun setUpCamera(
+        camera: Camera, degrees: Int, flipHorizontal: Boolean,
+        flipVertical: Boolean
+    ) {
         if (surfaceType == SURFACE_TYPE_SURFACE_VIEW) {
             glSurfaceView!!.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         } else if (surfaceType == SURFACE_TYPE_TEXTURE_VIEW) {
@@ -238,7 +243,7 @@ public class GPUImage {
      *
      * @param filter the new filter
      */
-    public fun setFilter(filter : GPUImageFilter) {
+    public fun setFilter(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         this.filter = filter;
         renderer.setFilter(this.filter);
         requestRender();
@@ -249,7 +254,7 @@ public class GPUImage {
      *
      * @param bitmap the new image
      */
-    public fun setImage(bitmap : Bitmap) {
+    public fun setImage(bitmap: Bitmap) {
         currentBitmap = bitmap;
         renderer.setImageBitmap(bitmap, false);
         requestRender();
@@ -262,7 +267,7 @@ public class GPUImage {
      * @param width  width of camera preview
      * @param height height of camera preview
      */
-    public fun updatePreviewFrame(data : ByteArray, width : Int, height : Int) {
+    public fun updatePreviewFrame(data: ByteArray, width: Int, height: Int) {
         renderer.onPreviewFrame(data, width, height);
     }
 
@@ -272,7 +277,7 @@ public class GPUImage {
      *
      * @param scaleType The new ScaleType
      */
-    public fun setScaleType(scaleType : ScaleType) {
+    public fun setScaleType(scaleType: ScaleType) {
         this.scaleType = scaleType;
         renderer.setScaleType(scaleType);
         renderer.deleteImage();
@@ -286,8 +291,8 @@ public class GPUImage {
      *
      * @return array with width and height of bitmap image
      */
-    public fun getScaleSize() : IntArray {
-        return intArrayOf(scaleWidth,scaleHeight)
+    public fun getScaleSize(): IntArray {
+        return intArrayOf(scaleWidth, scaleHeight)
     }
 
     /**
@@ -326,7 +331,7 @@ public class GPUImage {
      *
      * @param uri the uri of the new image
      */
-    public fun setImage(uri : Uri) {
+    public fun setImage(uri: Uri) {
         LoadImageUriTask(this, uri).execute();
     }
 
@@ -335,22 +340,22 @@ public class GPUImage {
      *
      * @param file the file of the new image
      */
-    public fun setImage(file : File) {
+    public fun setImage(file: File) {
         LoadImageFileTask(this, file).execute();
     }
 
-    private fun getPath(uri : Uri) : String? {
-        val projection : Array<String> = arrayOf(
-                MediaStore.Images.Media.DATA,
+    private fun getPath(uri: Uri): String? {
+        val projection: Array<String> = arrayOf(
+            MediaStore.Images.Media.DATA,
         );
-        val cursor : Cursor? = context.getContentResolver()
-                .query(uri, projection, null, null, null);
-        var path : String? = null;
+        val cursor: Cursor? = context.getContentResolver()
+            .query(uri, projection, null, null, null);
+        var path: String? = null;
         if (cursor == null) {
             return null;
         }
         if (cursor.moveToFirst()) {
-            val pathIndex : Int = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            val pathIndex: Int = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             path = cursor.getString(pathIndex);
         }
         cursor.close();
@@ -362,7 +367,7 @@ public class GPUImage {
      *
      * @return the current image with filter applied
      */
-    public fun getBitmapWithFilterApplied() : Bitmap? {
+    public fun getBitmapWithFilterApplied(): Bitmap? {
         return currentBitmap?.let { getBitmapWithFilterApplied(it) };
     }
 
@@ -372,7 +377,7 @@ public class GPUImage {
      * @param bitmap the bitmap on which the current filter should be applied
      * @return the bitmap with filter applied
      */
-    public fun getBitmapWithFilterApplied(bitmap : Bitmap) : Bitmap? {
+    public fun getBitmapWithFilterApplied(bitmap: Bitmap): Bitmap? {
         return getBitmapWithFilterApplied(bitmap, false);
     }
 
@@ -383,35 +388,35 @@ public class GPUImage {
      * @param recycle recycle the bitmap or not.
      * @return the bitmap with filter applied
      */
-    public fun getBitmapWithFilterApplied(bitmap : Bitmap, recycle : Boolean) : Bitmap? {
+    public fun getBitmapWithFilterApplied(bitmap: Bitmap, recycle: Boolean): Bitmap? {
         if (glSurfaceView != null || glTextureView != null) {
             renderer.deleteImage();
             renderer.runOnDraw {
-                synchronized (filter) {
+                synchronized(filter) {
                     filter.destroy();
                     (filter as Object).notify();
                 }
             }
-            synchronized (filter) {
+            synchronized(filter) {
                 requestRender();
                 try {
                     (filter as Object).wait();
-                } catch (e : InterruptedException) {
+                } catch (e: InterruptedException) {
                     e.printStackTrace();
                 }
             }
         }
 
-        val renderer : GPUImageRenderer = GPUImageRenderer(filter);
+        val renderer: GPUImageRenderer = GPUImageRenderer(filter);
         renderer.setRotation(
             org.qinetik.gpuimage.utils.Rotation.NORMAL,
             this.renderer.isFlippedHorizontally(), this.renderer.isFlippedVertically()
         );
         renderer.setScaleType(scaleType);
-        val buffer : PixelBuffer = PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
+        val buffer: PixelBuffer = PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);
         renderer.setImageBitmap(bitmap, recycle);
-        val result : Bitmap? = buffer.getBitmap();
+        val result: Bitmap? = buffer.getBitmap();
         filter.destroy();
         renderer.deleteImage();
         buffer.destroy();
@@ -436,7 +441,7 @@ public class GPUImage {
      * @param fileName   the file name
      * @param listener   the listener
      */
-    public fun saveToPictures(folderName : String, fileName : String, listener : OnPictureSavedListener) {
+    public fun saveToPictures(folderName: String, fileName: String, listener: OnPictureSavedListener) {
         saveToPictures(currentBitmap!!, folderName, fileName, listener);
     }
 
@@ -452,7 +457,7 @@ public class GPUImage {
      * @param fileName   the file name
      * @param listener   the listener
      */
-    public fun saveToPictures(bitmap : Bitmap, folderName : String, fileName : String, listener : OnPictureSavedListener) {
+    public fun saveToPictures(bitmap: Bitmap, folderName: String, fileName: String, listener: OnPictureSavedListener) {
         SaveTask(bitmap, folderName, fileName, listener).execute();
     }
 
@@ -461,56 +466,56 @@ public class GPUImage {
      *
      * @param runnable The runnable to be run on the OpenGL thread.
      */
-    fun runOnGLThread(runnable : Runnable) {
+    fun runOnGLThread(runnable: Runnable) {
         renderer.runOnDrawEnd(runnable);
     }
 
-    private fun getOutputWidth() : Int {
+    private fun getOutputWidth(): Int {
         if (renderer != null && renderer.getFrameWidth() != 0) {
             return renderer.getFrameWidth();
         } else if (currentBitmap != null) {
             return currentBitmap!!.getWidth();
         } else {
-            val windowManager : WindowManager =
-                    context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
-            val display : Display = windowManager.getDefaultDisplay();
+            val windowManager: WindowManager =
+                context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
+            val display: Display = windowManager.getDefaultDisplay();
             return display.getWidth();
         }
     }
 
-    private fun getOutputHeight() : Int {
+    private fun getOutputHeight(): Int {
         return if (renderer != null && renderer.getFrameHeight() != 0) {
             renderer.getFrameHeight();
         } else if (currentBitmap != null) {
             currentBitmap!!.getHeight();
         } else {
-            val windowManager : WindowManager =
+            val windowManager: WindowManager =
                 context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
-            val display : Display = windowManager.getDefaultDisplay();
+            val display: Display = windowManager.getDefaultDisplay();
             display.getHeight();
         }
     }
 
     @Deprecated("its deprecated")
     private inner class SaveTask(
-        private val bitmap : Bitmap,
-        private val folderName : String,
-        private val fileName : String,
-        private val listener : OnPictureSavedListener,
-        private val handler : Handler = Handler()
+        private val bitmap: Bitmap,
+        private val folderName: String,
+        private val fileName: String,
+        private val listener: OnPictureSavedListener,
+        private val handler: Handler = Handler()
     ) : AsyncTask<Void, Void, Void>() {
 
 
         @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg params: Void?): Void? {
-            val result : Bitmap? = getBitmapWithFilterApplied(bitmap);
+            val result: Bitmap? = getBitmapWithFilterApplied(bitmap);
             saveImage(folderName, fileName, result!!);
             return null;
         }
 
-        private fun saveImage(folderName : String, fileName : String, image : Bitmap) {
-            val path : File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            val file : File = File(path, folderName + "/" + fileName);
+        private fun saveImage(folderName: String, fileName: String, image: Bitmap) {
+            val path: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            val file: File = File(path, folderName + "/" + fileName);
             try {
                 file.getParentFile().mkdirs();
                 image.compress(CompressFormat.JPEG, 80, FileOutputStream(file));
@@ -521,21 +526,21 @@ public class GPUImage {
                         };
                     }
                 };
-            } catch (e : FileNotFoundException) {
+            } catch (e: FileNotFoundException) {
                 e.printStackTrace();
             }
         }
     }
 
     public interface OnPictureSavedListener {
-        fun onPictureSaved(uri : Uri)
+        fun onPictureSaved(uri: Uri)
     }
 
-    private inner class LoadImageUriTask(gpuImage : GPUImage, private val uri : Uri) : LoadImageTask(gpuImage) {
+    private inner class LoadImageUriTask(gpuImage: GPUImage, private val uri: Uri) : LoadImageTask(gpuImage) {
 
-        protected override fun decode(options : BitmapFactory.Options) : Bitmap? {
+        protected override fun decode(options: BitmapFactory.Options): Bitmap? {
             try {
-                val inputStream : InputStream
+                val inputStream: InputStream
                 if (uri.getScheme()!!.startsWith("http") || uri.getScheme()!!.startsWith("https")) {
                     inputStream = URL(uri.toString()).openStream();
                 } else if (uri.getPath()!!.startsWith("/android_asset/")) {
@@ -544,39 +549,41 @@ public class GPUImage {
                     inputStream = context.getContentResolver().openInputStream(uri)!!
                 }
                 return BitmapFactory.decodeStream(inputStream, null, options);
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace();
             }
             return null;
         }
 
         @Throws(IOException::class)
-        protected override fun getImageOrientation() : Int {
-            val cursor : Cursor? = context.getContentResolver().query(uri,
-                    arrayOf(MediaStore.Images.ImageColumns.ORIENTATION), null, null, null);
+        protected override fun getImageOrientation(): Int {
+            val cursor: Cursor? = context.getContentResolver().query(
+                uri,
+                arrayOf(MediaStore.Images.ImageColumns.ORIENTATION), null, null, null
+            );
 
             if (cursor == null || cursor.getCount() != 1) {
                 return 0
             }
 
             cursor.moveToFirst();
-            val orientation : Int = cursor.getInt(0);
+            val orientation: Int = cursor.getInt(0);
             cursor.close();
             return orientation;
         }
     }
 
-    private inner class LoadImageFileTask(gpuImage : GPUImage, private val imageFile : File) : LoadImageTask(gpuImage) {
+    private inner class LoadImageFileTask(gpuImage: GPUImage, private val imageFile: File) : LoadImageTask(gpuImage) {
 
         @Throws(IOException::class)
-        protected override fun decode(options : BitmapFactory.Options) : Bitmap {
+        protected override fun decode(options: BitmapFactory.Options): Bitmap {
             return BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
         }
 
         @Throws(IOException::class)
-        protected override fun getImageOrientation() : Int {
+        protected override fun getImageOrientation(): Int {
             val exif = ExifInterface(imageFile.getAbsolutePath());
-            val orientation : Int = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            val orientation: Int = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             return when (orientation) {
                 ExifInterface.ORIENTATION_NORMAL -> 0;
                 ExifInterface.ORIENTATION_ROTATE_90 -> 90;
@@ -589,17 +596,17 @@ public class GPUImage {
 
     private abstract inner class LoadImageTask(private val gpuImage: GPUImage) : AsyncTask<Void, Void, Bitmap?>() {
 
-        private var outputWidth : Int = 0;
-        private var outputHeight : Int = 0;
+        private var outputWidth: Int = 0;
+        private var outputHeight: Int = 0;
 
         @Deprecated("Deprecated in Java")
-        protected override fun doInBackground(vararg params : Void?) : Bitmap? {
+        protected override fun doInBackground(vararg params: Void?): Bitmap? {
             if (renderer != null && renderer.getFrameWidth() == 0) {
                 try {
-                    synchronized (renderer.surfaceChangedWaiter) {
+                    synchronized(renderer.surfaceChangedWaiter) {
                         renderer.surfaceChangedWaiter.wait(3000);
                     }
-                } catch (e : InterruptedException) {
+                } catch (e: InterruptedException) {
                     e.printStackTrace();
                 }
             }
@@ -609,16 +616,16 @@ public class GPUImage {
         }
 
         @Deprecated("Deprecated in Java")
-        protected override fun onPostExecute(bitmap : Bitmap?) {
+        protected override fun onPostExecute(bitmap: Bitmap?) {
             super.onPostExecute(bitmap);
             gpuImage.deleteImage();
             gpuImage.setImage(bitmap!!);
         }
 
-        protected abstract fun decode(options : BitmapFactory.Options) : Bitmap?
+        protected abstract fun decode(options: BitmapFactory.Options): Bitmap?
 
-        private fun loadResizedImage() : Bitmap? {
-            var options : BitmapFactory.Options = BitmapFactory.Options();
+        private fun loadResizedImage(): Bitmap? {
+            var options: BitmapFactory.Options = BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             decode(options);
             var scale = 1;
@@ -635,7 +642,7 @@ public class GPUImage {
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inPurgeable = true;
             options.inTempStorage = ByteArray(32 * 1024)
-            var bitmap : Bitmap? = decode(options)
+            var bitmap: Bitmap? = decode(options)
             if (bitmap == null) {
                 return null;
             }
@@ -644,13 +651,13 @@ public class GPUImage {
             return bitmap;
         }
 
-        private fun scaleBitmap(bitmap : Bitmap) : Bitmap {
+        private fun scaleBitmap(bitmap: Bitmap): Bitmap {
             var bitmap = bitmap
             // resize to desired dimensions
-            val width : Int = bitmap.getWidth();
-            val height : Int = bitmap.getHeight();
-            val newSize : IntArray = getScaleSize(width, height);
-            var workBitmap : Bitmap = Bitmap.createScaledBitmap(bitmap, newSize[0], newSize[1], true);
+            val width: Int = bitmap.getWidth();
+            val height: Int = bitmap.getHeight();
+            val newSize: IntArray = getScaleSize(width, height);
+            var workBitmap: Bitmap = Bitmap.createScaledBitmap(bitmap, newSize[0], newSize[1], true);
             if (workBitmap != bitmap) {
                 bitmap.recycle();
                 bitmap = workBitmap;
@@ -659,10 +666,12 @@ public class GPUImage {
 
             if (scaleType == ScaleType.CENTER_CROP) {
                 // Crop it
-                val diffWidth : Int = newSize[0] - outputWidth;
-                val diffHeight : Int = newSize[1] - outputHeight;
-                workBitmap = Bitmap.createBitmap(bitmap, diffWidth / 2, diffHeight / 2,
-                        newSize[0] - diffWidth, newSize[1] - diffHeight);
+                val diffWidth: Int = newSize[0] - outputWidth;
+                val diffHeight: Int = newSize[1] - outputHeight;
+                workBitmap = Bitmap.createBitmap(
+                    bitmap, diffWidth / 2, diffHeight / 2,
+                    newSize[0] - diffWidth, newSize[1] - diffHeight
+                );
                 if (workBitmap != bitmap) {
                     bitmap.recycle();
                     bitmap = workBitmap;
@@ -678,15 +687,15 @@ public class GPUImage {
          * If CROP: sides are same size or bigger than output's sides<br>
          * Else   : sides are same size or smaller than output's sides
          */
-        private fun getScaleSize(width : Int, height : Int) : IntArray {
-            val newWidth : Float
-            val newHeight : Float
+        private fun getScaleSize(width: Int, height: Int): IntArray {
+            val newWidth: Float
+            val newHeight: Float
 
-            val withRatio : Float = width.toFloat() / outputWidth.toFloat();
-            val heightRatio : Float = height.toFloat() / outputHeight.toFloat();
+            val withRatio: Float = width.toFloat() / outputWidth.toFloat();
+            val heightRatio: Float = height.toFloat() / outputHeight.toFloat();
 
-            val adjustWidth : Boolean = if(scaleType == ScaleType.CENTER_CROP)
-                    withRatio > heightRatio else withRatio < heightRatio;
+            val adjustWidth: Boolean = if (scaleType == ScaleType.CENTER_CROP)
+                withRatio > heightRatio else withRatio < heightRatio;
 
             if (adjustWidth) {
                 newHeight = outputHeight.toFloat();
@@ -697,10 +706,10 @@ public class GPUImage {
             }
             scaleWidth = Math.round(newWidth);
             scaleHeight = Math.round(newHeight);
-            return intArrayOf(Math.round(newWidth),Math.round(newHeight))
+            return intArrayOf(Math.round(newWidth), Math.round(newHeight))
         }
 
-        private fun checkSize(widthBigger : Boolean, heightBigger : Boolean) : Boolean {
+        private fun checkSize(widthBigger: Boolean, heightBigger: Boolean): Boolean {
             return if (scaleType == ScaleType.CENTER_CROP) {
                 widthBigger && heightBigger;
             } else {
@@ -708,32 +717,34 @@ public class GPUImage {
             }
         }
 
-        private fun rotateImage(bitmap : Bitmap) : Bitmap {
-            var rotatedBitmap : Bitmap = bitmap;
+        private fun rotateImage(bitmap: Bitmap): Bitmap {
+            var rotatedBitmap: Bitmap = bitmap;
             try {
-                val orientation : Float = getImageOrientation().toFloat();
+                val orientation: Float = getImageOrientation().toFloat();
                 if (orientation != 0f) {
                     val matrix = Matrix();
                     matrix.postRotate(orientation);
-                    rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                            bitmap.getHeight(), matrix, true);
+                    rotatedBitmap = Bitmap.createBitmap(
+                        bitmap, 0, 0, bitmap.getWidth(),
+                        bitmap.getHeight(), matrix, true
+                    );
                     bitmap.recycle();
                 }
-            } catch (e : IOException) {
+            } catch (e: IOException) {
                 e.printStackTrace();
             }
             return rotatedBitmap
         }
 
         @Throws(IOException::class)
-        protected abstract fun getImageOrientation() : Int;
+        protected abstract fun getImageOrientation(): Int;
     }
 
     public interface ResponseListener<T> {
-        fun response(item : T)
+        fun response(item: T)
     }
 
-    public fun getRenderer() : GPUImageRenderer {
+    public fun getRenderer(): GPUImageRenderer {
         return renderer;
     }
 }

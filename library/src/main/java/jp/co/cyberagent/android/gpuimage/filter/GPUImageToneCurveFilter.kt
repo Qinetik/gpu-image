@@ -20,6 +20,7 @@ import android.graphics.Point
 import android.graphics.PointF
 import android.opengl.GLES20
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+import org.qinetik.gpuimage.filter.GPUImageFilter
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer

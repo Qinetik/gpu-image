@@ -18,6 +18,7 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
 import android.opengl.Matrix
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -91,7 +92,7 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
     }
 
     override fun onDraw(
-        textureId: Int, cubeBuffer: com.danielgergely.kgl.FloatBuffer,
+        textureId: Int?, cubeBuffer: com.danielgergely.kgl.FloatBuffer,
         textureBuffer: com.danielgergely.kgl.FloatBuffer
     ) {
 

@@ -16,6 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
+import org.qinetik.gpuimage.filter.GPUImageFilter
+
 /**
  * Applies a grayscale effect to the image.
  */

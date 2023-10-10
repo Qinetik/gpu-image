@@ -22,12 +22,13 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.opengl.Matrix
 import jp.co.cyberagent.android.gpuimage.filter.*
+import org.qinetik.gpuimage.filter.GPUImageFilter
 import java.util.*
 
 object GPUImageFilterTools {
     fun showDialog(
         context: Context,
-        listener: (filter: GPUImageFilter) -> Unit
+        listener: (filter: org.qinetik.gpuimage.filter.GPUImageFilter) -> Unit
     ) {
         val filters = FilterList().apply {
             addFilter("Contrast", FilterType.CONTRAST)
@@ -130,7 +131,7 @@ object GPUImageFilterTools {
         builder.create().show()
     }
 
-    private fun createFilterForType(context: Context, type: FilterType): GPUImageFilter {
+    private fun createFilterForType(context: Context, type: FilterType): org.qinetik.gpuimage.filter.GPUImageFilter {
         return when (type) {
             FilterType.CONTRAST -> GPUImageContrastFilter(2.0f)
             FilterType.GAMMA -> GPUImageGammaFilter(2.0f)
@@ -153,56 +154,68 @@ object GPUImageFilterTools {
                     GPUImageGrayscaleFilter()
                 )
             )
+
             FilterType.SATURATION -> GPUImageSaturationFilter(1.0f)
             FilterType.EXPOSURE -> GPUImageExposureFilter(0.0f)
             FilterType.HIGHLIGHT_SHADOW -> GPUImageHighlightShadowFilter(
                 0.0f,
                 1.0f
             )
+
             FilterType.MONOCHROME -> GPUImageMonochromeFilter(
                 1.0f, floatArrayOf(0.6f, 0.45f, 0.3f, 1.0f)
             )
+
             FilterType.OPACITY -> GPUImageOpacityFilter(1.0f)
             FilterType.RGB -> GPUImageRGBFilter(1.0f, 1.0f, 1.0f)
             FilterType.WHITE_BALANCE -> GPUImageWhiteBalanceFilter(
                 5000.0f,
                 0.0f
             )
+
             FilterType.VIGNETTE -> GPUImageVignetteFilter(
                 PointF(0.5f, 0.5f),
                 floatArrayOf(0.0f, 0.0f, 0.0f),
                 0.3f,
                 0.75f
             )
+
             FilterType.TONE_CURVE -> GPUImageToneCurveFilter().apply {
                 setFromCurveFileInputStream(context.resources.openRawResource(R.raw.tone_cuver_sample))
             }
+
             FilterType.LUMINANCE -> GPUImageLuminanceFilter()
             FilterType.LUMINANCE_THRESHSOLD -> GPUImageLuminanceThresholdFilter(0.5f)
             FilterType.BLEND_DIFFERENCE -> createBlendFilter(
                 context,
                 GPUImageDifferenceBlendFilter::class.java
             )
+
             FilterType.BLEND_SOURCE_OVER -> createBlendFilter(
                 context,
                 GPUImageSourceOverBlendFilter::class.java
             )
+
             FilterType.BLEND_COLOR_BURN -> createBlendFilter(
                 context,
                 GPUImageColorBurnBlendFilter::class.java
             )
+
             FilterType.BLEND_COLOR_DODGE -> createBlendFilter(
                 context,
                 GPUImageColorDodgeBlendFilter::class.java
             )
+
             FilterType.BLEND_DARKEN -> createBlendFilter(
                 context,
                 GPUImageDarkenBlendFilter::class.java
             )
+
             FilterType.BLEND_DISSOLVE -> createBlendFilter(
                 context,
                 GPUImageDissolveBlendFilter::class.java
             )
+
             FilterType.BLEND_EXCLUSION -> createBlendFilter(
                 context,
                 GPUImageExclusionBlendFilter::class.java
@@ -212,66 +225,82 @@ object GPUImageFilterTools {
                 context,
                 GPUImageHardLightBlendFilter::class.java
             )
+
             FilterType.BLEND_LIGHTEN -> createBlendFilter(
                 context,
                 GPUImageLightenBlendFilter::class.java
             )
+
             FilterType.BLEND_ADD -> createBlendFilter(
                 context,
                 GPUImageAddBlendFilter::class.java
             )
+
             FilterType.BLEND_DIVIDE -> createBlendFilter(
                 context,
                 GPUImageDivideBlendFilter::class.java
             )
+
             FilterType.BLEND_MULTIPLY -> createBlendFilter(
                 context,
                 GPUImageMultiplyBlendFilter::class.java
             )
+
             FilterType.BLEND_OVERLAY -> createBlendFilter(
                 context,
                 GPUImageOverlayBlendFilter::class.java
             )
+
             FilterType.BLEND_SCREEN -> createBlendFilter(
                 context,
                 GPUImageScreenBlendFilter::class.java
             )
+
             FilterType.BLEND_ALPHA -> createBlendFilter(
                 context,
                 GPUImageAlphaBlendFilter::class.java
             )
+
             FilterType.BLEND_COLOR -> createBlendFilter(
                 context,
                 GPUImageColorBlendFilter::class.java
             )
+
             FilterType.BLEND_HUE -> createBlendFilter(
                 context,
                 GPUImageHueBlendFilter::class.java
             )
+
             FilterType.BLEND_SATURATION -> createBlendFilter(
                 context,
                 GPUImageSaturationBlendFilter::class.java
             )
+
             FilterType.BLEND_LUMINOSITY -> createBlendFilter(
                 context,
                 GPUImageLuminosityBlendFilter::class.java
             )
+
             FilterType.BLEND_LINEAR_BURN -> createBlendFilter(
                 context,
                 GPUImageLinearBurnBlendFilter::class.java
             )
+
             FilterType.BLEND_SOFT_LIGHT -> createBlendFilter(
                 context,
                 GPUImageSoftLightBlendFilter::class.java
             )
+
             FilterType.BLEND_SUBTRACT -> createBlendFilter(
                 context,
                 GPUImageSubtractBlendFilter::class.java
             )
+
             FilterType.BLEND_CHROMA_KEY -> createBlendFilter(
                 context,
                 GPUImageChromaKeyBlendFilter::class.java
             )
+
             FilterType.BLEND_NORMAL -> createBlendFilter(
                 context,
                 GPUImageNormalBlendFilter::class.java
@@ -280,6 +309,7 @@ object GPUImageFilterTools {
             FilterType.LOOKUP_AMATORKA -> GPUImageLookupFilter().apply {
                 setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka))
             }
+
             FilterType.GAUSSIAN_BLUR -> GPUImageGaussianBlurFilter()
             FilterType.CROSSHATCH -> GPUImageCrosshatchFilter()
             FilterType.BOX_BLUR -> GPUImageBoxBlurFilter()
@@ -313,14 +343,14 @@ object GPUImageFilterTools {
     private fun createBlendFilter(
         context: Context,
         filterClass: Class<out GPUImageTwoInputFilter>
-    ): GPUImageFilter {
+    ): org.qinetik.gpuimage.filter.GPUImageFilter {
         return try {
             filterClass.newInstance().apply {
                 setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            GPUImageFilter()
+            org.qinetik.gpuimage.filter.GPUImageFilter()
         }
     }
 
@@ -343,8 +373,8 @@ object GPUImageFilterTools {
         }
     }
 
-    class FilterAdjuster(filter: GPUImageFilter) {
-        private val adjuster: Adjuster<out GPUImageFilter>?
+    class FilterAdjuster(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
+        private val adjuster: Adjuster<out org.qinetik.gpuimage.filter.GPUImageFilter>?
 
         init {
             adjuster = when (filter) {

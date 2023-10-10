@@ -39,8 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.concurrent.Semaphore;
 
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-
 import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_SURFACE_VIEW;
 import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_TEXTURE_VIEW;
 
@@ -55,7 +53,7 @@ public class GPUImageView : FrameLayout {
     private lateinit var surfaceView : View
     private lateinit var gpuImage : GPUImage
     private var isShowLoading : Boolean = true;
-    private var filter : GPUImageFilter? = null
+    private var filter: org.qinetik.gpuimage.filter.GPUImageFilter? = null
     public var forceSize : Size? = null;
     private var ratio : Float = 0.0f;
 
@@ -224,7 +222,7 @@ public class GPUImageView : FrameLayout {
      *
      * @param filter Filter that should be applied on the image.
      */
-    public fun setFilter(filter : GPUImageFilter) {
+    public fun setFilter(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         this.filter = filter;
         gpuImage.setFilter(filter);
         requestRender();
@@ -235,7 +233,7 @@ public class GPUImageView : FrameLayout {
      *
      * @return the current filter
      */
-    public fun getFilter() : GPUImageFilter? {
+    public fun getFilter(): org.qinetik.gpuimage.filter.GPUImageFilter? {
         return filter;
     }
 

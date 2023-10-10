@@ -16,6 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
+import org.qinetik.gpuimage.filter.GPUImageFilter
+
 class GPUImageCGAColorspaceFilter : GPUImageFilter {
     companion object {
         const val CGACOLORSPACE_FRAGMENT_SHADER: String = "" +

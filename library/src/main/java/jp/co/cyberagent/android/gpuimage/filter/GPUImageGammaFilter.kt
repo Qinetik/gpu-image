@@ -17,6 +17,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
  * gamma value ranges from 0.0 to 3.0, with 1.0 as the normal level

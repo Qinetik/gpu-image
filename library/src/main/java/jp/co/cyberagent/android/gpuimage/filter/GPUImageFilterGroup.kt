@@ -25,6 +25,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer;
+import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 
@@ -32,10 +33,10 @@ import org.qinetik.gpuimage.utils.TextureRotationUtil
  * Resembles a filter that consists of multiple filters applied after each
  * other.
  */
-open class GPUImageFilterGroup : GPUImageFilter {
+open class GPUImageFilterGroup : org.qinetik.gpuimage.filter.GPUImageFilter {
 
-    protected val filters : MutableList<GPUImageFilter>
-    protected var mergedFilters : MutableList<GPUImageFilter>? = null;
+    protected val filters : MutableList<org.qinetik.gpuimage.filter.GPUImageFilter>
+    protected var mergedFilters : MutableList<org.qinetik.gpuimage.filter.GPUImageFilter>? = null;
     private var frameBuffers : IntArray? = null;
     private var frameBufferTextures : IntArray? = null;
 
@@ -53,7 +54,7 @@ open class GPUImageFilterGroup : GPUImageFilter {
      *
      * @param filters the filters which represent this filter
      */
-    public constructor(filters : MutableList<GPUImageFilter>) {
+    public constructor(filters : MutableList<org.qinetik.gpuimage.filter.GPUImageFilter>) {
         this.filters = filters;
         if(filters.isNotEmpty()){
             updateMergedFilters();
@@ -80,7 +81,7 @@ open class GPUImageFilterGroup : GPUImageFilter {
         glTextureFlipBuffer.put(flipTexture).position(0);
     }
 
-    public fun addFilter(aFilter : GPUImageFilter) {
+    public fun addFilter(aFilter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         filters.add(aFilter);
         updateMergedFilters();
     }
@@ -175,14 +176,14 @@ open class GPUImageFilterGroup : GPUImageFilter {
      * java.nio.FloatBuffer, java.nio.FloatBuffer)
      */
     @SuppressLint("WrongCall")
-    override fun onDraw(textureId : Int, cubeBuffer : com.danielgergely.kgl.FloatBuffer, textureBuffer : com.danielgergely.kgl.FloatBuffer) {
+    override fun onDraw(textureId : Int?, cubeBuffer : com.danielgergely.kgl.FloatBuffer, textureBuffer : com.danielgergely.kgl.FloatBuffer) {
         runPendingOnDrawTasks();
         if (!isInitialized || frameBuffers == null || frameBufferTextures == null) {
             return
         }
         if (mergedFilters != null) {
             val size : Int = mergedFilters!!.size;
-            var previousTexture : Int = textureId;
+            var previousTexture : Int = textureId ?: 0;
             for(i in 0 until size){
                 val filter = mergedFilters!!.get(i);
                 val isNotLast = i < size - 1;

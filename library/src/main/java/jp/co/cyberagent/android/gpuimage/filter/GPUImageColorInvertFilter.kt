@@ -16,6 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
+import org.qinetik.gpuimage.filter.GPUImageFilter
+
 /**
  * Invert all the colors in the image.
  */

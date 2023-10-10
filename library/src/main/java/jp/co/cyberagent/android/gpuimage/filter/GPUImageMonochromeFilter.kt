@@ -17,6 +17,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
  * Converts the image to a single-color version, based on the luminance of each pixel

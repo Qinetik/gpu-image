@@ -17,6 +17,7 @@
 package jp.co.cyberagent.android.gpuimage.filter;
 
 import android.opengl.GLES20;
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
  * Adjusts the alpha channel of the incoming image

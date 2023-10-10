@@ -36,7 +36,6 @@ import java.util.Queue;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
@@ -49,7 +48,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
     }
 
 
-    private lateinit var filter: GPUImageFilter
+    private lateinit var filter: org.qinetik.gpuimage.filter.GPUImageFilter
 
     public val surfaceChangedWaiter: Object = Object();
 
@@ -76,7 +75,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
     private var backgroundGreen: Float = 0f;
     private var backgroundBlue: Float = 0f;
 
-    public constructor(filter: GPUImageFilter) {
+    public constructor(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         this.filter = filter
         runOnDraw = LinkedList()
         runOnDrawEnd = LinkedList()
@@ -113,7 +112,11 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
     override fun onDrawFrame(gl: GL10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT);
         runAll(runOnDraw);
-        filter.onDraw(glTextureId, com.danielgergely.kgl.FloatBuffer(glCubeBuffer), com.danielgergely.kgl.FloatBuffer(glTextureBuffer))
+        filter.onDraw(
+            glTextureId,
+            com.danielgergely.kgl.FloatBuffer(glCubeBuffer),
+            com.danielgergely.kgl.FloatBuffer(glTextureBuffer)
+        )
         runAll(runOnDrawEnd);
         surfaceTexture?.updateTexImage()
     }
@@ -177,9 +180,9 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         }
     }
 
-    public fun setFilter(filter: GPUImageFilter) {
+    public fun setFilter(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
         runOnDraw {
-            val oldFilter: GPUImageFilter = this@GPUImageRenderer.filter;
+            val oldFilter: org.qinetik.gpuimage.filter.GPUImageFilter = this@GPUImageRenderer.filter;
             this@GPUImageRenderer.filter = filter
             if (oldFilter != null) {
                 oldFilter.destroy();

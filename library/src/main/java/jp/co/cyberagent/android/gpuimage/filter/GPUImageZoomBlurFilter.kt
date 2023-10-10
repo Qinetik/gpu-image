@@ -2,6 +2,7 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.PointF
 import android.opengl.GLES20
+import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageZoomBlurFilter : GPUImageFilter {
     companion object {

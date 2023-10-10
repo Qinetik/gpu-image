@@ -24,6 +24,7 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.Rotation
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 
