@@ -24,10 +24,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-import jp.co.cyberagent.android.gpuimage.util.Rotation;
-import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil;
-
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer;
+import org.qinetik.gpuimage.utils.TextureRotationUtil
 
 /**
  * Resembles a filter that consists of multiple filters applied after each
@@ -70,7 +68,11 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 .asFloatBuffer();
         glTextureBuffer.put(TextureRotationUtil.TEXTURE_NO_ROTATION).position(0);
 
-        val flipTexture : FloatArray = TextureRotationUtil.getRotation(Rotation.NORMAL, false, true);
+        val flipTexture : FloatArray = TextureRotationUtil.getRotation(
+            org.qinetik.gpuimage.utils.Rotation.NORMAL,
+            false,
+            true
+        );
         glTextureFlipBuffer = ByteBuffer.allocateDirect(flipTexture.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();

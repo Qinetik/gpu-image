@@ -38,16 +38,14 @@ import javax.microedition.khronos.opengles.GL10;
 
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
-import jp.co.cyberagent.android.gpuimage.util.Rotation;
-import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil;
-
-import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil.TEXTURE_NO_ROTATION;
+import org.qinetik.gpuimage.utils.TextureRotationUtil
+import org.qinetik.gpuimage.utils.TextureRotationUtil.TEXTURE_NO_ROTATION
 
 class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, PreviewCallback {
 
     companion object {
-        private const val NO_IMAGE : Int = -1;
-        val CUBE : FloatArray = floatArrayOf(
+        private const val NO_IMAGE: Int = -1;
+        val CUBE: FloatArray = floatArrayOf(
             -1.0f, -1.0f,
             1.0f, -1.0f,
             -1.0f, 1.0f,
@@ -56,68 +54,68 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
     }
 
 
-    private lateinit var filter : GPUImageFilter
+    private lateinit var filter: GPUImageFilter
 
-    public val surfaceChangedWaiter : Object = Object();
+    public val surfaceChangedWaiter: Object = Object();
 
-    private var glTextureId : Int = NO_IMAGE
-    private var surfaceTexture : SurfaceTexture? = null;
-    private val glCubeBuffer : FloatBuffer
-    private val glTextureBuffer : FloatBuffer
-    private lateinit var glRgbBuffer : IntBuffer
+    private var glTextureId: Int = NO_IMAGE
+    private var surfaceTexture: SurfaceTexture? = null;
+    private val glCubeBuffer: FloatBuffer
+    private val glTextureBuffer: FloatBuffer
+    private lateinit var glRgbBuffer: IntBuffer
 
-    private var outputWidth : Int = 0
-    private var outputHeight : Int = 0
-    private var imageWidth : Int = 0
-    private var imageHeight : Int = 0
-    private var addedPadding : Int = 0
+    private var outputWidth: Int = 0
+    private var outputHeight: Int = 0
+    private var imageWidth: Int = 0
+    private var imageHeight: Int = 0
+    private var addedPadding: Int = 0
 
-    private val runOnDraw : Queue<Runnable>
-    private val runOnDrawEnd : Queue<Runnable>
-    private lateinit var rotation : Rotation;
-    private var flipHorizontal : Boolean = false
-    private var flipVertical : Boolean = false
-    private var scaleType : GPUImage.ScaleType = GPUImage.ScaleType.CENTER_CROP;
+    private val runOnDraw: Queue<Runnable>
+    private val runOnDrawEnd: Queue<Runnable>
+    private lateinit var rotation: org.qinetik.gpuimage.utils.Rotation;
+    private var flipHorizontal: Boolean = false
+    private var flipVertical: Boolean = false
+    private var scaleType: GPUImage.ScaleType = GPUImage.ScaleType.CENTER_CROP;
 
-    private var backgroundRed : Float = 0f;
-    private var backgroundGreen : Float = 0f;
-    private var backgroundBlue : Float = 0f;
+    private var backgroundRed: Float = 0f;
+    private var backgroundGreen: Float = 0f;
+    private var backgroundBlue: Float = 0f;
 
-    public constructor(filter : GPUImageFilter) {
+    public constructor(filter: GPUImageFilter) {
         this.filter = filter
         runOnDraw = LinkedList()
         runOnDrawEnd = LinkedList()
 
         glCubeBuffer = ByteBuffer.allocateDirect(CUBE.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer();
         glCubeBuffer.put(CUBE).position(0);
 
         glTextureBuffer = ByteBuffer.allocateDirect(TEXTURE_NO_ROTATION.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-        setRotation(Rotation.NORMAL, false, false);
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer();
+        setRotation(org.qinetik.gpuimage.utils.Rotation.NORMAL, false, false);
     }
 
-    override fun onSurfaceCreated(unused : GL10, config : EGLConfig) {
+    override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         GLES20.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 1f);
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
         filter.ifNeedInit();
     }
 
-    override fun onSurfaceChanged(gl : GL10, width : Int, height : Int) {
+    override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
         outputWidth = width;
         outputHeight = height;
         GLES20.glViewport(0, 0, width, height);
         GLES20.glUseProgram(filter.program);
         filter.onOutputSizeChanged(width, height);
         adjustImageScaling();
-        synchronized (surfaceChangedWaiter) {
+        synchronized(surfaceChangedWaiter) {
             surfaceChangedWaiter.notifyAll();
         }
     }
 
-    override fun onDrawFrame(gl : GL10) {
+    override fun onDrawFrame(gl: GL10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT);
         runAll(runOnDraw);
         filter.onDraw(glTextureId, glCubeBuffer, glTextureBuffer);
@@ -132,26 +130,26 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
      * @param green green color value
      * @param blue  red color value
      */
-    public fun setBackgroundColor(red : Float, green : Float, blue : Float) {
+    public fun setBackgroundColor(red: Float, green: Float, blue: Float) {
         backgroundRed = red;
         backgroundGreen = green;
         backgroundBlue = blue;
     }
 
-    private fun runAll(queue : Queue<Runnable>) {
-        synchronized (queue) {
+    private fun runAll(queue: Queue<Runnable>) {
+        synchronized(queue) {
             while (!queue.isEmpty()) {
                 queue.poll().run();
             }
         }
     }
 
-    override fun onPreviewFrame(data : ByteArray, camera : Camera) {
-        val previewSize : Size = camera.getParameters().getPreviewSize();
+    override fun onPreviewFrame(data: ByteArray, camera: Camera) {
+        val previewSize: Size = camera.getParameters().getPreviewSize();
         onPreviewFrame(data, previewSize.width, previewSize.height);
     }
 
-    public fun onPreviewFrame(data : ByteArray,width : Int, height : Int) {
+    public fun onPreviewFrame(data: ByteArray, width: Int, height: Int) {
         if (glRgbBuffer == null) {
             glRgbBuffer = IntBuffer.allocate(width * height);
         }
@@ -169,7 +167,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         }
     }
 
-    public fun setUpSurfaceTexture(camera : Camera) {
+    public fun setUpSurfaceTexture(camera: Camera) {
         runOnDraw {
             val textures = IntArray(1)
             GLES20.glGenTextures(1, textures, 0);
@@ -178,15 +176,15 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
                 camera.setPreviewTexture(surfaceTexture);
                 camera.setPreviewCallback(this@GPUImageRenderer);
                 camera.startPreview();
-            } catch (e : IOException) {
+            } catch (e: IOException) {
                 e.printStackTrace();
             }
         }
     }
 
-    public fun setFilter(filter : GPUImageFilter) {
+    public fun setFilter(filter: GPUImageFilter) {
         runOnDraw {
-            val oldFilter : GPUImageFilter = this@GPUImageRenderer.filter;
+            val oldFilter: GPUImageFilter = this@GPUImageRenderer.filter;
             this@GPUImageRenderer.filter = filter
             if (oldFilter != null) {
                 oldFilter.destroy();
@@ -204,16 +202,18 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         }
     }
 
-    public fun setImageBitmap(bitmap : Bitmap) {
+    public fun setImageBitmap(bitmap: Bitmap) {
         setImageBitmap(bitmap, true);
     }
 
-    public fun setImageBitmap(bitmap : Bitmap, recycle : Boolean) {
+    public fun setImageBitmap(bitmap: Bitmap, recycle: Boolean) {
         runOnDraw {
-            var resizedBitmap : Bitmap? = null
+            var resizedBitmap: Bitmap? = null
             if (bitmap.getWidth() % 2 == 1) {
-                resizedBitmap = Bitmap.createBitmap(bitmap.getWidth() + 1, bitmap.getHeight(),
-                        Bitmap.Config.ARGB_8888)
+                resizedBitmap = Bitmap.createBitmap(
+                    bitmap.getWidth() + 1, bitmap.getHeight(),
+                    Bitmap.Config.ARGB_8888
+                )
                 resizedBitmap.setDensity(bitmap.getDensity())
                 val can = Canvas(resizedBitmap)
                 can.drawARGB(0x00, 0x00, 0x00, 0x00)
@@ -231,52 +231,52 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         }
     }
 
-    public fun setScaleType(scaleType : GPUImage.ScaleType) {
+    public fun setScaleType(scaleType: GPUImage.ScaleType) {
         this.scaleType = scaleType;
     }
 
-    fun getFrameWidth() : Int {
+    fun getFrameWidth(): Int {
         return outputWidth;
     }
 
-    fun getFrameHeight() : Int {
+    fun getFrameHeight(): Int {
         return outputHeight;
     }
 
     private fun adjustImageScaling() {
-        var outputWidth : Float = this.outputWidth.toFloat();
-        var outputHeight : Float = this.outputHeight.toFloat();
-        if (rotation == Rotation.ROTATION_270 || rotation == Rotation.ROTATION_90) {
+        var outputWidth: Float = this.outputWidth.toFloat();
+        var outputHeight: Float = this.outputHeight.toFloat();
+        if (rotation == org.qinetik.gpuimage.utils.Rotation.ROTATION_270 || rotation == org.qinetik.gpuimage.utils.Rotation.ROTATION_90) {
             outputWidth = this.outputHeight.toFloat();
             outputHeight = this.outputWidth.toFloat();
         }
 
-        val ratio1 : Float = outputWidth / imageWidth;
-        val ratio2 : Float = outputHeight / imageHeight;
-        val ratioMax : Float = Math.max(ratio1, ratio2);
-        val imageWidthNew : Int = Math.round(imageWidth * ratioMax);
-        val imageHeightNew : Int = Math.round(imageHeight * ratioMax);
+        val ratio1: Float = outputWidth / imageWidth;
+        val ratio2: Float = outputHeight / imageHeight;
+        val ratioMax: Float = Math.max(ratio1, ratio2);
+        val imageWidthNew: Int = Math.round(imageWidth * ratioMax);
+        val imageHeightNew: Int = Math.round(imageHeight * ratioMax);
 
-        val ratioWidth : Float = imageWidthNew / outputWidth;
-        val ratioHeight : Float = imageHeightNew / outputHeight;
+        val ratioWidth: Float = imageWidthNew / outputWidth;
+        val ratioHeight: Float = imageHeightNew / outputHeight;
 
-        var cube : FloatArray = CUBE;
-        var textureCords : FloatArray = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
+        var cube: FloatArray = CUBE;
+        var textureCords: FloatArray = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
         if (scaleType == GPUImage.ScaleType.CENTER_CROP) {
-            val distHorizontal : Float = (1 - 1 / ratioWidth) / 2;
-            val distVertical : Float = (1 - 1 / ratioHeight) / 2;
+            val distHorizontal: Float = (1 - 1 / ratioWidth) / 2;
+            val distVertical: Float = (1 - 1 / ratioHeight) / 2;
             textureCords = floatArrayOf(
-                    addDistance(textureCords[0], distHorizontal), addDistance(textureCords[1], distVertical),
-                    addDistance(textureCords[2], distHorizontal), addDistance(textureCords[3], distVertical),
-                    addDistance(textureCords[4], distHorizontal), addDistance(textureCords[5], distVertical),
-                    addDistance(textureCords[6], distHorizontal), addDistance(textureCords[7], distVertical),
+                addDistance(textureCords[0], distHorizontal), addDistance(textureCords[1], distVertical),
+                addDistance(textureCords[2], distHorizontal), addDistance(textureCords[3], distVertical),
+                addDistance(textureCords[4], distHorizontal), addDistance(textureCords[5], distVertical),
+                addDistance(textureCords[6], distHorizontal), addDistance(textureCords[7], distVertical),
             )
         } else {
             cube = floatArrayOf(
-                    CUBE[0] / ratioHeight, CUBE[1] / ratioWidth,
-                    CUBE[2] / ratioHeight, CUBE[3] / ratioWidth,
-                    CUBE[4] / ratioHeight, CUBE[5] / ratioWidth,
-                    CUBE[6] / ratioHeight, CUBE[7] / ratioWidth,
+                CUBE[0] / ratioHeight, CUBE[1] / ratioWidth,
+                CUBE[2] / ratioHeight, CUBE[3] / ratioWidth,
+                CUBE[4] / ratioHeight, CUBE[5] / ratioWidth,
+                CUBE[6] / ratioHeight, CUBE[7] / ratioWidth,
             )
         }
 
@@ -286,46 +286,52 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
         glTextureBuffer.put(textureCords).position(0);
     }
 
-    private fun addDistance(coordinate : Float, distance : Float) : Float {
-        return if(coordinate == 0.0f) distance else 1 - distance;
+    private fun addDistance(coordinate: Float, distance: Float): Float {
+        return if (coordinate == 0.0f) distance else 1 - distance;
     }
 
-    public fun setRotationCamera(rotation : Rotation, flipHorizontal : Boolean, flipVertical : Boolean) {
+    public fun setRotationCamera(
+        rotation: org.qinetik.gpuimage.utils.Rotation,
+        flipHorizontal: Boolean,
+        flipVertical: Boolean
+    ) {
         setRotation(rotation, flipVertical, flipHorizontal);
     }
 
-    public fun setRotation(rotation : Rotation) {
+    public fun setRotation(rotation: org.qinetik.gpuimage.utils.Rotation) {
         this.rotation = rotation;
         adjustImageScaling();
     }
 
-    public fun setRotation(rotation : Rotation,
-                            flipHorizontal : Boolean, flipVertical : Boolean) {
+    public fun setRotation(
+        rotation: org.qinetik.gpuimage.utils.Rotation,
+        flipHorizontal: Boolean, flipVertical: Boolean
+    ) {
         this.flipHorizontal = flipHorizontal;
         this.flipVertical = flipVertical;
         setRotation(rotation);
     }
 
-    public fun getRotation() : Rotation {
+    public fun getRotation(): org.qinetik.gpuimage.utils.Rotation {
         return rotation;
     }
 
-    public fun isFlippedHorizontally() : Boolean {
+    public fun isFlippedHorizontally(): Boolean {
         return flipHorizontal;
     }
 
-    public fun isFlippedVertically() : Boolean {
+    public fun isFlippedVertically(): Boolean {
         return flipVertical;
     }
 
-    fun runOnDraw(runnable : Runnable) {
-        synchronized (runOnDraw) {
+    fun runOnDraw(runnable: Runnable) {
+        synchronized(runOnDraw) {
             runOnDraw.add(runnable);
         }
     }
 
-    fun runOnDrawEnd(runnable : Runnable) {
-        synchronized (runOnDrawEnd) {
+    fun runOnDrawEnd(runnable: Runnable) {
+        synchronized(runOnDrawEnd) {
             runOnDrawEnd.add(runnable);
         }
     }

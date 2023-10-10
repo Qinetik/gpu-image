@@ -17,12 +17,12 @@
 package jp.co.cyberagent.android.gpuimage.filter;
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.FloatBuffer
 import com.danielgergely.kgl.Program
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer
-import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.utils.OpenGlUtils
-import java.nio.FloatBuffer
+import org.qinetik.gpuimage.utils.TextureRotationUtil
 
 open class GPUImageFilter {
 
@@ -114,7 +114,7 @@ open class GPUImageFilter {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        ptr: com.danielgergely.kgl.FloatBuffer,
+        ptr: FloatBuffer,
         bufferSize : Int
     ) {
         val cubeBufferId = Kgl.createBuffer()
@@ -131,11 +131,11 @@ open class GPUImageFilter {
             return;
         }
 
-        cubeBuffer.position(0);
-        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, com.danielgergely.kgl.FloatBuffer(cubeBuffer), GPUImageRenderer.CUBE.size);
+        cubeBuffer.position = 0
+        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer, GPUImageRenderer.CUBE.size);
 
-        textureBuffer.position(0);
-        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, com.danielgergely.kgl.FloatBuffer(textureBuffer), TextureRotationUtil.TEXTURE_NO_ROTATION.size);
+        textureBuffer.position = 0
+        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, textureBuffer, TextureRotationUtil.TEXTURE_NO_ROTATION.size);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
             Kgl.activeTexture(GLES20.GL_TEXTURE0);
             Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
@@ -146,6 +146,10 @@ open class GPUImageFilter {
         Kgl.disableVertexAttribArray(glAttribPosition);
         Kgl.disableVertexAttribArray(glAttribTextureCoordinate);
         Kgl.bindTexture(GLES20.GL_TEXTURE_2D, 0);
+    }
+
+    open fun onDraw(textureId : Int , cubeBuffer : java.nio.FloatBuffer, textureBuffer : java.nio.FloatBuffer) {
+        onDraw(textureId, FloatBuffer(cubeBuffer), FloatBuffer(textureBuffer))
     }
 
     protected open fun onDrawArraysPre() {

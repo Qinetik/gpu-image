@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.util;
+package org.qinetik.gpuimage.utils;
+
+import kotlin.jvm.JvmStatic
 
 public object TextureRotationUtil {
 

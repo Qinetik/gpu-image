@@ -37,7 +37,6 @@ import android.provider.MediaStore;
 import android.view.Display;
 import android.view.WindowManager;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.util.Rotation;
 
 import java.io.*;
 import java.net.URL;
@@ -216,16 +215,18 @@ public class GPUImage {
             glTextureView!!.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         }
         renderer.setUpSurfaceTexture(camera);
-        var rotation : Rotation = Rotation.NORMAL;
+        var rotation: org.qinetik.gpuimage.utils.Rotation = org.qinetik.gpuimage.utils.Rotation.NORMAL;
         when (degrees) {
             90 -> {
-                rotation = Rotation.ROTATION_90;
+                rotation = org.qinetik.gpuimage.utils.Rotation.ROTATION_90;
             }
+
             180 -> {
-                rotation = Rotation.ROTATION_180;
+                rotation = org.qinetik.gpuimage.utils.Rotation.ROTATION_180;
             }
+
             270 -> {
-                rotation = Rotation.ROTATION_270;
+                rotation = org.qinetik.gpuimage.utils.Rotation.ROTATION_270;
             }
         }
         renderer.setRotationCamera(rotation, flipHorizontal, flipVertical);
@@ -294,7 +295,7 @@ public class GPUImage {
      *
      * @param rotation new rotation
      */
-    public fun setRotation(rotation : Rotation) {
+    public fun setRotation(rotation: org.qinetik.gpuimage.utils.Rotation) {
         renderer.setRotation(rotation);
     }
 
@@ -303,7 +304,11 @@ public class GPUImage {
      *
      * @param rotation new rotation
      */
-    public fun setRotation(rotation : Rotation, flipHorizontal : Boolean, flipVertical : Boolean) {
+    public fun setRotation(
+        rotation: org.qinetik.gpuimage.utils.Rotation,
+        flipHorizontal: Boolean,
+        flipVertical: Boolean
+    ) {
         renderer.setRotation(rotation, flipHorizontal, flipVertical);
     }
 
@@ -398,8 +403,10 @@ public class GPUImage {
         }
 
         val renderer : GPUImageRenderer = GPUImageRenderer(filter);
-        renderer.setRotation(Rotation.NORMAL,
-                this.renderer.isFlippedHorizontally(), this.renderer.isFlippedVertically());
+        renderer.setRotation(
+            org.qinetik.gpuimage.utils.Rotation.NORMAL,
+            this.renderer.isFlippedHorizontally(), this.renderer.isFlippedVertically()
+        );
         renderer.setScaleType(scaleType);
         val buffer : PixelBuffer = PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);

@@ -32,7 +32,7 @@ import jp.co.cyberagent.android.gpuimage.sample.utils.Camera1Loader
 import jp.co.cyberagent.android.gpuimage.sample.utils.Camera2Loader
 import jp.co.cyberagent.android.gpuimage.sample.utils.CameraLoader
 import jp.co.cyberagent.android.gpuimage.sample.utils.doOnLayout
-import jp.co.cyberagent.android.gpuimage.util.Rotation
+import org.qinetik.gpuimage.utils.Rotation
 
 class CameraActivity : AppCompatActivity() {
 

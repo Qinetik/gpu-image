@@ -40,7 +40,6 @@ import java.io.FileOutputStream;
 import java.util.concurrent.Semaphore;
 
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.util.Rotation;
 
 import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_SURFACE_VIEW;
 import jp.co.cyberagent.android.gpuimage.GPUImage.Companion.SURFACE_TYPE_TEXTURE_VIEW;
@@ -215,7 +214,7 @@ public class GPUImageView : FrameLayout {
      *
      * @param rotation new rotation
      */
-    public fun setRotation(rotation : Rotation) {
+    public fun setRotation(rotation: org.qinetik.gpuimage.utils.Rotation) {
         gpuImage.setRotation(rotation);
         requestRender();
     }
