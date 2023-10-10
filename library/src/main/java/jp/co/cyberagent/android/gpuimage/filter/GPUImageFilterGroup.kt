@@ -175,7 +175,7 @@ open class GPUImageFilterGroup : GPUImageFilter {
      * java.nio.FloatBuffer, java.nio.FloatBuffer)
      */
     @SuppressLint("WrongCall")
-    override fun onDraw(textureId : Int, cubeBuffer : FloatBuffer, textureBuffer : FloatBuffer) {
+    override fun onDraw(textureId : Int, cubeBuffer : com.danielgergely.kgl.FloatBuffer, textureBuffer : com.danielgergely.kgl.FloatBuffer) {
         runPendingOnDrawTasks();
         if (!isInitialized || frameBuffers == null || frameBufferTextures == null) {
             return
@@ -194,9 +194,17 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 if (i == 0) {
                     filter.onDraw(previousTexture, cubeBuffer, textureBuffer);
                 } else if (i == size - 1) {
-                    filter.onDraw(previousTexture, glCubeBuffer, if(size % 2 == 0) glTextureFlipBuffer else glTextureBuffer);
+                    filter.onDraw(
+                        previousTexture,
+                        com.danielgergely.kgl.FloatBuffer(glCubeBuffer),
+                        com.danielgergely.kgl.FloatBuffer(if(size % 2 == 0) glTextureFlipBuffer else glTextureBuffer)
+                    );
                 } else {
-                    filter.onDraw(previousTexture, glCubeBuffer, glTextureBuffer);
+                    filter.onDraw(
+                        previousTexture,
+                        com.danielgergely.kgl.FloatBuffer(glCubeBuffer),
+                        com.danielgergely.kgl.FloatBuffer(glTextureBuffer)
+                    );
                 }
 
                 if (isNotLast) {

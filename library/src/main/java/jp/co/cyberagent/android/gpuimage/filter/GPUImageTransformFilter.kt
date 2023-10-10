@@ -91,17 +91,17 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
     }
 
     override fun onDraw(
-        textureId: Int, cubeBuffer: FloatBuffer,
-        textureBuffer: FloatBuffer
+        textureId: Int, cubeBuffer: com.danielgergely.kgl.FloatBuffer,
+        textureBuffer: com.danielgergely.kgl.FloatBuffer
     ) {
 
-        var vertBuffer: FloatBuffer = cubeBuffer
+        var vertBuffer: com.danielgergely.kgl.FloatBuffer = cubeBuffer
 
         if (!ignoreAspectRatio) {
 
             val adjustedVertices: FloatArray = FloatArray(8)
 
-            cubeBuffer.position(0)
+            cubeBuffer.position = 0
             cubeBuffer.get(adjustedVertices)
 
             val normalizedHeight = outputHeight.toFloat() / outputWidth.toFloat()
@@ -110,11 +110,13 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
             adjustedVertices[5] *= normalizedHeight
             adjustedVertices[7] *= normalizedHeight
 
-            vertBuffer = ByteBuffer.allocateDirect(adjustedVertices.size * 4)
+            val newBuffer = ByteBuffer.allocateDirect(adjustedVertices.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
 
-            vertBuffer.put(adjustedVertices).position(0)
+            newBuffer.put(adjustedVertices).position(0)
+
+            vertBuffer = com.danielgergely.kgl.FloatBuffer(newBuffer)
         }
 
         super.onDraw(textureId, vertBuffer, textureBuffer)

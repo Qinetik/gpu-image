@@ -113,7 +113,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
     override fun onDrawFrame(gl: GL10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT);
         runAll(runOnDraw);
-        filter.onDraw(glTextureId, glCubeBuffer, glTextureBuffer);
+        filter.onDraw(glTextureId, com.danielgergely.kgl.FloatBuffer(glCubeBuffer), com.danielgergely.kgl.FloatBuffer(glTextureBuffer))
         runAll(runOnDrawEnd);
         surfaceTexture?.updateTexImage()
     }
