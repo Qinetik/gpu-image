@@ -17,10 +17,11 @@
 package jp.co.cyberagent.android.gpuimage.filter;
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.Program
 import jp.co.cyberagent.android.gpuimage.GPUImageRenderer
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
 import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil
 import org.qinetik.gpuimage.Kgl
+import org.qinetik.gpuimage.utils.OpenGlUtils
 import java.nio.FloatBuffer
 
 open class GPUImageFilter {
@@ -52,7 +53,7 @@ open class GPUImageFilter {
     private val runOnDraw : ArrayList<Runnable> = ArrayList();
     private val vertexShader : String;
     private val fragmentShader : String;
-    private var glProgId : Int = 0;
+    private var glProgId : Program = 0
     private var glAttribPosition : Int = 0;
     private var glUniformTexture : Int = 0;
     private var glAttribTextureCoordinate : Int = 0;
@@ -79,7 +80,7 @@ open class GPUImageFilter {
     }
 
     open fun onInit() {
-        glProgId = OpenGlUtils.loadProgram(vertexShader, fragmentShader);
+        glProgId = OpenGlUtils.loadProgram(vertexShader, fragmentShader)!!;
         glAttribPosition = Kgl.getAttribLocation(glProgId, "position");
         glUniformTexture = Kgl.getUniformLocation(glProgId, "inputImageTexture")!!;
         glAttribTextureCoordinate = Kgl.getAttribLocation(glProgId, "inputTextureCoordinate");
@@ -113,13 +114,13 @@ open class GPUImageFilter {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        ptr: FloatBuffer,
+        ptr: com.danielgergely.kgl.FloatBuffer,
         bufferSize : Int
     ) {
         val cubeBufferId = Kgl.createBuffer()
         Kgl.enableVertexAttribArray(location)
         Kgl.bindBuffer(GLES20.GL_ARRAY_BUFFER, cubeBufferId)
-        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, com.danielgergely.kgl.FloatBuffer(ptr), bufferSize * 4, GLES20.GL_STATIC_DRAW)
+        Kgl.bufferData(GLES20.GL_ARRAY_BUFFER, ptr, bufferSize * 4, GLES20.GL_STATIC_DRAW)
         Kgl.vertexAttribPointer(location, size, type, normalized, stride, 0)
     }
 
@@ -131,10 +132,10 @@ open class GPUImageFilter {
         }
 
         cubeBuffer.position(0);
-        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer, GPUImageRenderer.CUBE.size);
+        glVertexAttribPointer(glAttribPosition, 2, GLES20.GL_FLOAT, false, 0, com.danielgergely.kgl.FloatBuffer(cubeBuffer), GPUImageRenderer.CUBE.size);
 
         textureBuffer.position(0);
-        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, textureBuffer, TextureRotationUtil.TEXTURE_NO_ROTATION.size);
+        glVertexAttribPointer(glAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0, com.danielgergely.kgl.FloatBuffer(textureBuffer), TextureRotationUtil.TEXTURE_NO_ROTATION.size);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
             Kgl.activeTexture(GLES20.GL_TEXTURE0);
             Kgl.bindTexture(GLES20.GL_TEXTURE_2D, textureId);
