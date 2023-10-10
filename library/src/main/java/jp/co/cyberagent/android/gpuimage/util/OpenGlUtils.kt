@@ -22,7 +22,7 @@ import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
-import jp.co.cyberagent.android.gpuimage.Kgl
+import org.qinetik.gpuimage.Kgl
 
 import java.nio.IntBuffer;
 
