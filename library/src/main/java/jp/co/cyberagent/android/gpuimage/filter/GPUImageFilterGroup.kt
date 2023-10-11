@@ -150,18 +150,10 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 Kgl.bindTexture(GL_TEXTURE_2D, frameBufferTextures!![i])
                 GLES20.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                         GL_RGBA, GL_UNSIGNED_BYTE, null)
-                GLES20.glTexParameterf(GL_TEXTURE_2D,
-                        GL_TEXTURE_MAG_FILTER, GL_LINEAR.toFloat()
-                )
-                GLES20.glTexParameterf(GL_TEXTURE_2D,
-                        GL_TEXTURE_MIN_FILTER, GL_LINEAR.toFloat()
-                )
-                GLES20.glTexParameterf(GL_TEXTURE_2D,
-                        GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE.toFloat()
-                )
-                GLES20.glTexParameterf(GL_TEXTURE_2D,
-                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE.toFloat())
-
+                Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+                Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+                Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+                Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
                 Kgl.bindFramebuffer(GL_FRAMEBUFFER, frameBuffers!![i])
                 Kgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D, frameBufferTextures!![i], 0)
