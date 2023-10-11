@@ -18,12 +18,16 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.Bitmap
 import android.opengl.GLES20
+import com.danielgergely.kgl.Buffer
+import com.danielgergely.kgl.GL_ARRAY_BUFFER
+import com.danielgergely.kgl.GL_STATIC_DRAW
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.Rotation
 import org.qinetik.gpuimage.utils.TextureRotationUtil
@@ -112,6 +116,22 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
         filterSourceTexture2 = OpenGlUtils.NO_TEXTURE
     }
 
+    private fun glVertexAttribPointer(
+        location: Int,
+        size: Int,
+        type: Int,
+        normalized: Boolean,
+        stride: Int,
+        ptr: Buffer,
+        bufferSize: Int
+    ) {
+        val cubeBufferId = Kgl.createBuffer()
+        Kgl.enableVertexAttribArray(location)
+        Kgl.bindBuffer(GL_ARRAY_BUFFER, cubeBufferId)
+        Kgl.bufferData(GL_ARRAY_BUFFER, ptr, bufferSize * 4, GL_STATIC_DRAW)
+        Kgl.vertexAttribPointer(location, size, type, normalized, stride, 0)
+    }
+
     override fun onDrawArraysPre() {
         GLES20.glEnableVertexAttribArray(filterSecondTextureCoordinateAttribute)
         GLES20.glActiveTexture(GLES20.GL_TEXTURE3)
@@ -119,13 +139,14 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
         GLES20.glUniform1i(filterInputTextureUniform2, 3)
 
         texture2CoordinatesBuffer.position(0)
-        GLES20.glVertexAttribPointer(
+        glVertexAttribPointer(
             filterSecondTextureCoordinateAttribute,
             2,
             GLES20.GL_FLOAT,
             false,
             0,
-            texture2CoordinatesBuffer
+            com.danielgergely.kgl.ByteBuffer(texture2CoordinatesBuffer),
+            8
         )
     }
 
@@ -138,5 +159,6 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
         fBuffer.flip()
 
         texture2CoordinatesBuffer = bBuffer
+
     }
 }
