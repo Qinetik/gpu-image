@@ -23,8 +23,6 @@ import org.qinetik.gpuimage.Kgl
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.FloatBuffer
-import java.util.ArrayList
 
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
@@ -62,25 +60,31 @@ open class GPUImageFilterGroup : GPUImageFilter {
             updateMergedFilters()
         }
 
-        glCubeBuffer = ByteBuffer.allocateDirect(CUBE.size * 4)
+        val glCubeBuffer = ByteBuffer.allocateDirect(CUBE.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
         glCubeBuffer.put(CUBE).position(0)
 
-        glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.size * 4)
+        this.glCubeBuffer = FloatBuffer(glCubeBuffer)
+
+        val glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
         glTextureBuffer.put(TextureRotationUtil.TEXTURE_NO_ROTATION).position(0)
+
+        this.glTextureBuffer = FloatBuffer(glTextureBuffer)
 
         val flipTexture : FloatArray = TextureRotationUtil.getRotation(
             org.qinetik.gpuimage.utils.Rotation.NORMAL,
             false,
             true
         )
-        glTextureFlipBuffer = ByteBuffer.allocateDirect(flipTexture.size * 4)
+        val glTextureFlipBuffer = ByteBuffer.allocateDirect(flipTexture.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
         glTextureFlipBuffer.put(flipTexture).position(0)
+
+        this.glTextureFlipBuffer = FloatBuffer(glTextureFlipBuffer)
     }
 
     fun addFilter(aFilter: GPUImageFilter) {
@@ -205,14 +209,14 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 } else if (i == size - 1) {
                     filter.onDraw(
                         previousTexture,
-                        com.danielgergely.kgl.FloatBuffer(glCubeBuffer),
-                        com.danielgergely.kgl.FloatBuffer(if(size % 2 == 0) glTextureFlipBuffer else glTextureBuffer)
+                        glCubeBuffer,
+                        if(size % 2 == 0) glTextureFlipBuffer else glTextureBuffer
                     )
                 } else {
                     filter.onDraw(
                         previousTexture,
-                        com.danielgergely.kgl.FloatBuffer(glCubeBuffer),
-                        com.danielgergely.kgl.FloatBuffer(glTextureBuffer)
+                        glCubeBuffer,
+                        glTextureBuffer
                     )
                 }
 
