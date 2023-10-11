@@ -18,9 +18,7 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.Bitmap
 import android.opengl.GLES20
-import com.danielgergely.kgl.Buffer
-import com.danielgergely.kgl.GL_ARRAY_BUFFER
-import com.danielgergely.kgl.GL_STATIC_DRAW
+import com.danielgergely.kgl.*
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -70,7 +68,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
             program,
             "inputImageTexture2"
         ) // This does assume a name of "inputImageTexture2" for second input texture in the fragment shader
-        GLES20.glEnableVertexAttribArray(filterSecondTextureCoordinateAttribute)
+        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute)
     }
 
     override fun onInitialized() {
@@ -93,7 +91,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
                 if (bitmap.isRecycled) {
                     return@runOnDraw
                 }
-                GLES20.glActiveTexture(GLES20.GL_TEXTURE3)
+                Kgl.activeTexture(GL_TEXTURE3)
                 filterSourceTexture2 = OpenGlUtils.loadTexture(bitmap, OpenGlUtils.NO_TEXTURE, false)
             }
         }
@@ -133,19 +131,19 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
     }
 
     override fun onDrawArraysPre() {
-        GLES20.glEnableVertexAttribArray(filterSecondTextureCoordinateAttribute)
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE3)
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, filterSourceTexture2)
-        GLES20.glUniform1i(filterInputTextureUniform2, 3)
+        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute)
+        Kgl.activeTexture(GL_TEXTURE3)
+        Kgl.bindTexture(GL_TEXTURE_2D, filterSourceTexture2)
+        Kgl.uniform1i(filterInputTextureUniform2, 3)
 
         texture2CoordinatesBuffer.position(0)
         glVertexAttribPointer(
             filterSecondTextureCoordinateAttribute,
             2,
-            GLES20.GL_FLOAT,
+            GL_FLOAT,
             false,
             0,
-            com.danielgergely.kgl.ByteBuffer(texture2CoordinatesBuffer),
+            ByteBuffer(texture2CoordinatesBuffer),
             8
         )
     }
