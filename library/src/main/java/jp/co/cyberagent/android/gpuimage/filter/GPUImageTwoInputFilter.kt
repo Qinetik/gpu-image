@@ -17,7 +17,6 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.Bitmap
-import android.opengl.GLES20
 import com.danielgergely.kgl.*
 
 import java.nio.ByteBuffer
@@ -48,8 +47,8 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
                 "}"
     }
 
-    private var filterSecondTextureCoordinateAttribute: Int = 0
-    private var filterInputTextureUniform2: Int = 0
+    private var filterSecondTextureCoordinateAttribute: UniformLocation? = null
+    private var filterInputTextureUniform2: UniformLocation? = null
     private var filterSourceTexture2: Int = OpenGlUtils.NO_TEXTURE
     private lateinit var texture2CoordinatesBuffer: ByteBuffer
     private var bitmap: Bitmap? = null
@@ -63,12 +62,12 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
     override fun onInit() {
         super.onInit()
 
-        filterSecondTextureCoordinateAttribute = GLES20.glGetAttribLocation(program, "inputTextureCoordinate2")
-        filterInputTextureUniform2 = GLES20.glGetUniformLocation(
+        filterSecondTextureCoordinateAttribute = Kgl.getAttribLocation(program, "inputTextureCoordinate2")
+        filterInputTextureUniform2 = Kgl.getUniformLocation(
             program,
             "inputImageTexture2"
         ) // This does assume a name of "inputImageTexture2" for second input texture in the fragment shader
-        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute)
+        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute!!)
     }
 
     override fun onInitialized() {
@@ -131,14 +130,14 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
     }
 
     override fun onDrawArraysPre() {
-        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute)
+        Kgl.enableVertexAttribArray(filterSecondTextureCoordinateAttribute!!)
         Kgl.activeTexture(GL_TEXTURE3)
         Kgl.bindTexture(GL_TEXTURE_2D, filterSourceTexture2)
-        Kgl.uniform1i(filterInputTextureUniform2, 3)
+        Kgl.uniform1i(filterInputTextureUniform2!!, 3)
 
         texture2CoordinatesBuffer.position(0)
         glVertexAttribPointer(
-            filterSecondTextureCoordinateAttribute,
+            filterSecondTextureCoordinateAttribute!!,
             2,
             GL_FLOAT,
             false,
