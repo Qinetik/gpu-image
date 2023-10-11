@@ -18,6 +18,8 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.annotation.SuppressLint
 import android.opengl.GLES20
+import com.danielgergely.kgl.*
+import org.qinetik.gpuimage.Kgl
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -36,8 +38,9 @@ open class GPUImageFilterGroup : GPUImageFilter {
 
     protected val filters : MutableList<GPUImageFilter>
     protected var mergedFilters : MutableList<GPUImageFilter>? = null
-    private var frameBuffers : IntArray? = null
-    private var frameBufferTextures : IntArray? = null
+
+    private var frameBuffers : Array<Framebuffer>? = null
+    private var frameBufferTextures : Array<Texture>? = null
 
     private val glCubeBuffer : FloatBuffer
     private val glTextureBuffer : FloatBuffer
@@ -110,11 +113,15 @@ open class GPUImageFilterGroup : GPUImageFilter {
 
     private fun destroyFramebuffers() {
         if (frameBufferTextures != null) {
-            GLES20.glDeleteTextures(frameBufferTextures!!.size, frameBufferTextures, 0)
+            for(texture in frameBufferTextures!!){
+                Kgl.deleteTexture(texture)
+            }
             frameBufferTextures = null
         }
         if (frameBuffers != null) {
-            GLES20.glDeleteFramebuffers(frameBuffers!!.size, frameBuffers, 0)
+            for(buffer in frameBuffers!!){
+                Kgl.deleteFramebuffer(buffer)
+            }
             frameBuffers = null
         }
     }
@@ -138,34 +145,36 @@ open class GPUImageFilterGroup : GPUImageFilter {
 
         if (mergedFilters != null && mergedFilters!!.size > 0) {
             size = mergedFilters!!.size
-            frameBuffers = IntArray(size - 1)
-            frameBufferTextures = IntArray(size - 1)
+
+            frameBuffers = Array(size - 1){
+                Kgl.createFramebuffer()
+            }
+            frameBufferTextures = Kgl.createTextures(size - 1)
 
             for(i in 0 until size - 1){
-                GLES20.glGenFramebuffers(1, frameBuffers, i)
-                GLES20.glGenTextures(1, frameBufferTextures, i)
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, frameBufferTextures!![i])
-                GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0,
-                        GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null)
-                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                        GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR.toFloat()
+                Kgl.bindTexture(GL_TEXTURE_2D, frameBufferTextures!![i])
+                GLES20.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, null)
+                GLES20.glTexParameterf(GL_TEXTURE_2D,
+                        GL_TEXTURE_MAG_FILTER, GL_LINEAR.toFloat()
                 )
-                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                        GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR.toFloat()
+                GLES20.glTexParameterf(GL_TEXTURE_2D,
+                        GL_TEXTURE_MIN_FILTER, GL_LINEAR.toFloat()
                 )
-                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                        GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE.toFloat()
+                GLES20.glTexParameterf(GL_TEXTURE_2D,
+                        GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE.toFloat()
                 )
-                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                        GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE.toFloat())
+                GLES20.glTexParameterf(GL_TEXTURE_2D,
+                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE.toFloat())
 
-                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffers!![i])
-                GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-                        GLES20.GL_TEXTURE_2D, frameBufferTextures!![i], 0)
+                Kgl.bindFramebuffer(GL_FRAMEBUFFER, frameBuffers!![i])
+                Kgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                        GL_TEXTURE_2D, frameBufferTextures!![i], 0)
 
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0)
-                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+                Kgl.bindTexture(GL_TEXTURE_2D, null)
+                Kgl.bindFramebuffer(GL_FRAMEBUFFER, null)
             }
+
         }
     }
 
@@ -187,8 +196,8 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 val filter = mergedFilters!!.get(i)
                 val isNotLast = i < size - 1
                 if (isNotLast) {
-                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffers!![i])
-                    GLES20.glClearColor(0f, 0f, 0f, 0f)
+                    Kgl.bindFramebuffer(GL_FRAMEBUFFER, frameBuffers!![i])
+                    Kgl.clearColor(0f, 0f, 0f, 0f)
                 }
 
                 if (i == 0) {
@@ -208,7 +217,7 @@ open class GPUImageFilterGroup : GPUImageFilter {
                 }
 
                 if (isNotLast) {
-                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+                    Kgl.bindFramebuffer(GL_FRAMEBUFFER, 0)
                     previousTexture = frameBufferTextures!![i]
                 }
             }
