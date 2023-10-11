@@ -18,12 +18,11 @@ package jp.co.cyberagent.android.gpuimage.filter;
 
 import android.graphics.Point
 import android.graphics.PointF
-import android.opengl.GLES20
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+import com.danielgergely.kgl.*
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import java.io.IOException
 import java.io.InputStream
-import java.nio.ByteBuffer
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -48,8 +47,8 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         " }";
     }
 
-    private val toneCurveTexture : IntArray = intArrayOf(OpenGlUtils.NO_TEXTURE);
-    private var toneCurveTextureUniformLocation : Int = 0;
+    private var toneCurveTexture : Texture? = null
+    private var _toneCurveTextureUniformLocation : UniformLocation? = null;
 
     private var rgbCompositeControlPoints : Array<PointF>;
     private var redControlPoints : Array<PointF>;
@@ -72,14 +71,14 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
 
     public override fun onInit() {
         super.onInit();
-        toneCurveTextureUniformLocation = GLES20.glGetUniformLocation(program, "toneCurveTexture");
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-        GLES20.glGenTextures(1, toneCurveTexture, 0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, toneCurveTexture[0]);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+        _toneCurveTextureUniformLocation = Kgl.getUniformLocation(program, "toneCurveTexture");
+        Kgl.activeTexture(GL_TEXTURE3);
+        toneCurveTexture = Kgl.createTexture()
+        Kgl.bindTexture(GL_TEXTURE_2D, toneCurveTexture);
+        Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     public override fun onInitialized() {
@@ -91,10 +90,10 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
     }
 
     protected override fun  onDrawArraysPre() {
-        if (toneCurveTexture[0] != OpenGlUtils.NO_TEXTURE) {
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, toneCurveTexture[0]);
-            GLES20.glUniform1i(toneCurveTextureUniformLocation, 3);
+        if (toneCurveTexture != null) {
+            Kgl.activeTexture(GL_TEXTURE3);
+            Kgl.bindTexture(GL_TEXTURE_2D, toneCurveTexture);
+            Kgl.uniform1i(_toneCurveTextureUniformLocation!!, 3);
         }
     }
 
@@ -167,8 +166,8 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
 
     private fun updateToneCurveTexture() {
         runOnDraw {
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, toneCurveTexture[0]);
+            Kgl.activeTexture(GL_TEXTURE3);
+            Kgl.bindTexture(GL_TEXTURE_2D, toneCurveTexture);
 
             if ((redCurve.size >= 256) && (greenCurve.size >= 256) && (blueCurve.size >= 256) && (rgbCompositeCurve.size >= 256)) {
                 val toneCurveByteArray = ByteArray(256 * 4)
@@ -180,7 +179,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
                     toneCurveByteArray[currentCurveIndex * 4 + 3] = (0xff).toByte();
                 }
 
-                GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 256 /*width*/, 1 /*height*/, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, ByteBuffer.wrap(toneCurveByteArray));
+                Kgl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256 /*width*/, 1 /*height*/, 0, GL_RGBA, GL_UNSIGNED_BYTE, com.danielgergely.kgl.ByteBuffer(toneCurveByteArray));
             }
 //        Buffer pixels!
 //        GLES20.glTexImage2D(int target,
