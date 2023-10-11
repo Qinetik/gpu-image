@@ -16,7 +16,6 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import com.danielgergely.kgl.Kgl
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter

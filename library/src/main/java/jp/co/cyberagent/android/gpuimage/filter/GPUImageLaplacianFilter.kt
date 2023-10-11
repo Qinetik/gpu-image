@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 class GPUImageLaplacianFilter : GPUImage3x3TextureSamplingFilter {
     companion object {
@@ -63,7 +64,7 @@ class GPUImageLaplacianFilter : GPUImage3x3TextureSamplingFilter {
     }
 
     private var convolutionKernel: FloatArray
-    private var uniformConvolutionMatrix: Int = 0
+    private var _uniformConvolutionMatrix: UniformLocation? = null
 
     constructor() : this(
         floatArrayOf(
@@ -80,7 +81,7 @@ class GPUImageLaplacianFilter : GPUImage3x3TextureSamplingFilter {
 
     override fun onInit() {
         super.onInit()
-        uniformConvolutionMatrix = GLES20.glGetUniformLocation(program, "convolutionMatrix")
+        _uniformConvolutionMatrix = Kgl.getUniformLocation(program, "convolutionMatrix")
     }
 
     override fun onInitialized() {
@@ -90,6 +91,6 @@ class GPUImageLaplacianFilter : GPUImage3x3TextureSamplingFilter {
 
     private fun setConvolutionKernel(convolutionKernel: FloatArray) {
         this.convolutionKernel = convolutionKernel
-        setUniformMatrix3f(uniformConvolutionMatrix, this.convolutionKernel)
+        if(_uniformConvolutionMatrix != null) setUniformMatrix3f(_uniformConvolutionMatrix!!, this.convolutionKernel)
     }
 }
