@@ -16,7 +16,7 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 open class GPUImageTwoPassTextureSamplingFilter(
@@ -37,15 +37,15 @@ open class GPUImageTwoPassTextureSamplingFilter(
     protected fun initTexelOffsets() {
         var ratio = getHorizontalTexelOffsetRatio()
         var filter: GPUImageFilter = filters.get(0)
-        var texelWidthOffsetLocation: Int = GLES20.glGetUniformLocation(filter.program, "texelWidthOffset")
-        var texelHeightOffsetLocation: Int = GLES20.glGetUniformLocation(filter.program, "texelHeightOffset")
+        var texelWidthOffsetLocation = Kgl.getUniformLocation(filter.program, "texelWidthOffset")!!
+        var texelHeightOffsetLocation = Kgl.getUniformLocation(filter.program, "texelHeightOffset")!!
         filter.setFloat(texelWidthOffsetLocation, ratio / outputWidth)
         filter.setFloat(texelHeightOffsetLocation, 0f)
 
         ratio = getVerticalTexelOffsetRatio()
         filter = filters.get(1)
-        texelWidthOffsetLocation = GLES20.glGetUniformLocation(filter.program, "texelWidthOffset")
-        texelHeightOffsetLocation = GLES20.glGetUniformLocation(filter.program, "texelHeightOffset")
+        texelWidthOffsetLocation = Kgl.getUniformLocation(filter.program, "texelWidthOffset")!!
+        texelHeightOffsetLocation = Kgl.getUniformLocation(filter.program, "texelHeightOffset")!!
         filter.setFloat(texelWidthOffsetLocation, 0f)
         filter.setFloat(texelHeightOffsetLocation, ratio / outputHeight)
     }

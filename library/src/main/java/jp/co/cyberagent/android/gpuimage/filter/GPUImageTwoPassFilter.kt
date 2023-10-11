@@ -22,7 +22,7 @@ open class GPUImageTwoPassFilter(
     secondVertexShader: String, secondFragmentShader: String
 ) : GPUImageFilterGroup(mutableListOf()) {
     init {
-        addFilter(org.qinetik.gpuimage.filter.GPUImageFilter(firstVertexShader, firstFragmentShader))
+        addFilter(GPUImageFilter(firstVertexShader, firstFragmentShader))
         addFilter(GPUImageFilter(secondVertexShader, secondFragmentShader))
     }
 }
