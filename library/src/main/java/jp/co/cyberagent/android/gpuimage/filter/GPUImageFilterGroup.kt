@@ -21,9 +21,6 @@ import android.opengl.GLES20
 import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
 
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
@@ -60,31 +57,25 @@ open class GPUImageFilterGroup : GPUImageFilter {
             updateMergedFilters()
         }
 
-        val glCubeBuffer = ByteBuffer.allocateDirect(CUBE.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-        glCubeBuffer.put(CUBE).position(0)
+        val glCubeBuffer = FloatBuffer(CUBE.size * 4)
+        glCubeBuffer.put(CUBE)
+        glCubeBuffer.position = 0
+        this.glCubeBuffer = glCubeBuffer
 
-        this.glCubeBuffer = FloatBuffer(glCubeBuffer)
-
-        val glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-        glTextureBuffer.put(TextureRotationUtil.TEXTURE_NO_ROTATION).position(0)
-
-        this.glTextureBuffer = FloatBuffer(glTextureBuffer)
+        val glTextureBuffer = FloatBuffer(TextureRotationUtil.TEXTURE_NO_ROTATION.size * 4)
+        glTextureBuffer.put(TextureRotationUtil.TEXTURE_NO_ROTATION)
+        glTextureBuffer.position = 0
+        this.glTextureBuffer = glTextureBuffer
 
         val flipTexture : FloatArray = TextureRotationUtil.getRotation(
             org.qinetik.gpuimage.utils.Rotation.NORMAL,
             false,
             true
         )
-        val glTextureFlipBuffer = ByteBuffer.allocateDirect(flipTexture.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-        glTextureFlipBuffer.put(flipTexture).position(0)
-
-        this.glTextureFlipBuffer = FloatBuffer(glTextureFlipBuffer)
+        val glTextureFlipBuffer = FloatBuffer(flipTexture.size * 4)
+        glTextureFlipBuffer.put(flipTexture)
+        glTextureFlipBuffer.position = (0)
+        this.glTextureFlipBuffer = glTextureFlipBuffer
     }
 
     fun addFilter(aFilter: GPUImageFilter) {
