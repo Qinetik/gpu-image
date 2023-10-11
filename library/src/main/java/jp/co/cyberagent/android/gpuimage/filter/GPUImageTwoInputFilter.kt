@@ -110,7 +110,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
 
     override fun onDestroy() {
         super.onDestroy()
-        GLES20.glDeleteTextures(1, intArrayOf(filterSourceTexture2), 0)
+        Kgl.deleteTexture(filterSourceTexture2)
         filterSourceTexture2 = OpenGlUtils.NO_TEXTURE
     }
 
