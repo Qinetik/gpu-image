@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter;
 
 import android.opengl.GLES20;
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -29,38 +31,49 @@ class GPUImageHighlightShadowFilter(
     private var highlights: Float
 ) : GPUImageFilter(NO_FILTER_VERTEX_SHADER, HIGHLIGHT_SHADOW_FRAGMENT_SHADER) {
     companion object {
-        const val HIGHLIGHT_SHADOW_FRAGMENT_SHADER : String = "" +
-        " uniform sampler2D inputImageTexture;\n" +
-        " varying highp vec2 textureCoordinate;\n" +
-        "  \n" +
-        " uniform lowp float shadows;\n" +
-        " uniform lowp float highlights;\n" +
-        " \n" +
-        " const mediump vec3 luminanceWeighting = vec3(0.3, 0.3, 0.3);\n" +
-        " \n" +
-        " void main()\n" +
-        " {\n" +
-        " 	lowp vec4 source = texture2D(inputImageTexture, textureCoordinate);\n" +
-        " 	mediump float luminance = dot(source.rgb, luminanceWeighting);\n" +
-        " \n" +
-        " 	mediump float shadow = clamp((pow(luminance, 1.0/(shadows+1.0)) + (-0.76)*pow(luminance, 2.0/(shadows+1.0))) - luminance, 0.0, 1.0);\n" +
-        " 	mediump float highlight = clamp((1.0 - (pow(1.0-luminance, 1.0/(2.0-highlights)) + (-0.8)*pow(1.0-luminance, 2.0/(2.0-highlights)))) - luminance, -1.0, 0.0);\n" +
-        " 	lowp vec3 result = vec3(0.0, 0.0, 0.0) + ((luminance + shadow + highlight) - 0.0) * ((source.rgb - vec3(0.0, 0.0, 0.0))/(luminance - 0.0));\n" +
-        " \n" +
-        " 	gl_FragColor = vec4(result.rgb, source.a);\n" +
-        " }";
+        const val HIGHLIGHT_SHADOW_FRAGMENT_SHADER: String = "" +
+                " uniform sampler2D inputImageTexture;\n" +
+                " varying highp vec2 textureCoordinate;\n" +
+                "  \n" +
+                " uniform lowp float shadows;\n" +
+                " uniform lowp float highlights;\n" +
+                " \n" +
+                " const mediump vec3 luminanceWeighting = vec3(0.3, 0.3, 0.3);\n" +
+                " \n" +
+                " void main()\n" +
+                " {\n" +
+                " 	lowp vec4 source = texture2D(inputImageTexture, textureCoordinate);\n" +
+                " 	mediump float luminance = dot(source.rgb, luminanceWeighting);\n" +
+                " \n" +
+                " 	mediump float shadow = clamp((pow(luminance, 1.0/(shadows+1.0)) + (-0.76)*pow(luminance, 2.0/(shadows+1.0))) - luminance, 0.0, 1.0);\n" +
+                " 	mediump float highlight = clamp((1.0 - (pow(1.0-luminance, 1.0/(2.0-highlights)) + (-0.8)*pow(1.0-luminance, 2.0/(2.0-highlights)))) - luminance, -1.0, 0.0);\n" +
+                " 	lowp vec3 result = vec3(0.0, 0.0, 0.0) + ((luminance + shadow + highlight) - 0.0) * ((source.rgb - vec3(0.0, 0.0, 0.0))/(luminance - 0.0));\n" +
+                " \n" +
+                " 	gl_FragColor = vec4(result.rgb, source.a);\n" +
+                " }";
     }
 
 
-    private var shadowsLocation : Int = 0
-    private var highlightsLocation : Int = 0
+    private var _shadowsLocation: UniformLocation? = null
+    private var _highlightsLocation: UniformLocation? = null
+
+    private inline var shadowsLocation: UniformLocation
+        get() = _shadowsLocation!!
+        set(value) {
+            _shadowsLocation = value
+        }
+    private inline var highlightsLocation: UniformLocation
+        get() = _highlightsLocation!!
+        set(value) {
+            _highlightsLocation = value
+        }
 
     constructor() : this(0.0f, 1.0f)
 
     override fun onInit() {
         super.onInit();
-        highlightsLocation = GLES20.glGetUniformLocation(program, "highlights");
-        shadowsLocation = GLES20.glGetUniformLocation(program, "shadows");
+        _highlightsLocation = Kgl.getUniformLocation(program, "highlights")
+        _shadowsLocation = Kgl.getUniformLocation(program, "shadows")
     }
 
     override fun onInitialized() {
@@ -69,13 +82,13 @@ class GPUImageHighlightShadowFilter(
         setShadows(shadows);
     }
 
-    public fun setHighlights(highlights : Float) {
+    public fun setHighlights(highlights: Float) {
         this.highlights = highlights;
-        setFloat(highlightsLocation, this.highlights);
+        if(_highlightsLocation != null) setFloat(highlightsLocation, this.highlights);
     }
 
-    public fun setShadows(shadows : Float) {
+    public fun setShadows(shadows: Float) {
         this.shadows = shadows;
-        setFloat(shadowsLocation, this.shadows);
+        if(_shadowsLocation != null) setFloat(shadowsLocation, this.shadows);
     }
 }

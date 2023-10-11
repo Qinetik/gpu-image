@@ -18,6 +18,8 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.PointF
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -55,11 +57,28 @@ class GPUImageSwirlFilter : GPUImageFilter {
     }
 
     private var angle: Float
-    private var angleLocation: Int = 0
     private var radius: Float
-    private var radiusLocation: Int = 0
     private var center: PointF
-    private var centerLocation: Int = 0
+
+    private var _angleLocation: UniformLocation? = null
+    private var _radiusLocation: UniformLocation? = null
+    private var _centerLocation: UniformLocation? = null
+
+    private inline var angleLocation: UniformLocation
+        get() = _angleLocation!!
+        set(value) {
+            _angleLocation = value
+        }
+    private inline var radiusLocation: UniformLocation
+        get() = _radiusLocation!!
+        set(value) {
+            _radiusLocation = value
+        }
+    private inline var centerLocation: UniformLocation
+        get() = _centerLocation!!
+        set(value) {
+            _centerLocation = value
+        }
 
     constructor() : this(0.5f, 1.0f, PointF(0.5f, 0.5f))
 
@@ -71,9 +90,9 @@ class GPUImageSwirlFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        angleLocation = GLES20.glGetUniformLocation(program, "angle")
-        radiusLocation = GLES20.glGetUniformLocation(program, "radius")
-        centerLocation = GLES20.glGetUniformLocation(program, "center")
+        _angleLocation = Kgl.getUniformLocation(program, "angle")
+        _radiusLocation = Kgl.getUniformLocation(program, "radius")
+        _centerLocation = Kgl.getUniformLocation(program, "center")
     }
 
     override fun onInitialized() {
@@ -90,7 +109,9 @@ class GPUImageSwirlFilter : GPUImageFilter {
      */
     fun setRadius(radius: Float) {
         this.radius = radius
-        setFloat(radiusLocation, radius)
+        if(_radiusLocation != null) {
+            setFloat(radiusLocation, radius)
+        }
     }
 
     /**
@@ -100,7 +121,9 @@ class GPUImageSwirlFilter : GPUImageFilter {
      */
     fun setAngle(angle: Float) {
         this.angle = angle
-        setFloat(angleLocation, angle)
+        if(_angleLocation != null) {
+            setFloat(angleLocation, angle)
+        }
     }
 
     /**
@@ -110,6 +133,8 @@ class GPUImageSwirlFilter : GPUImageFilter {
      */
     fun setCenter(center: PointF) {
         this.center = center
-        setPoint(centerLocation, center.x, center.y)
+        if(_centerLocation != null) {
+            setPoint(centerLocation, center.x, center.y)
+        }
     }
 }

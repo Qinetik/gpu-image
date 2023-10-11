@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -45,8 +46,19 @@ open class GPUImageColorMatrixFilter : GPUImageFilter {
 
     private var intensity: Float
     private var colorMatrix: FloatArray
-    private var colorMatrixLocation: Int = 0
-    private var intensityLocation: Int = 0
+    private var _colorMatrixLocation: UniformLocation? = null
+    private var _intensityLocation: UniformLocation? = null
+
+    private inline var colorMatrixLocation: UniformLocation
+        get() = _colorMatrixLocation!!
+        set(value){
+            _colorMatrixLocation = value
+        }
+    private inline var intensityLocation: UniformLocation
+        get() = _intensityLocation!!
+        set(value){
+            _intensityLocation = value
+        }
 
     constructor() : this(
         1.0f, floatArrayOf(
@@ -67,8 +79,8 @@ open class GPUImageColorMatrixFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        colorMatrixLocation = GLES20.glGetUniformLocation(program, "colorMatrix")
-        intensityLocation = GLES20.glGetUniformLocation(program, "intensity")
+        _colorMatrixLocation = Kgl.getUniformLocation(program, "colorMatrix")
+        _intensityLocation = Kgl.getUniformLocation(program, "intensity")
     }
 
     override fun onInitialized() {
@@ -79,11 +91,11 @@ open class GPUImageColorMatrixFilter : GPUImageFilter {
 
     fun setIntensity(intensity: Float) {
         this.intensity = intensity
-        setFloat(intensityLocation, intensity)
+        if(_intensityLocation != null) setFloat(intensityLocation, intensity)
     }
 
     fun setColorMatrix(colorMatrix: FloatArray) {
         this.colorMatrix = colorMatrix
-        setUniformMatrix4f(colorMatrixLocation, colorMatrix)
+        if(_colorMatrixLocation != null) setUniformMatrix4f(colorMatrixLocation, colorMatrix)
     }
 }

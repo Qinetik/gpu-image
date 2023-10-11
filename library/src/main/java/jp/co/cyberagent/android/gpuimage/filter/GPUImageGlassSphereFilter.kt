@@ -17,7 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.PointF
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageGlassSphereFilter : GPUImageFilter {
@@ -65,13 +66,34 @@ class GPUImageGlassSphereFilter : GPUImageFilter {
     }
 
     private var center: PointF
-    private var centerLocation: Int = 0
+    private var _centerLocation: UniformLocation? = null
     private var radius: Float = 0f
-    private var radiusLocation: Int = 0
+    private var _radiusLocation: UniformLocation? = null
     private var aspectRatio: Float = 0f
-    private var aspectRatioLocation: Int = 0
+    private var _aspectRatioLocation: UniformLocation? = null
     private var refractiveIndex: Float = 0f
-    private var refractiveIndexLocation: Int = 0
+    private var _refractiveIndexLocation: UniformLocation? = null
+
+    private inline var centerLocation : UniformLocation
+        get() = _centerLocation!!
+        set(value){
+            _centerLocation = value
+        }
+    private inline var radiusLocation : UniformLocation
+        get() = _radiusLocation!!
+        set(value){
+            _radiusLocation = value
+        }
+    private inline var aspectRatioLocation : UniformLocation
+        get() = _aspectRatioLocation!!
+        set(value){
+            _aspectRatioLocation = value
+        }
+    private inline var refractiveIndexLocation : UniformLocation
+        get() = _refractiveIndexLocation!!
+        set(value){
+            _refractiveIndexLocation = value
+        }
 
     constructor() : this(PointF(0.5f, 0.5f), 0.25f, 0.71f)
 
@@ -86,10 +108,10 @@ class GPUImageGlassSphereFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        centerLocation = GLES20.glGetUniformLocation(program, "center")
-        radiusLocation = GLES20.glGetUniformLocation(program, "radius")
-        aspectRatioLocation = GLES20.glGetUniformLocation(program, "aspectRatio")
-        refractiveIndexLocation = GLES20.glGetUniformLocation(program, "refractiveIndex")
+        _centerLocation = Kgl.getUniformLocation(program, "center")
+        _radiusLocation = Kgl.getUniformLocation(program, "radius")
+        _aspectRatioLocation = Kgl.getUniformLocation(program, "aspectRatio")
+        _refractiveIndexLocation = Kgl.getUniformLocation(program, "refractiveIndex")
     }
 
     override fun onInitialized() {
@@ -108,22 +130,30 @@ class GPUImageGlassSphereFilter : GPUImageFilter {
 
     private fun setAspectRatio(aspectRatio: Float) {
         this.aspectRatio = aspectRatio
-        setFloat(aspectRatioLocation, aspectRatio)
+        if(_aspectRatioLocation != null) {
+            setFloat(aspectRatioLocation, aspectRatio)
+        }
     }
 
     fun setRefractiveIndex(refractiveIndex: Float) {
         this.refractiveIndex = refractiveIndex
-        setFloat(refractiveIndexLocation, refractiveIndex)
+        if(_refractiveIndexLocation != null) {
+            setFloat(refractiveIndexLocation, refractiveIndex)
+        }
     }
 
     fun setCenter(center: PointF) {
         this.center = center
-        setPoint(centerLocation, center.x, center.y)
+        if(_centerLocation != null) {
+            setPoint(centerLocation, center.x, center.y)
+        }
     }
 
     fun setRadius(radius: Float) {
         this.radius = radius
-        setFloat(radiusLocation, radius)
+        if(_radiusLocation != null) {
+            setFloat(radiusLocation, radius)
+        }
     }
 
 }

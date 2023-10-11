@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -119,13 +120,19 @@ class GPUImageKuwaharaFilter(
                 "}\n"
     }
 
-    private var radiusLocation: Int = 0
+    private var _radiusLocation: UniformLocation? = null
+
+    private inline var radiusLocation: UniformLocation
+        get() = _radiusLocation!!
+        set(value){
+            _radiusLocation = value
+        }
 
     constructor() : this(3)
 
     override fun onInit() {
         super.onInit()
-        radiusLocation = GLES20.glGetUniformLocation(program, "radius")
+        _radiusLocation = Kgl.getUniformLocation(program, "radius")
     }
 
     override fun onInitialized() {
@@ -141,6 +148,6 @@ class GPUImageKuwaharaFilter(
      */
     fun setRadius(radius: Int) {
         this.radius = radius
-        setInteger(radiusLocation, radius)
+        if(_radiusLocation != null) setInteger(radiusLocation, radius)
     }
 }

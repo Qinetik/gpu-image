@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -87,10 +88,27 @@ class GPUImageSharpenFilter : GPUImageFilter {
                 "}"
     }
 
-    private var sharpnessLocation: Int = 0
+    private var _sharpnessLocation: UniformLocation? = null
+    private var _imageWidthFactorLocation: UniformLocation? = null
+    private var _imageHeightFactorLocation: UniformLocation? = null
+
+    private inline var sharpnessLocation: UniformLocation
+        get() = _sharpnessLocation!!
+        set(value){
+            _sharpnessLocation = value
+        }
+    private inline var imageWidthFactorLocation: UniformLocation
+        get() = _imageWidthFactorLocation!!
+        set(value){
+            _imageWidthFactorLocation = value
+        }
+    private inline var imageHeightFactorLocation: UniformLocation
+        get() = _imageHeightFactorLocation!!
+        set(value){
+            _imageHeightFactorLocation = value
+        }
+
     private var sharpness: Float
-    private var imageWidthFactorLocation: Int = 0
-    private var imageHeightFactorLocation: Int = 0
 
     constructor() : this(0.0f)
 
@@ -100,9 +118,9 @@ class GPUImageSharpenFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        sharpnessLocation = GLES20.glGetUniformLocation(program, "sharpness")
-        imageWidthFactorLocation = GLES20.glGetUniformLocation(program, "imageWidthFactor")
-        imageHeightFactorLocation = GLES20.glGetUniformLocation(program, "imageHeightFactor")
+        _sharpnessLocation = Kgl.getUniformLocation(program, "sharpness")
+        _imageWidthFactorLocation = Kgl.getUniformLocation(program, "imageWidthFactor")
+        _imageHeightFactorLocation = Kgl.getUniformLocation(program, "imageHeightFactor")
     }
 
     override fun onInitialized() {
@@ -118,7 +136,9 @@ class GPUImageSharpenFilter : GPUImageFilter {
 
     fun setSharpness(sharpness: Float) {
         this.sharpness = sharpness
-        setFloat(sharpnessLocation, this.sharpness)
+        if(_sharpnessLocation != null) {
+            setFloat(sharpnessLocation, this.sharpness)
+        }
     }
 
 }

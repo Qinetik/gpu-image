@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageLuminanceThresholdFilter : GPUImageFilter {
@@ -40,8 +41,14 @@ class GPUImageLuminanceThresholdFilter : GPUImageFilter {
                 "}"
     }
 
-    private var uniformThresholdLocation: Int = 0
+    private var _uniformThresholdLocation: UniformLocation? = null
     private var threshold: Float
+
+    private inline var uniformThresholdLocation: UniformLocation
+        get() = _uniformThresholdLocation!!
+        set(value){
+            _uniformThresholdLocation = value
+        }
 
     constructor() : this(0.5f)
 
@@ -51,7 +58,7 @@ class GPUImageLuminanceThresholdFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        uniformThresholdLocation = GLES20.glGetUniformLocation(program, "threshold")
+        _uniformThresholdLocation = Kgl.getUniformLocation(program, "threshold")
     }
 
     override fun onInitialized() {
@@ -61,7 +68,9 @@ class GPUImageLuminanceThresholdFilter : GPUImageFilter {
 
     fun setThreshold(threshold: Float) {
         this.threshold = threshold
-        setFloat(uniformThresholdLocation, threshold)
+        if(_uniformThresholdLocation != null) {
+            setFloat(uniformThresholdLocation, threshold)
+        }
     }
 
 }

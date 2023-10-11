@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -40,8 +41,14 @@ class GPUImageContrastFilter : GPUImageFilter {
                 " }"
     }
 
-    private var contrastLocation: Int = 0
+    private var _contrastLocation: UniformLocation? = null
     private var contrast: Float = 0f
+
+    private inline var contrastLocation: UniformLocation
+        get() = _contrastLocation!!
+        set(value){
+            _contrastLocation = value
+        }
 
     constructor() : this(1.2f)
 
@@ -51,7 +58,7 @@ class GPUImageContrastFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        contrastLocation = GLES20.glGetUniformLocation(program, "contrast")
+        _contrastLocation = Kgl.getUniformLocation(program, "contrast")
     }
 
     override fun onInitialized() {
@@ -61,6 +68,6 @@ class GPUImageContrastFilter : GPUImageFilter {
 
     fun setContrast(contrast: Float) {
         this.contrast = contrast
-        setFloat(contrastLocation, this.contrast)
+        if(_contrastLocation != null) setFloat(contrastLocation, this.contrast)
     }
 }

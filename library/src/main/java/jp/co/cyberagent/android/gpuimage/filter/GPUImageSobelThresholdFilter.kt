@@ -1,6 +1,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 class GPUImageSobelThresholdFilter : GPUImage3x3TextureSamplingFilter {
     companion object {
@@ -44,8 +45,14 @@ class GPUImageSobelThresholdFilter : GPUImage3x3TextureSamplingFilter {
                 "}\n"
     }
 
-    private var uniformThresholdLocation: Int = 0
+    private var _uniformThresholdLocation: UniformLocation? = null
     private var threshold: Float
+
+    private inline var uniformThresholdLocation : UniformLocation
+        get() = _uniformThresholdLocation!!
+        set(value){
+            _uniformThresholdLocation = value
+        }
 
     constructor() : this(0.9f)
 
@@ -55,7 +62,7 @@ class GPUImageSobelThresholdFilter : GPUImage3x3TextureSamplingFilter {
 
     override fun onInit() {
         super.onInit()
-        uniformThresholdLocation = GLES20.glGetUniformLocation(program, "threshold")
+        _uniformThresholdLocation = Kgl.getUniformLocation(program, "threshold")
     }
 
 
@@ -66,7 +73,9 @@ class GPUImageSobelThresholdFilter : GPUImage3x3TextureSamplingFilter {
 
     fun setThreshold(threshold: Float) {
         this.threshold = threshold
-        setFloat(uniformThresholdLocation, threshold)
+        if(_uniformThresholdLocation != null) {
+            setFloat(uniformThresholdLocation, threshold)
+        }
     }
 
 }

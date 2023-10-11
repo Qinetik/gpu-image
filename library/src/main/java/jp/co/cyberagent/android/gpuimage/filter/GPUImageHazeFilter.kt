@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -51,15 +52,26 @@ class GPUImageHazeFilter(private var distance: Float, private var slope: Float) 
 
     }
 
-    private var distanceLocation: Int = 0
-    private var slopeLocation: Int = 0
+    private var _distanceLocation: UniformLocation? = null
+    private var _slopeLocation: UniformLocation? = null
+
+    private inline var distanceLocation: UniformLocation
+        get() = _distanceLocation!!
+        set(value){
+            _distanceLocation = value
+        }
+    private inline var slopeLocation: UniformLocation
+        get() = _slopeLocation!!
+        set(value){
+            _slopeLocation = value
+        }
 
     constructor() : this(0.2f, 0.0f)
 
     override fun onInit() {
         super.onInit()
-        distanceLocation = GLES20.glGetUniformLocation(program, "distance")
-        slopeLocation = GLES20.glGetUniformLocation(program, "slope")
+        _distanceLocation = Kgl.getUniformLocation(program, "distance")
+        _slopeLocation = Kgl.getUniformLocation(program, "slope")
     }
 
     override fun onInitialized() {
@@ -75,7 +87,7 @@ class GPUImageHazeFilter(private var distance: Float, private var slope: Float) 
      */
     fun setDistance(distance: Float) {
         this.distance = distance
-        setFloat(distanceLocation, distance)
+        if(_distanceLocation != null) setFloat(distanceLocation, distance)
     }
 
     /**
@@ -85,7 +97,7 @@ class GPUImageHazeFilter(private var distance: Float, private var slope: Float) 
      */
     fun setSlope(slope: Float) {
         this.slope = slope
-        setFloat(slopeLocation, slope)
+        if(_slopeLocation != null) setFloat(slopeLocation, slope)
     }
 
 }

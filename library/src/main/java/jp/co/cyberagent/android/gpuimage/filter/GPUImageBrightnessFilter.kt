@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -40,7 +41,14 @@ class GPUImageBrightnessFilter : GPUImageFilter {
     }
 
 
-    private var brightnessLocation: Int = 0
+    private var _brightnessLocation: UniformLocation? = null
+
+    private inline var brightnessLocation: UniformLocation
+        get() = _brightnessLocation!!
+        set(value) {
+            _brightnessLocation = value
+        }
+
     private var brightness: Float = 0f
 
     constructor() : this(0.0f)
@@ -51,7 +59,7 @@ class GPUImageBrightnessFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        brightnessLocation = GLES20.glGetUniformLocation(program, "brightness")
+        _brightnessLocation = Kgl.getUniformLocation(program, "brightness")
     }
 
     override fun onInitialized() {
@@ -61,7 +69,9 @@ class GPUImageBrightnessFilter : GPUImageFilter {
 
     fun setBrightness(brightness: Float) {
         this.brightness = brightness
-        setFloat(brightnessLocation, this.brightness)
+        if(_brightnessLocation != null){
+            setFloat(brightnessLocation, this.brightness)
+        }
     }
 
 }

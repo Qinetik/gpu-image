@@ -16,7 +16,9 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.Kgl
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 open class GPUImage3x3TextureSamplingFilter : GPUImageFilter {
@@ -64,8 +66,19 @@ open class GPUImage3x3TextureSamplingFilter : GPUImageFilter {
                 "}"
     }
 
-    private var uniformTexelWidthLocation: Int = 0
-    private var uniformTexelHeightLocation: Int = 0
+    private var _uniformTexelWidthLocation: UniformLocation? = null
+    private var _uniformTexelHeightLocation: UniformLocation? = null
+
+    private inline var uniformTexelWidthLocation: UniformLocation
+        get() = _uniformTexelWidthLocation!!
+        set(value){
+            _uniformTexelWidthLocation = value
+        }
+    private inline var uniformTexelHeightLocation: UniformLocation
+        get() = _uniformTexelHeightLocation!!
+        set(value){
+            _uniformTexelHeightLocation = value
+        }
 
     private var hasOverriddenImageSizeFactor: Boolean = false
     private var texelWidth = 0f
@@ -78,8 +91,8 @@ open class GPUImage3x3TextureSamplingFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        uniformTexelWidthLocation = GLES20.glGetUniformLocation(program, "texelWidth")
-        uniformTexelHeightLocation = GLES20.glGetUniformLocation(program, "texelHeight")
+        _uniformTexelWidthLocation = Kgl.getUniformLocation(program, "texelWidth")
+        _uniformTexelHeightLocation = Kgl.getUniformLocation(program, "texelHeight")
     }
 
     override fun onInitialized() {
@@ -116,7 +129,7 @@ open class GPUImage3x3TextureSamplingFilter : GPUImageFilter {
     }
 
     private fun updateTexelValues() {
-        setFloat(uniformTexelWidthLocation, texelWidth)
-        setFloat(uniformTexelHeightLocation, texelHeight)
+        if(_uniformTexelWidthLocation != null) setFloat(uniformTexelWidthLocation, texelWidth)
+        if(_uniformTexelHeightLocation != null) setFloat(uniformTexelHeightLocation, texelHeight)
     }
 }

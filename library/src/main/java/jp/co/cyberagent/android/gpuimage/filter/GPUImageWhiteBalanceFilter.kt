@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -57,9 +59,21 @@ class GPUImageWhiteBalanceFilter : GPUImageFilter {
     }
 
 
-    private var temperatureLocation: Int = 0
+    private var _temperatureLocation: UniformLocation? = null
+    private var _tintLocation: UniformLocation? = null
+
+    private inline var temperatureLocation: UniformLocation
+        get() = _temperatureLocation!!
+        set(value){
+            _temperatureLocation = value
+        }
+    private inline var tintLocation: UniformLocation
+        get() = _tintLocation!!
+        set(value){
+            _tintLocation = value
+        }
+
     private var temperature: Float
-    private var tintLocation: Int = 0
     private var tint: Float
 
     constructor() : this(5000.0f, 0.0f)
@@ -71,8 +85,8 @@ class GPUImageWhiteBalanceFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        temperatureLocation = GLES20.glGetUniformLocation(program, "temperature")
-        tintLocation = GLES20.glGetUniformLocation(program, "tint")
+        _temperatureLocation = Kgl.getUniformLocation(program, "temperature")
+        _tintLocation = Kgl.getUniformLocation(program, "tint")
     }
 
     override fun onInitialized() {
@@ -83,14 +97,18 @@ class GPUImageWhiteBalanceFilter : GPUImageFilter {
 
     fun setTemperature(temperature: Float) {
         this.temperature = temperature
-        setFloat(
-            temperatureLocation,
-            if (this.temperature < 5000) (0.0004 * (this.temperature - 5000.0)).toFloat() else (0.00006 * (this.temperature - 5000.0)).toFloat()
-        )
+        if(_temperatureLocation != null) {
+            setFloat(
+                temperatureLocation,
+                if (this.temperature < 5000) (0.0004 * (this.temperature - 5000.0)).toFloat() else (0.00006 * (this.temperature - 5000.0)).toFloat()
+            )
+        }
     }
 
     fun setTint(tint: Float) {
         this.tint = tint
-        setFloat(tintLocation, (this.tint / 100.0).toFloat())
+        if(_tintLocation != null) {
+            setFloat(tintLocation, (this.tint / 100.0).toFloat())
+        }
     }
 }

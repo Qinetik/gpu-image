@@ -1,6 +1,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageVibranceFilter : GPUImageFilter {
@@ -23,12 +25,19 @@ class GPUImageVibranceFilter : GPUImageFilter {
     }
 
 
-    private var vibranceLocation: Int = 0
+    private var _vibranceLocation: UniformLocation? = null
+
+    private inline var vibranceLocation: UniformLocation
+        get() = _vibranceLocation!!
+        set(value){
+            _vibranceLocation = value
+        }
+
     private var vibrance: Float = 0f
 
     override fun onInit() {
         super.onInit()
-        vibranceLocation = GLES20.glGetUniformLocation(program, "vibrance")
+        _vibranceLocation = Kgl.getUniformLocation(program, "vibrance")
     }
 
     constructor() : this(0f)

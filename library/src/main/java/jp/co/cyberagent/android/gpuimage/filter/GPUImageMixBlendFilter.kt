@@ -16,12 +16,19 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 open class GPUImageMixBlendFilter : GPUImageTwoInputFilter {
 
-    private var mixLocation: Int = 0
+    private var _mixLocation: UniformLocation? = null
     private var mix: Float
+
+    private inline var mixLocation: UniformLocation
+        get() = _mixLocation!!
+        set(value){
+            _mixLocation = value
+        }
 
     constructor(fragmentShader: String) : this(fragmentShader, 0.5f)
 
@@ -31,7 +38,7 @@ open class GPUImageMixBlendFilter : GPUImageTwoInputFilter {
 
     override fun onInit() {
         super.onInit()
-        mixLocation = GLES20.glGetUniformLocation(program, "mixturePercent")
+        _mixLocation = Kgl.getUniformLocation(program, "mixturePercent")
     }
 
     override fun onInitialized() {
@@ -44,7 +51,9 @@ open class GPUImageMixBlendFilter : GPUImageTwoInputFilter {
      */
     fun setMix(mix: Float) {
         this.mix = mix
-        setFloat(mixLocation, this.mix)
+        if(_mixLocation != null) {
+            setFloat(mixLocation, this.mix)
+        }
     }
 
 }

@@ -2,6 +2,8 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.PointF
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageZoomBlurFilter : GPUImageFilter {
@@ -35,9 +37,22 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
 
 
     private var blurCenter: PointF
-    private var blurCenterLocation: Int = 0
     private var blurSize: Float
-    private var blurSizeLocation: Int = 0
+
+    private var _blurCenterLocation: UniformLocation? = null
+    private var _blurSizeLocation: UniformLocation? = null
+
+    private inline var blurCenterLocation: UniformLocation
+        get() = _blurCenterLocation!!
+        set(value){
+            _blurCenterLocation = value
+        }
+
+    private inline var blurSizeLocation: UniformLocation
+        get() = _blurSizeLocation!!
+        set(value){
+            _blurSizeLocation = value
+        }
 
     constructor() : this(PointF(0.5f, 0.5f), 1.0f)
 
@@ -51,8 +66,8 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        blurCenterLocation = GLES20.glGetUniformLocation(program, "blurCenter")
-        blurSizeLocation = GLES20.glGetUniformLocation(program, "blurSize")
+        _blurCenterLocation = Kgl.getUniformLocation(program, "blurCenter")
+        _blurSizeLocation = Kgl.getUniformLocation(program, "blurSize")
     }
 
     override fun onInitialized() {
@@ -63,12 +78,16 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
 
     fun setBlurCenter(blurCenter: PointF) {
         this.blurCenter = blurCenter
-        setPoint(blurCenterLocation, blurCenter.x, blurCenter.y)
+        if(_blurCenterLocation != null) {
+            setPoint(blurCenterLocation, blurCenter.x, blurCenter.y)
+        }
     }
 
     fun setBlurSize(blurSize: Float) {
         this.blurSize = blurSize
-        setFloat(blurSizeLocation, blurSize)
+        if(_blurSizeLocation != null) {
+            setFloat(blurSizeLocation, blurSize)
+        }
     }
 
 }

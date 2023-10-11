@@ -16,8 +16,9 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
 import android.opengl.Matrix
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 import java.nio.ByteBuffer
@@ -43,8 +44,20 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
     }
 
 
-    private var transformMatrixUniform: Int = 0
-    private var orthographicMatrixUniform: Int = 0
+    private var _transformMatrixUniform: UniformLocation? = null
+    private var _orthographicMatrixUniform: UniformLocation? = null
+
+    private var transformMatrixUniform: UniformLocation
+        get() = _transformMatrixUniform!!
+        set(value){
+            _transformMatrixUniform = value
+        }
+    private var orthographicMatrixUniform: UniformLocation
+        get() = _orthographicMatrixUniform!!
+        set(value){
+            _orthographicMatrixUniform = value
+        }
+
     private val orthographicMatrix: FloatArray = FloatArray(16)
 
     private var transform3D: FloatArray
@@ -63,14 +76,18 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
 
     override fun onInit() {
         super.onInit()
-        transformMatrixUniform = GLES20.glGetUniformLocation(program, "transformMatrix")
-        orthographicMatrixUniform = GLES20.glGetUniformLocation(program, "orthographicMatrix")
+        _transformMatrixUniform = Kgl.getUniformLocation(program, "transformMatrix")
+        _orthographicMatrixUniform = Kgl.getUniformLocation(program, "orthographicMatrix")
     }
 
     override fun onInitialized() {
         super.onInitialized()
-        setUniformMatrix4f(transformMatrixUniform, transform3D)
-        setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
+        if(_transformMatrixUniform != null) {
+            setUniformMatrix4f(transformMatrixUniform, transform3D)
+        }
+        if(_orthographicMatrixUniform != null) {
+            setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
+        }
     }
 
     override fun onOutputSizeChanged(width: Int, height: Int) {
@@ -125,7 +142,9 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
 
     fun setTransform3D(transform3D: FloatArray) {
         this.transform3D = transform3D
-        setUniformMatrix4f(transformMatrixUniform, transform3D)
+        if(_transformMatrixUniform != null) {
+            setUniformMatrix4f(transformMatrixUniform, transform3D)
+        }
     }
 
     fun getTransform3D(): FloatArray {

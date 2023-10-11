@@ -1,6 +1,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageHalftoneFilter(private var fractionalWidthOfAPixel: Float) :
@@ -30,8 +32,19 @@ class GPUImageHalftoneFilter(private var fractionalWidthOfAPixel: Float) :
                 "}"
     }
 
-    private var fractionalWidthOfPixelLocation: Int = 0
-    private var aspectRatioLocation: Int = 0
+    private var _fractionalWidthOfPixelLocation: UniformLocation? = null
+    private var _aspectRatioLocation: UniformLocation? = null
+
+    private inline var fractionalWidthOfPixelLocation: UniformLocation
+        get() = _fractionalWidthOfPixelLocation!!
+        set(value){
+            _fractionalWidthOfPixelLocation = value
+        }
+    private inline var aspectRatioLocation: UniformLocation
+        get() = _aspectRatioLocation!!
+        set(value){
+            _aspectRatioLocation = value
+        }
 
     private var aspectRatio: Float = 0f
 
@@ -39,8 +52,8 @@ class GPUImageHalftoneFilter(private var fractionalWidthOfAPixel: Float) :
 
     override fun onInit() {
         super.onInit()
-        fractionalWidthOfPixelLocation = GLES20.glGetUniformLocation(program, "fractionalWidthOfPixel")
-        aspectRatioLocation = GLES20.glGetUniformLocation(program, "aspectRatio")
+        _fractionalWidthOfPixelLocation = Kgl.getUniformLocation(program, "fractionalWidthOfPixel")
+        _aspectRatioLocation = Kgl.getUniformLocation(program, "aspectRatio")
     }
 
     override fun onInitialized() {
@@ -56,11 +69,15 @@ class GPUImageHalftoneFilter(private var fractionalWidthOfAPixel: Float) :
 
     fun setFractionalWidthOfAPixel(fractionalWidthOfAPixel: Float) {
         this.fractionalWidthOfAPixel = fractionalWidthOfAPixel
-        setFloat(fractionalWidthOfPixelLocation, this.fractionalWidthOfAPixel)
+        if(_fractionalWidthOfPixelLocation != null) {
+            setFloat(fractionalWidthOfPixelLocation, this.fractionalWidthOfAPixel)
+        }
     }
 
     fun setAspectRatio(aspectRatio: Float) {
         this.aspectRatio = aspectRatio
-        setFloat(aspectRatioLocation, this.aspectRatio)
+        if(_aspectRatioLocation != null) {
+            setFloat(aspectRatioLocation, this.aspectRatio)
+        }
     }
 }

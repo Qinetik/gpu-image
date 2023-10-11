@@ -1,6 +1,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -141,10 +142,31 @@ class GPUImageColorBalanceFilter : GPUImageFilter {
     }
 
 
-    private var shadowsLocation: Int = 0
-    private var midtonesLocation: Int = 0
-    private var highlightsLocation: Int = 0
-    private var preserveLuminosityLocation: Int = 0
+    private var _shadowsLocation: UniformLocation? = null
+    private var _midtonesLocation: UniformLocation? = null
+    private var _highlightsLocation: UniformLocation? = null
+    private var _preserveLuminosityLocation: UniformLocation? = null
+
+    private inline var shadowsLocation: UniformLocation
+        get() = _shadowsLocation!!
+        set(value){
+            _shadowsLocation = value
+        }
+    private inline var midtonesLocation: UniformLocation
+        get() = _midtonesLocation!!
+        set(value){
+            _midtonesLocation = value
+        }
+    private inline var highlightsLocation: UniformLocation
+        get() = _highlightsLocation!!
+        set(value){
+            _highlightsLocation = value
+        }
+    private inline var preserveLuminosityLocation: UniformLocation
+        get() = _preserveLuminosityLocation!!
+        set(value){
+            _preserveLuminosityLocation = value
+        }
 
     private var showdows: FloatArray
     private var midtones: FloatArray
@@ -160,10 +182,10 @@ class GPUImageColorBalanceFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        shadowsLocation = GLES20.glGetUniformLocation(program, "shadowsShift")
-        midtonesLocation = GLES20.glGetUniformLocation(program, "midtonesShift")
-        highlightsLocation = GLES20.glGetUniformLocation(program, "highlightsShift")
-        preserveLuminosityLocation = GLES20.glGetUniformLocation(program, "preserveLuminosity")
+        _shadowsLocation = Kgl.getUniformLocation(program, "shadowsShift")
+        _midtonesLocation = Kgl.getUniformLocation(program, "midtonesShift")
+        _highlightsLocation = Kgl.getUniformLocation(program, "highlightsShift")
+        _preserveLuminosityLocation = Kgl.getUniformLocation(program, "preserveLuminosity")
     }
 
     override fun onInitialized() {
@@ -176,22 +198,22 @@ class GPUImageColorBalanceFilter : GPUImageFilter {
 
     fun setShowdows(showdows: FloatArray) {
         this.showdows = showdows
-        setFloatVec3(shadowsLocation, showdows)
+        if(_shadowsLocation != null) setFloatVec3(shadowsLocation, showdows)
     }
 
     fun setMidtones(midtones: FloatArray) {
         this.midtones = midtones
-        setFloatVec3(midtonesLocation, midtones)
+        if(_midtonesLocation != null) setFloatVec3(midtonesLocation, midtones)
     }
 
     fun setHighlights(highlights: FloatArray) {
         this.highlights = highlights
-        setFloatVec3(highlightsLocation, highlights)
+        if(_highlightsLocation != null) setFloatVec3(highlightsLocation, highlights)
     }
 
     fun setPreserveLuminosity(preserveLuminosity: Boolean) {
         this.preserveLuminosity = preserveLuminosity
-        setInteger(preserveLuminosityLocation, if (preserveLuminosity) 1 else 0)
+        if(_preserveLuminosityLocation != null) setInteger(preserveLuminosityLocation, if (preserveLuminosity) 1 else 0)
     }
 
 }

@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -43,11 +44,31 @@ class GPUImageRGBFilter : GPUImageFilter {
                 "  }\n"
     }
 
-    private var redLocation: Int = 0
+    private var _redLocation: UniformLocation? = null
+    private var _greenLocation: UniformLocation? = null
+    private var _blueLocation: UniformLocation? = null
+
+    private inline var redLocation: UniformLocation
+        get() = _redLocation!!
+        set(value){
+            _redLocation = value
+        }
+
+    private inline var greenLocation: UniformLocation
+        get() = _greenLocation!!
+        set(value){
+            _greenLocation = value
+        }
+
+    private inline var blueLocation: UniformLocation
+        get() = _blueLocation!!
+        set(value){
+            _blueLocation = value
+        }
+
+
     private var red: Float
-    private var greenLocation: Int = 0
     private var green: Float
-    private var blueLocation: Int = 0
     private var blue: Float
 
     constructor() : this(1.0f, 1.0f, 1.0f)
@@ -60,9 +81,9 @@ class GPUImageRGBFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        redLocation = GLES20.glGetUniformLocation(program, "red")
-        greenLocation = GLES20.glGetUniformLocation(program, "green")
-        blueLocation = GLES20.glGetUniformLocation(program, "blue")
+        _redLocation = Kgl.getUniformLocation(program, "red")
+        _greenLocation = Kgl.getUniformLocation(program, "green")
+        _blueLocation = Kgl.getUniformLocation(program, "blue")
     }
 
     override fun onInitialized() {
@@ -74,17 +95,23 @@ class GPUImageRGBFilter : GPUImageFilter {
 
     fun setRed(red: Float) {
         this.red = red
-        setFloat(redLocation, this.red)
+        if(_redLocation != null) {
+            setFloat(redLocation, this.red)
+        }
     }
 
     fun setGreen(green: Float) {
         this.green = green
-        setFloat(greenLocation, this.green)
+        if(_greenLocation != null) {
+            setFloat(greenLocation, this.green)
+        }
     }
 
     fun setBlue(blue: Float) {
         this.blue = blue
-        setFloat(blueLocation, this.blue)
+        if(_blueLocation != null) {
+            setFloat(blueLocation, this.blue)
+        }
     }
 
 }

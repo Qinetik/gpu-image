@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 /**
  * Selectively replaces a color in the first image with the second image
@@ -53,9 +55,26 @@ class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
 
     }
 
-    private var thresholdSensitivityLocation: Int = 0
-    private var smoothingLocation: Int = 0
-    private var colorToReplaceLocation: Int = 0
+    private var _thresholdSensitivityLocation: UniformLocation? = null
+    private var _smoothingLocation: UniformLocation? = null
+    private var _colorToReplaceLocation: UniformLocation? = null
+
+    private inline var thresholdSensitivityLocation: UniformLocation
+        get() = _thresholdSensitivityLocation!!
+        set(value){
+            _thresholdSensitivityLocation = value
+        }
+    private inline var smoothingLocation: UniformLocation
+        get() = _smoothingLocation!!
+        set(value){
+            _smoothingLocation = value
+        }
+    private inline var colorToReplaceLocation: UniformLocation
+        get() = _colorToReplaceLocation!!
+        set(value){
+            _colorToReplaceLocation = value
+        }
+
     private var thresholdSensitivity: Float = 0.4f
     private var smoothing: Float = 0.1f
     private var colorToReplace: FloatArray = floatArrayOf(0.0f, 1.0f, 0.0f)
@@ -64,9 +83,9 @@ class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
 
     override fun onInit() {
         super.onInit()
-        thresholdSensitivityLocation = GLES20.glGetUniformLocation(program, "thresholdSensitivity")
-        smoothingLocation = GLES20.glGetUniformLocation(program, "smoothing")
-        colorToReplaceLocation = GLES20.glGetUniformLocation(program, "colorToReplace")
+        _thresholdSensitivityLocation = Kgl.getUniformLocation(program, "thresholdSensitivity")
+        _smoothingLocation = Kgl.getUniformLocation(program, "smoothing")
+        _colorToReplaceLocation = Kgl.getUniformLocation(program, "colorToReplace")
     }
 
     override fun onInitialized() {
@@ -82,7 +101,7 @@ class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
      */
     fun setSmoothing(smoothing: Float) {
         this.smoothing = smoothing
-        setFloat(smoothingLocation, this.smoothing)
+        if(_smoothingLocation != null) setFloat(smoothingLocation, this.smoothing)
     }
 
     /**
@@ -91,7 +110,7 @@ class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
      */
     fun setThresholdSensitivity(thresholdSensitivity: Float) {
         this.thresholdSensitivity = thresholdSensitivity
-        setFloat(thresholdSensitivityLocation, this.thresholdSensitivity)
+        if(_thresholdSensitivityLocation != null) setFloat(thresholdSensitivityLocation, this.thresholdSensitivity)
     }
 
     /**
@@ -104,6 +123,6 @@ class GPUImageChromaKeyBlendFilter : GPUImageTwoInputFilter {
      */
     fun setColorToReplace(redComponent: Float, greenComponent: Float, blueComponent: Float) {
         colorToReplace = floatArrayOf(redComponent, greenComponent, blueComponent)
-        setFloatVec3(colorToReplaceLocation, colorToReplace)
+        if(_colorToReplaceLocation != null) setFloatVec3(colorToReplaceLocation, colorToReplace)
     }
 }

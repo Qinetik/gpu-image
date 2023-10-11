@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.opengl.GLES20;
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -39,13 +40,20 @@ public class GPUImageOpacityFilter public constructor(private var opacity: Float
                 "      gl_FragColor = vec4(textureColor.rgb, textureColor.a * opacity);\n" +
                 "  }\n";
     }
-    private var opacityLocation : Int = 0
+
+    private var _opacityLocation: UniformLocation? = null
+
+    private inline var opacityLocation: UniformLocation
+        get() = _opacityLocation!!
+        set(value) {
+            _opacityLocation = value
+        }
 
     constructor() : this(1.0f)
 
     override fun onInit() {
         super.onInit();
-        opacityLocation = GLES20.glGetUniformLocation(program, "opacity");
+        _opacityLocation = Kgl.getUniformLocation(program, "opacity");
     }
 
     override fun onInitialized() {
@@ -53,8 +61,10 @@ public class GPUImageOpacityFilter public constructor(private var opacity: Float
         setOpacity(opacity);
     }
 
-    fun setOpacity(opacity : Float) {
+    fun setOpacity(opacity: Float) {
         this.opacity = opacity;
-        setFloat(opacityLocation, this.opacity);
+        if(_opacityLocation != null) {
+            setFloat(opacityLocation, this.opacity);
+        }
     }
 }

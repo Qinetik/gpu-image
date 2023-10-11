@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -61,15 +63,26 @@ class GPUImageMonochromeFilter(
                 "  }"
     }
 
-    private var intensityLocation: Int = 0
-    private var filterColorLocation: Int = 0
+    private var _intensityLocation: UniformLocation? = null
+    private var _filterColorLocation: UniformLocation? = null
+
+    private inline var intensityLocation: UniformLocation
+        get() = _intensityLocation!!
+        set(value) {
+            _intensityLocation = value
+        }
+    private inline var filterColorLocation: UniformLocation
+        get() = _filterColorLocation!!
+        set(value) {
+            _filterColorLocation = value
+        }
 
     constructor() : this(1.0f, floatArrayOf(0.6f, 0.45f, 0.3f, 1.0f))
 
     override fun onInit() {
         super.onInit()
-        intensityLocation = GLES20.glGetUniformLocation(program, "intensity")
-        filterColorLocation = GLES20.glGetUniformLocation(program, "filterColor")
+        _intensityLocation = Kgl.getUniformLocation(program, "intensity")
+        _filterColorLocation = Kgl.getUniformLocation(program, "filterColor")
     }
 
     override fun onInitialized() {
@@ -80,7 +93,9 @@ class GPUImageMonochromeFilter(
 
     fun setIntensity(intensity: Float) {
         this.intensity = intensity
-        setFloat(intensityLocation, this.intensity)
+        if(_intensityLocation != null) {
+            setFloat(intensityLocation, this.intensity)
+        }
     }
 
     fun setColor(color: FloatArray) {
@@ -90,6 +105,6 @@ class GPUImageMonochromeFilter(
     }
 
     fun setColor(red: Float, green: Float, blue: Float) {
-        setFloatVec3(filterColorLocation, floatArrayOf(red, green, blue))
+        if(_filterColorLocation != null) setFloatVec3(filterColorLocation, floatArrayOf(red, green, blue))
     }
 }

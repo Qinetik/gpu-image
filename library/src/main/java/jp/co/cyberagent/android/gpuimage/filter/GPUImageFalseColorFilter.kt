@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageFalseColorFilter(
@@ -47,8 +49,19 @@ class GPUImageFalseColorFilter(
     }
 
 
-    private var firstColorLocation: Int = 0
-    private var secondColorLocation: Int = 0
+    private var _firstColorLocation: UniformLocation? = null
+    private var _secondColorLocation: UniformLocation? = null
+
+    private inline var firstColorLocation: UniformLocation
+        get() = _firstColorLocation!!
+        set(value){
+            _firstColorLocation =  value
+        }
+    private inline var secondColorLocation: UniformLocation
+        get() = _secondColorLocation!!
+        set(value){
+            _secondColorLocation = value
+        }
 
     constructor() : this(0f, 0f, 0.5f, 1f, 0f, 0f)
 
@@ -63,8 +76,8 @@ class GPUImageFalseColorFilter(
 
     override fun onInit() {
         super.onInit()
-        firstColorLocation = GLES20.glGetUniformLocation(program, "firstColor")
-        secondColorLocation = GLES20.glGetUniformLocation(program, "secondColor")
+        _firstColorLocation = Kgl.getUniformLocation(program, "firstColor")
+        _secondColorLocation = Kgl.getUniformLocation(program, "secondColor")
     }
 
     override fun onInitialized() {
@@ -75,11 +88,11 @@ class GPUImageFalseColorFilter(
 
     fun setFirstColor(firstColor: FloatArray) {
         this.firstColor = firstColor
-        setFloatVec3(firstColorLocation, firstColor)
+        if(_firstColorLocation != null) setFloatVec3(firstColorLocation, firstColor)
     }
 
     fun setSecondColor(secondColor: FloatArray) {
         this.secondColor = secondColor
-        setFloatVec3(secondColorLocation, secondColor)
+        if(_secondColorLocation != null) setFloatVec3(secondColorLocation, secondColor)
     }
 }

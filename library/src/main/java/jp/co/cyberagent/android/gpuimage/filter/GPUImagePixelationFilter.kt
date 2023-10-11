@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -45,16 +46,34 @@ class GPUImagePixelationFilter : GPUImageFilter(NO_FILTER_VERTEX_SHADER, PIXELAT
                 "}"
     }
 
-    private var imageWidthFactorLocation: Int = 0
-    private var imageHeightFactorLocation: Int = 0
+    private var _imageWidthFactorLocation: UniformLocation? = null
+    private var _imageHeightFactorLocation: UniformLocation? = null
+    private var _pixelLocation: UniformLocation? = null
+
+    private inline var imageWidthFactorLocation: UniformLocation
+        get() = _imageWidthFactorLocation!!
+        set(value){
+            _imageWidthFactorLocation = value
+        }
+    private inline var imageHeightFactorLocation: UniformLocation
+        get() = _imageHeightFactorLocation!!
+        set(value){
+            _imageHeightFactorLocation = value
+        }
+    private inline var pixelLocation: UniformLocation
+        get() = _pixelLocation!!
+        set(value){
+            _pixelLocation = value
+        }
+
     private var pixel: Float = 1.0f
-    private var pixelLocation: Int = 0
+
 
     override fun onInit() {
         super.onInit()
-        imageWidthFactorLocation = GLES20.glGetUniformLocation(program, "imageWidthFactor")
-        imageHeightFactorLocation = GLES20.glGetUniformLocation(program, "imageHeightFactor")
-        pixelLocation = GLES20.glGetUniformLocation(program, "pixel")
+        _imageWidthFactorLocation = Kgl.getUniformLocation(program, "imageWidthFactor")
+        _imageHeightFactorLocation = Kgl.getUniformLocation(program, "imageHeightFactor")
+        _pixelLocation = Kgl.getUniformLocation(program, "pixel")
     }
 
     override fun onInitialized() {
@@ -70,6 +89,8 @@ class GPUImagePixelationFilter : GPUImageFilter(NO_FILTER_VERTEX_SHADER, PIXELAT
 
     fun setPixel(pixel: Float) {
         this.pixel = pixel
-        setFloat(pixelLocation, this.pixel)
+        if (_pixelLocation != null) {
+            setFloat(pixelLocation, this.pixel)
+        }
     }
 }

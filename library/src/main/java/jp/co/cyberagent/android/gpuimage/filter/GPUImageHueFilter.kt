@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 class GPUImageHueFilter : GPUImageFilter {
@@ -68,7 +69,13 @@ class GPUImageHueFilter : GPUImageFilter {
     }
 
     private var hue: Float = 0f
-    private var hueLocation: Int = 0
+    private var _hueLocation: UniformLocation? = null
+
+    private var hueLocation: UniformLocation
+        get() = _hueLocation!!
+        set(value){
+            _hueLocation = value
+        }
 
     constructor() : this(90.0f)
 
@@ -78,7 +85,7 @@ class GPUImageHueFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        hueLocation = GLES20.glGetUniformLocation(program, "hueAdjust")
+        _hueLocation = Kgl.getUniformLocation(program, "hueAdjust")
     }
 
     override fun onInitialized() {
@@ -89,6 +96,6 @@ class GPUImageHueFilter : GPUImageFilter {
     fun setHue(hue: Float) {
         this.hue = hue
         val hueAdjust = (this.hue % 360.0f) * Math.PI / 180.0f
-        setFloat(hueLocation, hueAdjust.toFloat())
+        if(_hueLocation != null) setFloat(hueLocation, hueAdjust.toFloat())
     }
 }

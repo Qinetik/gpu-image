@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -69,9 +70,20 @@ class GPUImageCrosshatchFilter : GPUImageFilter {
 
 
     private var crossHatchSpacing: Float = 0f
-    private var crossHatchSpacingLocation: Int = 0
+    private var _crossHatchSpacingLocation: UniformLocation? = null
     private var lineWidth: Float = 0f
-    private var lineWidthLocation: Int = 0
+    private var _lineWidthLocation: UniformLocation? = null
+
+    private inline var crossHatchSpacingLocation: UniformLocation
+        get() = _crossHatchSpacingLocation!!
+        set(value){
+            _crossHatchSpacingLocation = value
+        }
+    private inline var lineWidthLocation: UniformLocation
+        get() = _lineWidthLocation!!
+        set(value){
+            _lineWidthLocation = value
+        }
 
     /**
      * Using default values of crossHatchSpacing: 0.03f and lineWidth: 0.003f.
@@ -88,8 +100,8 @@ class GPUImageCrosshatchFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        crossHatchSpacingLocation = GLES20.glGetUniformLocation(program, "crossHatchSpacing")
-        lineWidthLocation = GLES20.glGetUniformLocation(program, "lineWidth")
+        _crossHatchSpacingLocation = Kgl.getUniformLocation(program, "crossHatchSpacing")
+        _lineWidthLocation = Kgl.getUniformLocation(program, "lineWidth")
     }
 
     override fun onInitialized() {
@@ -116,7 +128,7 @@ class GPUImageCrosshatchFilter : GPUImageFilter {
             this.crossHatchSpacing = crossHatchSpacing
         }
 
-        setFloat(crossHatchSpacingLocation, this.crossHatchSpacing)
+        if(_crossHatchSpacingLocation != null) setFloat(crossHatchSpacingLocation, this.crossHatchSpacing)
     }
 
     /**
@@ -126,6 +138,6 @@ class GPUImageCrosshatchFilter : GPUImageFilter {
      */
     fun setLineWidth(lineWidth: Float) {
         this.lineWidth = lineWidth
-        setFloat(lineWidthLocation, this.lineWidth)
+        if(_lineWidthLocation != null) setFloat(lineWidthLocation, this.lineWidth)
     }
 }

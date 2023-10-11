@@ -1,6 +1,7 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -35,13 +36,40 @@ class GPUImageLevelsFilter private constructor(
                 " }\n"
     }
 
-    private var minLocation: Int = 0
-    private var midLocation: Int = 0
-    private var maxLocation: Int = 0
-    private var minOutputLocation: Int = 0
+    private var _minLocation: UniformLocation? = null
+    private var _midLocation: UniformLocation? = null
+    private var _maxLocation: UniformLocation? = null
+    private var _minOutputLocation: UniformLocation? = null
+    private var _maxOutputLocation: UniformLocation? = null
+
     private val minOutput: FloatArray = minOUt
-    private var maxOutputLocation: Int = 0
     private val maxOutput: FloatArray = maxOut
+
+    private inline var minLocation: UniformLocation
+        get() = _minLocation!!
+        set(value){
+            _minLocation = value
+        }
+    private inline var midLocation: UniformLocation
+        get() = _midLocation!!
+        set(value){
+            _midLocation = value
+        }
+    private inline var maxLocation: UniformLocation
+        get() = _maxLocation!!
+        set(value){
+            _maxLocation = value
+        }
+    private inline var minOutputLocation: UniformLocation
+        get() = _minOutputLocation!!
+        set(value){
+            _minOutputLocation = value
+        }
+    private inline var maxOutputLocation: UniformLocation
+        get() = _maxOutputLocation!!
+        set(value){
+            _maxOutputLocation = value
+        }
 
     constructor() : this(
         floatArrayOf(0.0f, 0.0f, 0.0f),
@@ -53,11 +81,11 @@ class GPUImageLevelsFilter private constructor(
 
     override fun onInit() {
         super.onInit()
-        minLocation = GLES20.glGetUniformLocation(program, "levelMinimum")
-        midLocation = GLES20.glGetUniformLocation(program, "levelMiddle")
-        maxLocation = GLES20.glGetUniformLocation(program, "levelMaximum")
-        minOutputLocation = GLES20.glGetUniformLocation(program, "minOutput")
-        maxOutputLocation = GLES20.glGetUniformLocation(program, "maxOutput")
+        _minLocation = Kgl.getUniformLocation(program, "levelMinimum")
+        _midLocation = Kgl.getUniformLocation(program, "levelMiddle")
+        _maxLocation = Kgl.getUniformLocation(program, "levelMaximum")
+        _minOutputLocation = Kgl.getUniformLocation(program, "minOutput")
+        _maxOutputLocation = Kgl.getUniformLocation(program, "maxOutput")
     }
 
     override fun onInitialized() {
@@ -68,11 +96,11 @@ class GPUImageLevelsFilter private constructor(
 
 
     fun updateUniforms() {
-        setFloatVec3(minLocation, min)
-        setFloatVec3(midLocation, mid)
-        setFloatVec3(maxLocation, max)
-        setFloatVec3(minOutputLocation, minOutput)
-        setFloatVec3(maxOutputLocation, maxOutput)
+        if(_minLocation != null) setFloatVec3(minLocation, min)
+        if(_midLocation != null) setFloatVec3(midLocation, mid)
+        if(_maxLocation != null) setFloatVec3(maxLocation, max)
+        if(_minOutputLocation != null) setFloatVec3(minOutputLocation, minOutput)
+        if(_maxOutputLocation != null) setFloatVec3(maxOutputLocation, maxOutput)
     }
 
     fun setMin(min: Float, mid: Float, max: Float, minOut: Float, maxOut: Float) {

@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -38,8 +39,14 @@ class GPUImageGammaFilter : GPUImageFilter {
                 " }"
     }
 
-    private var gammaLocation: Int = 0
+    private var _gammaLocation: UniformLocation? =  null
     private var gamma: Float
+
+    private inline var gammaLocation: UniformLocation
+        get() = _gammaLocation!!
+        set(value){
+            _gammaLocation = value
+        }
 
     constructor() : this(1.2f)
 
@@ -49,7 +56,7 @@ class GPUImageGammaFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        gammaLocation = GLES20.glGetUniformLocation(program, "gamma")
+        _gammaLocation = Kgl.getUniformLocation(program, "gamma")
     }
 
     override fun onInitialized() {
@@ -59,6 +66,6 @@ class GPUImageGammaFilter : GPUImageFilter {
 
     fun setGamma(gamma: Float) {
         this.gamma = gamma
-        setFloat(gammaLocation, this.gamma)
+        if(_gammaLocation != null) setFloat(gammaLocation, this.gamma)
     }
 }

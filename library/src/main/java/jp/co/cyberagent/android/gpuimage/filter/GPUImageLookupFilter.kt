@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.opengl.GLES20;
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 public class GPUImageLookupFilter : GPUImageTwoInputFilter {
 
@@ -58,8 +59,14 @@ public class GPUImageLookupFilter : GPUImageTwoInputFilter {
                 "     gl_FragColor = mix(textureColor, vec4(newColor.rgb, textureColor.w), intensity);\n" +
                 " }";
     }
-    private var intensityLocation : Int = 0
+    private var _intensityLocation : UniformLocation? = null
     private var intensity : Float
+
+    private inline var intensityLocation : UniformLocation
+        get() = _intensityLocation!!
+        set(value){
+            _intensityLocation = value
+        }
 
     public constructor() : this(1.0f)
 
@@ -69,7 +76,7 @@ public class GPUImageLookupFilter : GPUImageTwoInputFilter {
 
     public override fun onInit() {
         super.onInit();
-        intensityLocation = GLES20.glGetUniformLocation(program, "intensity");
+        _intensityLocation = Kgl.getUniformLocation(program, "intensity")
     }
 
     public override fun onInitialized() {
@@ -79,6 +86,8 @@ public class GPUImageLookupFilter : GPUImageTwoInputFilter {
 
     public fun setIntensity(intensity : Float) {
         this.intensity = intensity;
-        setFloat(intensityLocation, this.intensity);
+        if(_intensityLocation != null) {
+            setFloat(intensityLocation, this.intensity);
+        }
     }
 }

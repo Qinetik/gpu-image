@@ -18,6 +18,8 @@ package jp.co.cyberagent.android.gpuimage.filter
 
 import android.graphics.PointF
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -53,13 +55,35 @@ class GPUImageVignetteFilter : GPUImageFilter {
     }
 
 
-    private var vignetteCenterLocation: Int = 0
+    private var _vignetteCenterLocation: UniformLocation? = null
+    private var _vignetteColorLocation: UniformLocation? = null
+    private var _vignetteStartLocation: UniformLocation? = null
+    private var _vignetteEndLocation: UniformLocation? = null
+
+    private inline var vignetteCenterLocation: UniformLocation
+        get() = _vignetteCenterLocation!!
+        set(value){
+            _vignetteCenterLocation = value
+        }
+    private inline var vignetteColorLocation: UniformLocation
+        get() = _vignetteColorLocation!!
+        set(value){
+            _vignetteColorLocation = value
+        }
+    private inline var vignetteStartLocation: UniformLocation
+        get() = _vignetteStartLocation!!
+        set(value){
+            _vignetteStartLocation = value
+        }
+    private inline var vignetteEndLocation: UniformLocation
+        get() = _vignetteEndLocation!!
+        set(value){
+            _vignetteEndLocation = value
+        }
+
     private var vignetteCenter: PointF
-    private var vignetteColorLocation: Int = 0
     private var vignetteColor: FloatArray
-    private var vignetteStartLocation: Int = 0
     private var vignetteStart: Float
-    private var vignetteEndLocation: Int = 0
     private var vignetteEnd: Float
 
     constructor() : this(PointF(), floatArrayOf(0.0f, 0.0f, 0.0f), 0.3f, 0.75f)
@@ -76,10 +100,10 @@ class GPUImageVignetteFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        vignetteCenterLocation = GLES20.glGetUniformLocation(program, "vignetteCenter")
-        vignetteColorLocation = GLES20.glGetUniformLocation(program, "vignetteColor")
-        vignetteStartLocation = GLES20.glGetUniformLocation(program, "vignetteStart")
-        vignetteEndLocation = GLES20.glGetUniformLocation(program, "vignetteEnd")
+        _vignetteCenterLocation = Kgl.getUniformLocation(program, "vignetteCenter")
+        _vignetteColorLocation = Kgl.getUniformLocation(program, "vignetteColor")
+        _vignetteStartLocation = Kgl.getUniformLocation(program, "vignetteStart")
+        _vignetteEndLocation = Kgl.getUniformLocation(program, "vignetteEnd")
     }
 
     override fun onInitialized() {
@@ -92,21 +116,29 @@ class GPUImageVignetteFilter : GPUImageFilter {
 
     fun setVignetteCenter(vignetteCenter: PointF) {
         this.vignetteCenter = vignetteCenter
-        setPoint(vignetteCenterLocation, this.vignetteCenter.x, this.vignetteCenter.y)
+        if(_vignetteCenterLocation != null) {
+            setPoint(vignetteCenterLocation, this.vignetteCenter.x, this.vignetteCenter.y)
+        }
     }
 
     fun setVignetteColor(vignetteColor: FloatArray) {
         this.vignetteColor = vignetteColor
-        setFloatVec3(vignetteColorLocation, this.vignetteColor)
+        if(_vignetteColorLocation != null) {
+            setFloatVec3(vignetteColorLocation, this.vignetteColor)
+        }
     }
 
     fun setVignetteStart(vignetteStart: Float) {
         this.vignetteStart = vignetteStart
-        setFloat(vignetteStartLocation, this.vignetteStart)
+        if(_vignetteStartLocation != null) {
+            setFloat(vignetteStartLocation, this.vignetteStart)
+        }
     }
 
     fun setVignetteEnd(vignetteEnd: Float) {
         this.vignetteEnd = vignetteEnd
-        setFloat(vignetteEndLocation, this.vignetteEnd)
+        if(_vignetteEndLocation != null) {
+            setFloat(vignetteEndLocation, this.vignetteEnd)
+        }
     }
 }

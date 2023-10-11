@@ -17,6 +17,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -39,8 +41,14 @@ class GPUImageExposureFilter : GPUImageFilter {
     }
 
 
-    private var exposureLocation: Int = 0
+    private var _exposureLocation: UniformLocation? = null
     private var exposure: Float = 0f
+
+    private inline var exposureLocation: UniformLocation
+        get() = _exposureLocation!!
+        set(value) {
+            _exposureLocation = value
+        }
 
     constructor() : this(1.0f)
 
@@ -50,7 +58,7 @@ class GPUImageExposureFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        exposureLocation = GLES20.glGetUniformLocation(program, "exposure")
+        _exposureLocation = Kgl.getUniformLocation(program, "exposure")
     }
 
     override fun onInitialized() {
@@ -59,6 +67,7 @@ class GPUImageExposureFilter : GPUImageFilter {
     }
 
     fun setExposure(exposure: Float) {
-        setFloat(exposureLocation, this.exposure)
+        this.exposure = exposure
+        if(_exposureLocation != null) setFloat(exposureLocation, exposure)
     }
 }

@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 
 /**
  * This uses Sobel edge detection to place a black border around objects,
@@ -76,15 +77,26 @@ class GPUImageToonFilter(
     }
 
 
-    private var thresholdLocation: Int = 0
-    private var quantizationLevelsLocation: Int = 0
+    private var _thresholdLocation: UniformLocation? = null
+    private var _quantizationLevelsLocation: UniformLocation? = null
+
+    private inline var thresholdLocation: UniformLocation
+        get() = _thresholdLocation!!
+        set(value){
+            _thresholdLocation = value
+        }
+    private inline var quantizationLevelsLocation: UniformLocation
+        get() = _quantizationLevelsLocation!!
+        set(value){
+            _quantizationLevelsLocation = value
+        }
 
     constructor() : this(0.2f, 10.0f)
 
     override fun onInit() {
         super.onInit()
-        thresholdLocation = GLES20.glGetUniformLocation(program, "threshold")
-        quantizationLevelsLocation = GLES20.glGetUniformLocation(program, "quantizationLevels")
+        _thresholdLocation = Kgl.getUniformLocation(program, "threshold")
+        _quantizationLevelsLocation = Kgl.getUniformLocation(program, "quantizationLevels")
     }
 
     override fun onInitialized() {
@@ -110,6 +122,8 @@ class GPUImageToonFilter(
      */
     fun setQuantizationLevels(quantizationLevels: Float) {
         this.quantizationLevels = quantizationLevels
-        setFloat(quantizationLevelsLocation, quantizationLevels)
+        if(_quantizationLevelsLocation != null) {
+            setFloat(quantizationLevelsLocation, quantizationLevels)
+        }
     }
 }

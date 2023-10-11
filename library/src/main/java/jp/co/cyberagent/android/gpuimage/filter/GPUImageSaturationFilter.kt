@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -44,8 +45,14 @@ class GPUImageSaturationFilter : GPUImageFilter {
                 " }"
     }
 
-    private var saturationLocation: Int = 0
+    private var _saturationLocation: UniformLocation? = null
     private var saturation: Float
+
+    private inline var saturationLocation: UniformLocation
+        get() = _saturationLocation!!
+        set(value){
+            _saturationLocation = value
+        }
 
     constructor() : this(1.0f)
 
@@ -55,7 +62,7 @@ class GPUImageSaturationFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        saturationLocation = GLES20.glGetUniformLocation(program, "saturation")
+        _saturationLocation = Kgl.getUniformLocation(program, "saturation")
     }
 
     override fun onInitialized() {
@@ -65,6 +72,8 @@ class GPUImageSaturationFilter : GPUImageFilter {
 
     fun setSaturation(saturation: Float) {
         this.saturation = saturation
-        setFloat(saturationLocation, this.saturation)
+        if(_saturationLocation != null) {
+            setFloat(saturationLocation, this.saturation)
+        }
     }
 }

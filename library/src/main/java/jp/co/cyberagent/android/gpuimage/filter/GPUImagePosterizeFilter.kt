@@ -16,7 +16,8 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 /**
@@ -40,8 +41,14 @@ class GPUImagePosterizeFilter : GPUImageFilter {
                 "}"
     }
 
-    private var glUniformColorLevels: Int = 0
+    private var _glUniformColorLevels: UniformLocation? = null
     private var colorLevels: Int
+
+    private inline var glUniformColorLevels : UniformLocation
+        get() = _glUniformColorLevels!!
+        set(value){
+            _glUniformColorLevels = value
+        }
 
     constructor() : this(10)
 
@@ -51,7 +58,7 @@ class GPUImagePosterizeFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        glUniformColorLevels = GLES20.glGetUniformLocation(program, "colorLevels")
+        _glUniformColorLevels = Kgl.getUniformLocation(program, "colorLevels")
     }
 
     override fun onInitialized() {
@@ -61,6 +68,8 @@ class GPUImagePosterizeFilter : GPUImageFilter {
 
     fun setColorLevels(colorLevels: Int) {
         this.colorLevels = colorLevels
-        setFloat(glUniformColorLevels, colorLevels.toFloat())
+        if(_glUniformColorLevels != null) {
+            setFloat(glUniformColorLevels, colorLevels.toFloat())
+        }
     }
 }

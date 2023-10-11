@@ -6,6 +6,8 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import android.opengl.GLES20
+import com.danielgergely.kgl.UniformLocation
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 
 
@@ -114,8 +116,20 @@ class GPUImageBilateralBlurFilter : GPUImageFilter {
     }
 
     private var distanceNormalizationFactor: Float = 0f
-    private var disFactorLocation: Int = 0
-    private var singleStepOffsetLocation: Int = 0
+
+    private var _disFactorLocation: UniformLocation? = null
+    private var _singleStepOffsetLocation: UniformLocation? = null
+
+    private inline var disFactorLocation: UniformLocation
+        get() = _disFactorLocation!!
+        set(value){
+            _disFactorLocation = value
+        }
+    private inline var singleStepOffsetLocation: UniformLocation
+        get() = _singleStepOffsetLocation!!
+        set(value){
+            _singleStepOffsetLocation = value
+        }
 
     constructor() : this(8.0f)
 
@@ -125,8 +139,8 @@ class GPUImageBilateralBlurFilter : GPUImageFilter {
 
     override fun onInit() {
         super.onInit()
-        disFactorLocation = GLES20.glGetUniformLocation(program, "distanceNormalizationFactor")
-        singleStepOffsetLocation = GLES20.glGetUniformLocation(program, "singleStepOffset")
+        _disFactorLocation = Kgl.getUniformLocation(program, "distanceNormalizationFactor")
+        _singleStepOffsetLocation = Kgl.getUniformLocation(program, "singleStepOffset")
     }
 
     override fun onInitialized() {
@@ -136,11 +150,11 @@ class GPUImageBilateralBlurFilter : GPUImageFilter {
 
     fun setDistanceNormalizationFactor(newValue: Float) {
         distanceNormalizationFactor = newValue
-        setFloat(disFactorLocation, newValue)
+        if(_disFactorLocation != null) setFloat(disFactorLocation, newValue)
     }
 
     private fun setTexelSize(w: Float, h: Float) {
-        setFloatVec2(singleStepOffsetLocation, floatArrayOf(1.0f / w, 1.0f / h))
+        if(_singleStepOffsetLocation != null) setFloatVec2(singleStepOffsetLocation, floatArrayOf(1.0f / w, 1.0f / h))
     }
 
     override fun onOutputSizeChanged(width: Int, height: Int) {
