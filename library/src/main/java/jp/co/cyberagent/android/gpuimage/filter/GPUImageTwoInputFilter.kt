@@ -88,7 +88,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
                     return@runOnDraw
                 }
                 Kgl.activeTexture(GL_TEXTURE3)
-                filterSourceTexture2 = OpenGlUtils.loadTexture(bitmap, OpenGlUtils.NO_TEXTURE, false)
+                filterSourceTexture2 = OpenGlUtils.loadTexture(bitmap, null, false)
             }
         }
     }

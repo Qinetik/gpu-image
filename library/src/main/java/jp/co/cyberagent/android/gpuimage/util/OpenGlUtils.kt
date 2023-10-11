@@ -31,29 +31,29 @@ public object OpenGlUtils {
 
     public const val NO_TEXTURE : Int = -1;
 
-    public fun loadTexture(img : Bitmap, usedTexId : Int) : Int {
+    public fun loadTexture(img : Bitmap, usedTexId : Texture?) : Texture {
         return loadTexture(img, usedTexId, true);
     }
 
-    public fun loadTexture(img : Bitmap, usedTexId : Int, recycle : Boolean) : Int {
-        val textures : IntArray = IntArray(1)
-        if (usedTexId == NO_TEXTURE) {
-            GLES20.glGenTextures(1, textures, 0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
+    public fun loadTexture(img : Bitmap, usedTexId : Texture?, recycle : Boolean) : Texture {
+        val textures : Texture?
+        if (usedTexId == null || usedTexId == NO_TEXTURE) {
+            textures = Kgl.createTexture()
+            Kgl.bindTexture(GL_TEXTURE_2D, textures);
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, img, 0);
         } else {
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, usedTexId);
+            Kgl.bindTexture(GL_TEXTURE_2D, usedTexId);
             GLUtils.texSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, img);
-            textures[0] = usedTexId;
+            textures = usedTexId;
         }
         if (recycle) {
             img.recycle();
         }
-        return textures[0];
+        return textures;
     }
 
     public fun loadTexture(data : IntBuffer, width : Int, height : Int, usedTexId : Int) : Int {
@@ -80,7 +80,7 @@ public object OpenGlUtils {
         return textures[0];
     }
 
-    public fun loadTextureAsBitmap(data : IntBuffer, size : Size, usedTexId : Int) : Int {
+    public fun loadTextureAsBitmap(data : IntBuffer, size : Size, usedTexId : Texture?) : Int {
          val bitmap : Bitmap = Bitmap
                 .createBitmap(data.array(), size.width, size.height, Config.ARGB_8888);
         return loadTexture(bitmap, usedTexId);
