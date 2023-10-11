@@ -82,9 +82,6 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
             return
         }
         this.bitmap = bitmap
-        if (this.bitmap == null) {
-            return
-        }
         runOnDraw {
             if (filterSourceTexture2 == OpenGlUtils.NO_TEXTURE) {
                 if (bitmap.isRecycled) {
