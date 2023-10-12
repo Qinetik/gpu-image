@@ -22,7 +22,7 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.opengl.Matrix
 import com.danielgergely.kgl.BitmapTextureAsset
-import jp.co.cyberagent.android.gpuimage.filter.*
+import org.qinetik.gpuimage.filter.*
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.FloatPoint
 import java.util.*
