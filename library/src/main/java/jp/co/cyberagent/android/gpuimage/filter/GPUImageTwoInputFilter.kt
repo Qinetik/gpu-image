@@ -17,11 +17,6 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import com.danielgergely.kgl.*
-
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
-
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
@@ -49,7 +44,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
     private var filterSecondTextureCoordinateAttribute: UniformLocation? = null
     private var filterInputTextureUniform2: UniformLocation? = null
     private var filterSourceTexture2: Int = OpenGlUtils.NO_TEXTURE
-    private lateinit var texture2CoordinatesBuffer: ByteBuffer
+    private lateinit var texture2CoordinatesBuffer: FloatBuffer
     private var bitmap: TextureAsset? = null
 
     constructor(fragmentShader: String) : this(VERTEX_SHADER, fragmentShader)
@@ -130,27 +125,24 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
         Kgl.activeTexture(GL_TEXTURE3)
         Kgl.bindTexture(GL_TEXTURE_2D, filterSourceTexture2)
         Kgl.uniform1i(filterInputTextureUniform2!!, 3)
-
-        texture2CoordinatesBuffer.position(0)
+        texture2CoordinatesBuffer.position = 0
         glVertexAttribPointer(
             filterSecondTextureCoordinateAttribute!!,
             2,
             GL_FLOAT,
             false,
             0,
-            ByteBuffer(texture2CoordinatesBuffer),
+            texture2CoordinatesBuffer,
             8
         )
     }
 
     fun setRotation(rotation: Rotation, flipHorizontal: Boolean, flipVertical: Boolean) {
         val buffer: FloatArray = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical)
-
-        val bBuffer: ByteBuffer = ByteBuffer.allocateDirect(32).order(ByteOrder.nativeOrder())
-        val fBuffer: FloatBuffer = bBuffer.asFloatBuffer()
-        fBuffer.put(buffer)
-        fBuffer.flip()
-
+        val bBuffer = FloatBuffer(8)
+        for (i in buffer.indices.reversed()) {
+            bBuffer.put(buffer[i])
+        }
         texture2CoordinatesBuffer = bBuffer
 
     }
