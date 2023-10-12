@@ -16,14 +16,9 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.opengl.Matrix
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
-
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
 
 class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER) {
     companion object {
@@ -69,15 +64,30 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
     private var anchorTopLeft: Boolean = false
 
     init {
-        Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
-        transform3D = FloatArray(16)
-        Matrix.setIdentityM(transform3D, 0)
+        orthographicMatrix(orthographicMatrix, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
+        transform3D = FloatArray(16) {
+            if (it % 5 == 0) 1.0f else 0.0f
+        }
     }
 
     override fun onInit() {
         super.onInit()
         _transformMatrixUniform = Kgl.getUniformLocation(program, "transformMatrix")
         _orthographicMatrixUniform = Kgl.getUniformLocation(program, "orthographicMatrix")
+    }
+
+    private fun orthographicMatrix(matrix : FloatArray, left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float): FloatArray {
+        for (i in 0 until 16) {
+            matrix[i] = 0.0f
+        }
+        matrix[0] = 2.0f / (right - left)
+        matrix[5] = 2.0f / (top - bottom)
+        matrix[10] = -2.0f / (far - near)
+        matrix[12] = -(right + left) / (right - left)
+        matrix[13] = -(top + bottom) / (top - bottom)
+        matrix[14] = -(far + near) / (far - near)
+        matrix[15] = 1.0f
+        return matrix
     }
 
     override fun onInitialized() {
@@ -94,9 +104,8 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
         super.onOutputSizeChanged(width, height)
 
         if (!ignoreAspectRatio) {
-            Matrix.orthoM(
+            orthographicMatrix(
                 orthographicMatrix,
-                0,
                 -1.0f,
                 1.0f,
                 -1.0f * height.toFloat() / width.toFloat(),
@@ -128,13 +137,12 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
             adjustedVertices[5] *= normalizedHeight
             adjustedVertices[7] *= normalizedHeight
 
-            val newBuffer = ByteBuffer.allocateDirect(adjustedVertices.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
+            val newBuffer = com.danielgergely.kgl.FloatBuffer(adjustedVertices.size)
 
-            newBuffer.put(adjustedVertices).position(0)
+            newBuffer.put(adjustedVertices)
+            newBuffer.position = 0
 
-            vertBuffer = com.danielgergely.kgl.FloatBuffer(newBuffer)
+            vertBuffer = newBuffer
         }
 
         super.onDraw(textureId, vertBuffer, textureBuffer)
@@ -155,7 +163,7 @@ class GPUImageTransformFilter : GPUImageFilter(TRANSFORM_VERTEX_SHADER, NO_FILTE
         this.ignoreAspectRatio = ignoreAspectRatio
 
         if (ignoreAspectRatio) {
-            Matrix.orthoM(orthographicMatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
+            orthographicMatrix(orthographicMatrix, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f)
             setUniformMatrix4f(orthographicMatrixUniform, orthographicMatrix)
         } else {
             onOutputSizeChanged(outputWidth, outputHeight)

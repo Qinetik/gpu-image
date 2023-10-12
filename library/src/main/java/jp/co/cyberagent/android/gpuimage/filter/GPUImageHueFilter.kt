@@ -19,6 +19,7 @@ package jp.co.cyberagent.android.gpuimage.filter
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import kotlin.math.PI
 
 class GPUImageHueFilter : GPUImageFilter {
     companion object {
@@ -95,7 +96,7 @@ class GPUImageHueFilter : GPUImageFilter {
 
     fun setHue(hue: Float) {
         this.hue = hue
-        val hueAdjust = (this.hue % 360.0f) * Math.PI / 180.0f
+        val hueAdjust = (this.hue % 360.0f) * PI / 180.0f
         if(_hueLocation != null) setFloat(hueLocation, hueAdjust.toFloat())
     }
 }
