@@ -24,6 +24,7 @@ import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import com.danielgergely.kgl.BitmapTextureAsset
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -221,8 +222,12 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
                 addedPadding = 0;
             }
 
-            glTextureId = OpenGlUtils.loadTexture(resizedBitmap ?: bitmap, glTextureId, recycle);
-            resizedBitmap?.recycle()
+            glTextureId = OpenGlUtils.loadTexture(BitmapTextureAsset(resizedBitmap ?: bitmap), glTextureId);
+            if(recycle){
+                (resizedBitmap ?: bitmap).recycle()
+            } else {
+                resizedBitmap?.recycle()
+            }
             imageWidth = bitmap.getWidth();
             imageHeight = bitmap.getHeight();
             adjustImageScaling();

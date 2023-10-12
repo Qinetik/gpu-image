@@ -16,7 +16,6 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.Bitmap
 import com.danielgergely.kgl.*
 
 import java.nio.ByteBuffer
@@ -51,7 +50,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
     private var filterInputTextureUniform2: UniformLocation? = null
     private var filterSourceTexture2: Int = OpenGlUtils.NO_TEXTURE
     private lateinit var texture2CoordinatesBuffer: ByteBuffer
-    private var bitmap: Bitmap? = null
+    private var bitmap: TextureAsset? = null
 
     constructor(fragmentShader: String) : this(VERTEX_SHADER, fragmentShader)
 
@@ -72,37 +71,37 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
 
     override fun onInitialized() {
         super.onInitialized()
-        if (bitmap != null && !bitmap!!.isRecycled) {
+        if (bitmap != null) {
             setBitmap(bitmap!!)
         }
     }
 
-    fun setBitmap(bitmap: Bitmap) {
-        if (bitmap.isRecycled) {
+    fun setBitmap(asset: TextureAsset) {
+        if (!asset.isValid()) {
             return
         }
-        this.bitmap = bitmap
+        this.bitmap = asset
         runOnDraw {
             if (filterSourceTexture2 == OpenGlUtils.NO_TEXTURE) {
-                if (bitmap.isRecycled) {
+                if (!asset.isValid()) {
                     return@runOnDraw
                 }
                 Kgl.activeTexture(GL_TEXTURE3)
-                filterSourceTexture2 = OpenGlUtils.loadTexture(bitmap, null, false)
+                filterSourceTexture2 = OpenGlUtils.loadTexture(asset, null)
             }
         }
     }
 
-    fun getBitmap(): Bitmap? {
+    fun getBitmap(): TextureAsset? {
         return bitmap
     }
 
-    fun recycleBitmap() {
-        if (bitmap != null && !bitmap!!.isRecycled) {
-            bitmap!!.recycle()
-            bitmap = null
-        }
-    }
+//    fun recycleBitmap() {
+//        if (bitmap != null && !bitmap!!.isRecycled) {
+//            bitmap!!.recycle()
+//            bitmap = null
+//        }
+//    }
 
     override fun onDestroy() {
         super.onDestroy()

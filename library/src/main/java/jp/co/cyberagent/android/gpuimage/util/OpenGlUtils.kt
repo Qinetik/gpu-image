@@ -20,7 +20,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.hardware.Camera.Size;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.util.Log;
 import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
@@ -31,11 +30,7 @@ public object OpenGlUtils {
 
     public const val NO_TEXTURE : Int = -1;
 
-    public fun loadTexture(img : Bitmap, usedTexId : Texture?) : Texture {
-        return loadTexture(img, usedTexId, true);
-    }
-
-    public fun loadTexture(img : Bitmap, usedTexId : Texture?, recycle : Boolean) : Texture {
+    public fun loadTexture(asset : TextureAsset, usedTexId : Texture?) : Texture {
         val textures : Texture?
         if (usedTexId == null || usedTexId == NO_TEXTURE) {
             textures = Kgl.createTexture()
@@ -44,14 +39,11 @@ public object OpenGlUtils {
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, img, 0);
+            Kgl.texImage2D(GL_TEXTURE_2D, 0, -1, 0, asset)
         } else {
             Kgl.bindTexture(GL_TEXTURE_2D, usedTexId);
-            GLUtils.texSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, img);
+            Kgl.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, -1, -1, -1, -1, asset)
             textures = usedTexId;
-        }
-        if (recycle) {
-            img.recycle();
         }
         return textures;
     }
@@ -83,7 +75,9 @@ public object OpenGlUtils {
     public fun loadTextureAsBitmap(data : IntBuffer, size : Size, usedTexId : Texture?) : Int {
          val bitmap : Bitmap = Bitmap
                 .createBitmap(data.array(), size.width, size.height, Config.ARGB_8888);
-        return loadTexture(bitmap, usedTexId);
+        val result = loadTexture(BitmapTextureAsset(bitmap), usedTexId);
+        bitmap.recycle()
+        return result
     }
 
     public fun loadShader(strSource : String, iType : Int) : Int {

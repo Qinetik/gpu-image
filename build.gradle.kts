@@ -18,7 +18,7 @@ allprojects {
         jcenter()
         maven("https://maven.danielgergely.com/releases")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://maven.pkg.github.com/Qinetik/logger") {
+        maven("https://maven.pkg.github.com/Qinetik/gpu-image") {
             name = "GithubPackages"
             try {
                 credentials {

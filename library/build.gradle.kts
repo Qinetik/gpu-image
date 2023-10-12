@@ -37,7 +37,8 @@ android {
 }
 
 dependencies {
-    implementation("com.danielgergely.kgl:kgl:0.6.2")
-    implementation("com.danielgergely.kgl:kgl-android:0.6.2")
+    val kglVersion = property("kgl.version")
+    implementation("org.qinetik.kgl:kgl:${kglVersion}")
+    implementation("org.qinetik.kgl:kgl-android:${kglVersion}")
     api(project(":gpu-image"))
 }

@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.opengl.Matrix
+import com.danielgergely.kgl.BitmapTextureAsset
 import jp.co.cyberagent.android.gpuimage.filter.*
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import java.util.*
@@ -28,7 +29,7 @@ import java.util.*
 object GPUImageFilterTools {
     fun showDialog(
         context: Context,
-        listener: (filter: org.qinetik.gpuimage.filter.GPUImageFilter) -> Unit
+        listener: (filter: GPUImageFilter) -> Unit
     ) {
         val filters = FilterList().apply {
             addFilter("Contrast", FilterType.CONTRAST)
@@ -131,7 +132,7 @@ object GPUImageFilterTools {
         builder.create().show()
     }
 
-    private fun createFilterForType(context: Context, type: FilterType): org.qinetik.gpuimage.filter.GPUImageFilter {
+    private fun createFilterForType(context: Context, type: FilterType): GPUImageFilter {
         return when (type) {
             FilterType.CONTRAST -> GPUImageContrastFilter(2.0f)
             FilterType.GAMMA -> GPUImageGammaFilter(2.0f)
@@ -307,7 +308,7 @@ object GPUImageFilterTools {
             )
 
             FilterType.LOOKUP_AMATORKA -> GPUImageLookupFilter().apply {
-                setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka))
+                setBitmap(BitmapTextureAsset(BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka)))
             }
 
             FilterType.GAUSSIAN_BLUR -> GPUImageGaussianBlurFilter()
@@ -343,14 +344,14 @@ object GPUImageFilterTools {
     private fun createBlendFilter(
         context: Context,
         filterClass: Class<out GPUImageTwoInputFilter>
-    ): org.qinetik.gpuimage.filter.GPUImageFilter {
+    ): GPUImageFilter {
         return try {
             filterClass.newInstance().apply {
-                setBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher))
+                setBitmap(BitmapTextureAsset(BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher)))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            org.qinetik.gpuimage.filter.GPUImageFilter()
+            GPUImageFilter()
         }
     }
 
@@ -373,8 +374,8 @@ object GPUImageFilterTools {
         }
     }
 
-    class FilterAdjuster(filter: org.qinetik.gpuimage.filter.GPUImageFilter) {
-        private val adjuster: Adjuster<out org.qinetik.gpuimage.filter.GPUImageFilter>?
+    class FilterAdjuster(filter: GPUImageFilter) {
+        private val adjuster: Adjuster<out GPUImageFilter>?
 
         init {
             adjuster = when (filter) {

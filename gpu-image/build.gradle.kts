@@ -12,21 +12,22 @@ kotlin {
         js {
             browser()
         }
+        val kglVersion = property("kgl.version")
         val commonMain by getting {
             dependencies {
-                api("com.danielgergely.kgl:kgl:0.6.2")
+                api("org.qinetik.kgl:kgl:${kglVersion}")
                 implementation("org.qinetik:logger:1.0.16")
             }
         }
         val androidMain by getting {
             dependencies {
-                api("com.danielgergely.kgl:kgl-android:0.6.2")
+                api("org.qinetik.kgl:kgl-android:${kglVersion}")
             }
         }
         val jvmMain by getting {
             dependencies {
 
-                api("com.danielgergely.kgl:kgl-lwjgl:0.6.2")
+                api("org.qinetik.kgl:kgl-lwjgl:${kglVersion}")
             }
         }
     }
