@@ -18,6 +18,7 @@ package org.qinetik.gpuimage.filter
 
 import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
+import org.qinetik.gpuimage.utils.FloatPoint
 import org.qinetik.gpuimage.utils.OpenGlUtils
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
@@ -54,17 +55,17 @@ open class GPUImageFilter {
     private var glAttribPosition: Int = 0
     private var glAttribTextureCoordinate: Int = 0
 
-    private var _glProgId : Program? = null
-    private var _glUniformTexture : UniformLocation? = null
+    private var _glProgId: Program? = null
+    private var _glUniformTexture: UniformLocation? = null
 
     private inline var glProgId: Program
         get() = _glProgId!!
-        set(value){
+        set(value) {
             _glProgId = value
         }
     private inline var glUniformTexture: UniformLocation
         get() = _glUniformTexture!!
-        set(value){
+        set(value) {
             _glUniformTexture = value
         }
 
@@ -231,11 +232,19 @@ open class GPUImageFilter {
         }
     }
 
-    protected fun setPoint(location: UniformLocation, x: Float, y: Float) {
+    protected fun setPoint(location: UniformLocation, point: FloatArray) {
         runOnDraw {
             ifNeedInit()
-            Kgl.uniform2fv(location, floatArrayOf(x, y))
+            Kgl.uniform2fv(location, point)
         }
+    }
+
+    protected fun setPoint(location: UniformLocation, x: Float, y: Float) {
+        setPoint(location = location, point = floatArrayOf(x, y))
+    }
+
+    protected fun setPoint(location: UniformLocation, point: FloatPoint) {
+        setPoint(location = location, point = floatArrayOf(point.x, point.y))
     }
 
     protected fun setUniformMatrix3f(location: UniformLocation, matrix: FloatArray) {

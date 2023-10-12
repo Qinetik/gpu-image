@@ -16,11 +16,11 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.graphics.Point
-import android.graphics.PointF
 import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
+import org.qinetik.gpuimage.utils.IntPoint
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -29,7 +29,7 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER, TONE_CURVE_FRAGMENT_SHADER) {
+public class GPUImageToneCurveFilter : GPUImageFilter(NO_FILTER_VERTEX_SHADER, TONE_CURVE_FRAGMENT_SHADER) {
     companion object {
         const val TONE_CURVE_FRAGMENT_SHADER : String = "" +
         " varying highp vec2 textureCoordinate;\n" +
@@ -50,10 +50,10 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
     private var toneCurveTexture : Texture? = null
     private var _toneCurveTextureUniformLocation : UniformLocation? = null;
 
-    private var rgbCompositeControlPoints : Array<PointF>;
-    private var redControlPoints : Array<PointF>;
-    private var greenControlPoints : Array<PointF>;
-    private var blueControlPoints : Array<PointF>;
+    private var rgbCompositeControlPoints : Array<FloatPoint>;
+    private var redControlPoints : Array<FloatPoint>;
+    private var greenControlPoints : Array<FloatPoint>;
+    private var blueControlPoints : Array<FloatPoint>;
 
     private lateinit var rgbCompositeCurve : ArrayList<Float>;
     private lateinit var redCurve : ArrayList<Float>;
@@ -62,7 +62,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
 
 
     init {
-        val defaultCurvePoints : Array<PointF> = arrayOf(PointF(0.0f, 0.0f), PointF(0.5f, 0.5f), PointF(1.0f, 1.0f))
+        val defaultCurvePoints : Array<FloatPoint> = arrayOf(FloatPoint(0.0f, 0.0f), FloatPoint(0.5f, 0.5f), FloatPoint(1.0f, 1.0f))
         rgbCompositeControlPoints = defaultCurvePoints
         redControlPoints = defaultCurvePoints
         greenControlPoints = defaultCurvePoints
@@ -102,14 +102,14 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
             val version : Short = readShort(input);
             val totalCurves : Short = readShort(input);
 
-            val curves : ArrayList<Array<PointF>> = ArrayList(totalCurves.toInt());
+            val curves : ArrayList<Array<FloatPoint>> = ArrayList(totalCurves.toInt());
             val pointRate : Float = 1.0f / 255f;
 
             for (i in 0 until totalCurves){
                 // 2 bytes, Count of points in the curve (short integer from 2...19)
                 val pointCount : Short = readShort(input);
 
-                val points : Array<PointF> = Array(pointCount.toInt()){ PointF() }
+                val points : Array<FloatPoint> = Array(pointCount.toInt()){ FloatPoint(0.0f, 0.0f) }
 
                 // point count * 4
                 // Curve points. Each curve point is a pair of short integers where
@@ -119,7 +119,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
                     val y = readShort(input);
                     val x = readShort(input);
 
-                    points[j] = PointF(x * pointRate, y * pointRate);
+                    points[j] = FloatPoint(x * pointRate, y * pointRate);
                 }
 
                 curves.add(points);
@@ -140,25 +140,25 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         return (input.read() shl 8 or input.read()).toShort();
     }
 
-    fun setRgbCompositeControlPoints(points : Array<PointF>) {
+    fun setRgbCompositeControlPoints(points : Array<FloatPoint>) {
         rgbCompositeControlPoints = points;
         rgbCompositeCurve = createSplineCurve(rgbCompositeControlPoints)!!;
         updateToneCurveTexture();
     }
 
-    fun setRedControlPoints(points : Array<PointF>) {
+    fun setRedControlPoints(points : Array<FloatPoint>) {
         redControlPoints = points;
         redCurve = createSplineCurve(redControlPoints)!!;
         updateToneCurveTexture();
     }
 
-    fun setGreenControlPoints(points : Array<PointF>) {
+    fun setGreenControlPoints(points : Array<FloatPoint>) {
         greenControlPoints = points;
         greenCurve = createSplineCurve(greenControlPoints)!!;
         updateToneCurveTexture();
     }
 
-    fun setBlueControlPoints(points : Array<PointF>) {
+    fun setBlueControlPoints(points : Array<FloatPoint>) {
         blueControlPoints = points;
         blueCurve = createSplineCurve(blueControlPoints)!!;
         updateToneCurveTexture();
@@ -194,14 +194,14 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         }
     }
 
-    private fun createSplineCurve(points : Array<PointF>) : ArrayList<Float>? {
+    private fun createSplineCurve(points : Array<FloatPoint>) : ArrayList<Float>? {
 
-        if (points == null || points.size <= 0) {
+        if (points.isEmpty()) {
             return null;
         }
 
         // Sort the array
-        val pointsSorted : Array<PointF> = points.clone();
+        val pointsSorted : Array<FloatPoint> = points.clone();
         Arrays.sort(pointsSorted) { point1, point2->
             if (point1.x < point2.x) {
                 -1;
@@ -213,31 +213,31 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         }
 
         // Convert from (0, 1) to (0, 255).
-        val convertedPoints : Array<Point> = Array(pointsSorted.size) { Point() };
+        val convertedPoints : Array<IntPoint> = Array(pointsSorted.size) { IntPoint(0, 0) };
         for (i in points.indices){
             val point = pointsSorted[i];
-            convertedPoints[i] = Point((point.x * 255).toInt(),(point.y * 255).toInt());
+            convertedPoints[i] = IntPoint((point.x * 255).toInt(),(point.y * 255).toInt());
         }
 
-        val splinePoints : ArrayList<Point> = createSplineCurve2(convertedPoints) ?: return null;
+        val splinePoints : ArrayList<IntPoint> = createSplineCurve2(convertedPoints) ?: return null;
 
         // If we have a first point like (0.3, 0) we'll be missing some points at the beginning
         // that should be 0.
-        val firstSplinePoint : Point = splinePoints.get(0);
+        val firstSplinePoint : IntPoint = splinePoints.get(0);
         if (firstSplinePoint.x > 0) {
             var i = firstSplinePoint.x
             while(i >= 0){
-                splinePoints.add(0, Point(i, 0));
+                splinePoints.add(0, IntPoint(i, 0));
                 i--
             }
         }
 
         // Insert points similarly at the end, if necessary.
-        val lastSplinePoint : Point = splinePoints.get(splinePoints.size - 1);
+        val lastSplinePoint : IntPoint = splinePoints.get(splinePoints.size - 1);
         if (lastSplinePoint.x < 255) {
             var i = lastSplinePoint.x + 1
             while(i <= 255){
-                splinePoints.add(Point(i, 255));
+                splinePoints.add(IntPoint(i, 255));
                 i++
             }
         }
@@ -245,7 +245,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         // Prepare the spline points.
         val preparedSplinePoints : ArrayList<Float> = ArrayList<Float>(splinePoints.size);
         for (newPoint in splinePoints) {
-            val origPoint = Point(newPoint.x, newPoint.x);
+            val origPoint = IntPoint(newPoint.x, newPoint.x);
 
             var distance = sqrt(((origPoint.x - newPoint.x).toDouble()).pow(2.0) + ((origPoint.y - newPoint.y).toDouble()).pow(2.0)).toFloat();
 
@@ -259,7 +259,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         return preparedSplinePoints;
     }
 
-    private fun createSplineCurve2(points : Array<Point>) : ArrayList<Point>? {
+    private fun createSplineCurve2(points : Array<IntPoint>) : ArrayList<IntPoint>? {
         val sdA : ArrayList<Double> = createSecondDerivative(points) ?: return null;
 
         // Is [points count] equal to [sdA count]?
@@ -276,7 +276,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         }
 
 
-        val output : ArrayList<Point> = ArrayList<Point>(n + 1);
+        val output : ArrayList<IntPoint> = ArrayList<IntPoint>(n + 1);
 
         for (i in 0 until (n - 1)) {
             val cur = points[i];
@@ -296,7 +296,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
                     y = 0.0;
                 }
 
-                output.add( Point(x, Math.round(y).toInt()));
+                output.add( IntPoint(x, Math.round(y).toInt()));
             }
         }
 
@@ -307,7 +307,7 @@ public class GPUImageToneCurveFilter() : GPUImageFilter(NO_FILTER_VERTEX_SHADER,
         return output;
     }
 
-    private fun createSecondDerivative(points : Array<Point>) : ArrayList<Double>? {
+    private fun createSecondDerivative(points : Array<IntPoint>) : ArrayList<Double>? {
         val n = points.size;
         if (n <= 1) {
             return null;

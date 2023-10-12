@@ -16,15 +16,15 @@
 
 package jp.co.cyberagent.android.gpuimage.filter;
 
-import android.graphics.PointF;
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 
 public class GPUImageBulgeDistortionFilter(
     private var radius: Float,
     private var scale: Float,
-    private var center: PointF
+    private var center: FloatPoint
 ) : GPUImageFilter(NO_FILTER_VERTEX_SHADER, BULGE_FRAGMENT_SHADER) {
     companion object {
         const val BULGE_FRAGMENT_SHADER: String = "" +
@@ -85,7 +85,7 @@ public class GPUImageBulgeDistortionFilter(
             _aspectRatioLocation = value
         }
 
-    constructor() : this(0.25f, 0.5f, PointF(0.5f, 0.5f))
+    constructor() : this(0.25f, 0.5f, FloatPoint(0.5f, 0.5f))
 
     override fun onInit() {
         super.onInit();
@@ -139,7 +139,7 @@ public class GPUImageBulgeDistortionFilter(
      *
      * @param center default (0.5, 0.5)
      */
-    public fun setCenter(center: PointF) {
+    public fun setCenter(center: FloatPoint) {
         this.center = center;
         if(_centerLocation != null) setPoint(centerLocation, center.x, center.y);
     }

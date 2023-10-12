@@ -16,10 +16,10 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.PointF
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 
 /**
  * Performs a vignetting effect, fading out the image at the edges
@@ -80,14 +80,14 @@ class GPUImageVignetteFilter : GPUImageFilter {
             _vignetteEndLocation = value
         }
 
-    private var vignetteCenter: PointF
+    private var vignetteCenter: FloatPoint
     private var vignetteColor: FloatArray
     private var vignetteStart: Float
     private var vignetteEnd: Float
 
-    constructor() : this(PointF(), floatArrayOf(0.0f, 0.0f, 0.0f), 0.3f, 0.75f)
+    constructor() : this(FloatPoint(0.0f, 0.0f), floatArrayOf(0.0f, 0.0f, 0.0f), 0.3f, 0.75f)
 
-    constructor(vignetteCenter: PointF, vignetteColor: FloatArray, vignetteStart: Float, vignetteEnd: Float) : super(
+    constructor(vignetteCenter: FloatPoint, vignetteColor: FloatArray, vignetteStart: Float, vignetteEnd: Float) : super(
         NO_FILTER_VERTEX_SHADER,
         VIGNETTING_FRAGMENT_SHADER
     ) {
@@ -113,7 +113,7 @@ class GPUImageVignetteFilter : GPUImageFilter {
         setVignetteEnd(vignetteEnd)
     }
 
-    fun setVignetteCenter(vignetteCenter: PointF) {
+    fun setVignetteCenter(vignetteCenter : FloatPoint) {
         this.vignetteCenter = vignetteCenter
         if(_vignetteCenterLocation != null) {
             setPoint(vignetteCenterLocation, this.vignetteCenter.x, this.vignetteCenter.y)

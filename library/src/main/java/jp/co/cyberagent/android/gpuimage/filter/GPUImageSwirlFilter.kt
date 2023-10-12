@@ -16,10 +16,10 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.PointF
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 
 /**
  * Creates a swirl distortion on the image.
@@ -57,7 +57,7 @@ class GPUImageSwirlFilter : GPUImageFilter {
 
     private var angle: Float
     private var radius: Float
-    private var center: PointF
+    private var center: FloatPoint
 
     private var _angleLocation: UniformLocation? = null
     private var _radiusLocation: UniformLocation? = null
@@ -79,9 +79,9 @@ class GPUImageSwirlFilter : GPUImageFilter {
             _centerLocation = value
         }
 
-    constructor() : this(0.5f, 1.0f, PointF(0.5f, 0.5f))
+    constructor() : this(0.5f, 1.0f, FloatPoint(0.5f, 0.5f))
 
-    constructor(radius: Float, angle: Float, center: PointF) : super(NO_FILTER_VERTEX_SHADER, SWIRL_FRAGMENT_SHADER) {
+    constructor(radius: Float, angle: Float, center: FloatPoint) : super(NO_FILTER_VERTEX_SHADER, SWIRL_FRAGMENT_SHADER) {
         this.radius = radius
         this.angle = angle
         this.center = center
@@ -130,7 +130,7 @@ class GPUImageSwirlFilter : GPUImageFilter {
      *
      * @param center default (0.5, 0.5)
      */
-    fun setCenter(center: PointF) {
+    fun setCenter(center: FloatPoint) {
         this.center = center
         if(_centerLocation != null) {
             setPoint(centerLocation, center.x, center.y)

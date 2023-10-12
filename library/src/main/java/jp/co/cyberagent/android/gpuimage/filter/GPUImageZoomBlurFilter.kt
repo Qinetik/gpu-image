@@ -1,9 +1,9 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.PointF
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 
 class GPUImageZoomBlurFilter : GPUImageFilter {
     companion object {
@@ -35,7 +35,7 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
     }
 
 
-    private var blurCenter: PointF
+    private var blurCenter: FloatPoint
     private var blurSize: Float
 
     private var _blurCenterLocation: UniformLocation? = null
@@ -53,9 +53,9 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
             _blurSizeLocation = value
         }
 
-    constructor() : this(PointF(0.5f, 0.5f), 1.0f)
+    constructor() : this(FloatPoint(0.5f, 0.5f), 1.0f)
 
-    constructor(blurCenter: PointF, blurSize: Float) : super(
+    constructor(blurCenter: FloatPoint, blurSize: Float) : super(
         NO_FILTER_VERTEX_SHADER,
         ZOOM_BLUR_FRAGMENT_SHADER
     ) {
@@ -75,7 +75,7 @@ class GPUImageZoomBlurFilter : GPUImageFilter {
         setBlurSize(blurSize)
     }
 
-    fun setBlurCenter(blurCenter: PointF) {
+    fun setBlurCenter(blurCenter: FloatPoint) {
         this.blurCenter = blurCenter
         if(_blurCenterLocation != null) {
             setPoint(blurCenterLocation, blurCenter.x, blurCenter.y)

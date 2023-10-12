@@ -17,7 +17,6 @@
 package jp.co.cyberagent.android.gpuimage.filter
 
 import com.danielgergely.kgl.*
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
 import org.qinetik.gpuimage.utils.Rotation

@@ -24,6 +24,7 @@ import android.opengl.Matrix
 import com.danielgergely.kgl.BitmapTextureAsset
 import jp.co.cyberagent.android.gpuimage.filter.*
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 import java.util.*
 
 object GPUImageFilterTools {
@@ -175,7 +176,7 @@ object GPUImageFilterTools {
             )
 
             FilterType.VIGNETTE -> GPUImageVignetteFilter(
-                PointF(0.5f, 0.5f),
+                FloatPoint(0.5f, 0.5f),
                 floatArrayOf(0.0f, 0.0f, 0.0f),
                 0.3f,
                 0.75f

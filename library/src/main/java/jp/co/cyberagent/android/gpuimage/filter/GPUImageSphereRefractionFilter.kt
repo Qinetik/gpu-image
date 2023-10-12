@@ -16,10 +16,10 @@
 
 package jp.co.cyberagent.android.gpuimage.filter
 
-import android.graphics.PointF
 import com.danielgergely.kgl.UniformLocation
 import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.filter.GPUImageFilter
+import org.qinetik.gpuimage.utils.FloatPoint
 
 class GPUImageSphereRefractionFilter : GPUImageFilter {
     companion object {
@@ -76,15 +76,15 @@ class GPUImageSphereRefractionFilter : GPUImageFilter {
             _refractiveIndexLocation = value
         }
 
-    private var center: PointF
+    private var center: FloatPoint
     private var radius: Float
     private var aspectRatio: Float = 0.0f
     private var refractiveIndex: Float
 
 
-    constructor() : this(PointF(0.5f, 0.5f), 0.25f, 0.71f)
+    constructor() : this(FloatPoint(0.5f, 0.5f), 0.25f, 0.71f)
 
-    constructor(center: PointF, radius: Float, refractiveIndex: Float) : super(
+    constructor(center: FloatPoint, radius: Float, refractiveIndex: Float) : super(
         NO_FILTER_VERTEX_SHADER,
         SPHERE_FRAGMENT_SHADER
     ) {
@@ -139,7 +139,7 @@ class GPUImageSphereRefractionFilter : GPUImageFilter {
      *
      * @param center default (0.5, 0.5)
      */
-    fun setCenter(center: PointF) {
+    fun setCenter(center: FloatPoint) {
         this.center = center
         if(_centerLocation != null) {
             setPoint(centerLocation, center.x, center.y)
