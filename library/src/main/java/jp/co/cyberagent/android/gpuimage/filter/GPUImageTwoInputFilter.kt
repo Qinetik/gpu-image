@@ -43,7 +43,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
 
     private var filterSecondTextureCoordinateAttribute: UniformLocation? = null
     private var filterInputTextureUniform2: UniformLocation? = null
-    private var filterSourceTexture2: Int = OpenGlUtils.NO_TEXTURE
+    private var filterSourceTexture2: Texture? = null
     private lateinit var texture2CoordinatesBuffer: FloatBuffer
     private var bitmap: TextureAsset? = null
 
@@ -77,7 +77,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
         }
         this.bitmap = asset
         runOnDraw {
-            if (filterSourceTexture2 == OpenGlUtils.NO_TEXTURE) {
+            if (filterSourceTexture2 == null) {
                 if (!asset.isValid()) {
                     return@runOnDraw
                 }
@@ -100,8 +100,10 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
 
     override fun onDestroy() {
         super.onDestroy()
-        Kgl.deleteTexture(filterSourceTexture2)
-        filterSourceTexture2 = OpenGlUtils.NO_TEXTURE
+        filterSourceTexture2?.let {
+            Kgl.deleteTexture(it)
+            filterSourceTexture2 = null
+        }
     }
 
     private fun glVertexAttribPointer(
