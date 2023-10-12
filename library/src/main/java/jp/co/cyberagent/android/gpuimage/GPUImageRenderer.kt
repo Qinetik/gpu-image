@@ -25,6 +25,7 @@ import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import com.danielgergely.kgl.BitmapTextureAsset
+import com.danielgergely.kgl.Texture
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -38,6 +39,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
+import org.qinetik.gpuimage.Kgl
 import org.qinetik.gpuimage.utils.OpenGlUtils.CUBE
 import org.qinetik.gpuimage.utils.TextureRotationUtil
 import org.qinetik.gpuimage.utils.TextureRotationUtil.TEXTURE_NO_ROTATION
@@ -53,7 +55,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
 
     public val surfaceChangedWaiter: Object = Object();
 
-    private var glTextureId: Int = NO_IMAGE
+    private var glTextureId: Texture? = null
     private var surfaceTexture: SurfaceTexture? = null;
     private val glCubeBuffer: FloatBuffer
     private val glTextureBuffer: FloatBuffer
@@ -196,8 +198,10 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
 
     public fun deleteImage() {
         runOnDraw {
-            GLES20.glDeleteTextures(1, intArrayOf(glTextureId), 0);
-            glTextureId = NO_IMAGE;
+            glTextureId?.let {
+                Kgl.deleteTexture(it)
+                glTextureId = null;
+            }
         }
     }
 
@@ -222,7 +226,7 @@ class GPUImageRenderer : GLSurfaceView.Renderer, GLTextureView.Renderer, Preview
                 addedPadding = 0;
             }
 
-            glTextureId = OpenGlUtils.loadTexture(BitmapTextureAsset(resizedBitmap ?: bitmap), glTextureId);
+            glTextureId = org.qinetik.gpuimage.utils.OpenGlUtils.loadTexture(BitmapTextureAsset(resizedBitmap ?: bitmap), glTextureId);
             if(recycle){
                 (resizedBitmap ?: bitmap).recycle()
             } else {

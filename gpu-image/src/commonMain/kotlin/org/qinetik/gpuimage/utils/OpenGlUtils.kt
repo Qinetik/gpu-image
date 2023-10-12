@@ -72,4 +72,22 @@ object OpenGlUtils {
         return iProgId
     }
 
+    public fun loadTexture(asset : TextureAsset, usedTexId : Texture?) : Texture {
+        val textures : Texture?
+        if (usedTexId == null) {
+            textures = Kgl.createTexture()
+            Kgl.bindTexture(GL_TEXTURE_2D, textures);
+            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            Kgl.texImage2D(GL_TEXTURE_2D, 0, -1, 0, asset)
+        } else {
+            Kgl.bindTexture(GL_TEXTURE_2D, usedTexId);
+            Kgl.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, -1, -1, -1, -1, asset)
+            textures = usedTexId;
+        }
+        return textures;
+    }
+
 }

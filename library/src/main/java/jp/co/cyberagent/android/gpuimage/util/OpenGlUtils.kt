@@ -23,6 +23,7 @@ import android.opengl.GLES20;
 import android.util.Log;
 import com.danielgergely.kgl.*
 import org.qinetik.gpuimage.Kgl
+import org.qinetik.gpuimage.utils.OpenGlUtils
 
 import java.nio.IntBuffer;
 
@@ -30,27 +31,9 @@ public object OpenGlUtils {
 
     public const val NO_TEXTURE : Int = -1;
 
-    public fun loadTexture(asset : TextureAsset, usedTexId : Texture?) : Texture {
-        val textures : Texture?
-        if (usedTexId == null || usedTexId == NO_TEXTURE) {
-            textures = Kgl.createTexture()
-            Kgl.bindTexture(GL_TEXTURE_2D, textures);
-            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            Kgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            Kgl.texImage2D(GL_TEXTURE_2D, 0, -1, 0, asset)
-        } else {
-            Kgl.bindTexture(GL_TEXTURE_2D, usedTexId);
-            Kgl.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, -1, -1, -1, -1, asset)
-            textures = usedTexId;
-        }
-        return textures;
-    }
-
-    public fun loadTexture(data : IntBuffer, width : Int, height : Int, usedTexId : Int) : Int {
+    public fun loadTexture(data : IntBuffer, width : Int, height : Int, usedTexId : Texture?) : Int {
         val textures : IntArray = IntArray(1)
-        if (usedTexId == NO_TEXTURE) {
+        if (usedTexId == null || usedTexId == NO_TEXTURE) {
             GLES20.glGenTextures(1, textures, 0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
@@ -75,7 +58,7 @@ public object OpenGlUtils {
     public fun loadTextureAsBitmap(data : IntBuffer, size : Size, usedTexId : Texture?) : Int {
          val bitmap : Bitmap = Bitmap
                 .createBitmap(data.array(), size.width, size.height, Config.ARGB_8888);
-        val result = loadTexture(BitmapTextureAsset(bitmap), usedTexId);
+        val result = OpenGlUtils.loadTexture(BitmapTextureAsset(bitmap), usedTexId);
         bitmap.recycle()
         return result
     }

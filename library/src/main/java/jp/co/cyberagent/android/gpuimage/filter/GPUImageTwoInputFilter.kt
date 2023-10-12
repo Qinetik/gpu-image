@@ -87,7 +87,7 @@ open class GPUImageTwoInputFilter : GPUImageFilter {
                     return@runOnDraw
                 }
                 Kgl.activeTexture(GL_TEXTURE3)
-                filterSourceTexture2 = OpenGlUtils.loadTexture(asset, null)
+                filterSourceTexture2 = org.qinetik.gpuimage.utils.OpenGlUtils.loadTexture(asset, null)
             }
         }
     }
